@@ -234,6 +234,16 @@ echo "     Done."
 log_section "Step 5/7: Setting up R-Panel"
 echo "5/7 Setting up R-Panel..."
 
+# Add swap space if needed
+if [ $(swapon --show | wc -l) -eq 0 ]; then
+    echo " - Creating 4GB swap file for build process..."
+    fallocate -l 4G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=4096
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    echo " - Swap file created and enabled"
+fi
+
 mkdir -p /data/rpanel/{source,ssh,applications,databases,backups,services}
 mkdir -p /data/rpanel/ssh/{keys,mux}
 
