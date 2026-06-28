@@ -182,6 +182,27 @@ fi
 
 echo "     Done."
 
+# Initialize Docker Swarm for application deployments
+log_section "Step 2.5/7: Initializing Docker Swarm"
+echo "2.5/7 Initializing Docker Swarm..."
+
+if ! docker info | grep -q "Swarm: active"; then
+    echo " - Initializing Docker Swarm..."
+    docker swarm init || echo " - Docker Swarm already initialized or failed"
+else
+    echo " - Docker Swarm is already initialized."
+fi
+
+# Create dokploy-network as overlay network for Swarm
+echo " - Creating dokploy-network overlay network..."
+if ! docker network ls | grep -q dokploy-network; then
+    docker network create --driver overlay dokploy-network || echo " - Network may already exist"
+else
+    echo " - dokploy-network already exists."
+fi
+
+echo "     Done."
+
 log_section "Step 3/7: Installing Node.js and pnpm"
 echo "3/7 Installing Node.js and pnpm..."
 
