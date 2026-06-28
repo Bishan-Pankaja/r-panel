@@ -101,13 +101,13 @@ echo "---------------------------------------------"
 echo ""
 
 log_section "Step 1/7: Installing required packages"
-echo "1/7 Installing required packages (curl, wget, git, jq, openssl)..."
+echo "1/7 Installing required packages (curl, wget, git, jq, openssl, build-essential)..."
 
 # Track if apt-get update was run to avoid redundant calls later
 APT_UPDATED=false
 
 all_packages_installed() {
-    for pkg in curl wget git jq openssl; do
+    for pkg in curl wget git jq openssl make g++; do
         if ! command -v "$pkg" >/dev/null 2>&1; then
             return 1
         fi
@@ -121,21 +121,21 @@ if all_packages_installed; then
 else
     case "$OS_TYPE" in
     arch)
-        pacman -Sy --noconfirm --needed curl wget git jq openssl >/dev/null || true
+        pacman -Sy --noconfirm --needed curl wget git jq openssl base-devel >/dev/null || true
         ;;
     alpine | postmarketos)
         sed -i '/^#.*\/community/s/^#//' /etc/apk/repositories
         apk update >/dev/null
-        apk add curl wget git jq openssl >/dev/null
+        apk add curl wget git jq openssl build-base >/dev/null
         ;;
     ubuntu | debian | raspbian)
         apt-get update -y >/dev/null
         APT_UPDATED=true
-        apt-get install -y curl wget git jq openssl >/dev/null
+        apt-get install -y curl wget git jq openssl build-essential >/dev/null
         ;;
     centos | fedora | rhel | ol | rocky | almalinux | amzn)
         if [ "$OS_TYPE" = "amzn" ]; then
-            dnf install -y wget git jq openssl >/dev/null
+            dnf install -y wget git jq openssl gcc make >/dev/null
         else
             if ! command -v dnf >/dev/null; then
                 yum install -y dnf >/dev/null
@@ -143,12 +143,12 @@ else
             if ! command -v curl >/dev/null; then
                 dnf install -y curl >/dev/null
             fi
-            dnf install -y wget git jq openssl >/dev/null
+            dnf install -y wget git jq openssl gcc make >/dev/null
         fi
         ;;
     sles | opensuse-leap | opensuse-tumbleweed)
         zypper refresh >/dev/null
-        zypper install -y curl wget git jq openssl >/dev/null
+        zypper install -y curl wget git jq openssl gcc make >/dev/null
         ;;
     *)
         echo "This script only supports Debian, Redhat, Arch Linux, or SLES based operating systems for now."
