@@ -251,6 +251,11 @@ echo " - Cloning R-Panel repository..."
 if [ -d ".git" ]; then
     echo " - Repository already exists, pulling latest changes..."
     git pull
+elif [ "$(ls -A .)" ]; then
+    echo " - Directory exists but is not a git repository. Removing and cloning fresh..."
+    rm -rf ./*
+    rm -rf .[!.]* .??*
+    git clone https://github.com/Bishan-Pankaja/r-panel.git .
 else
     git clone https://github.com/Bishan-Pankaja/r-panel.git .
 fi
