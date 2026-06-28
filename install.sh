@@ -291,7 +291,7 @@ else
         # Create basic .env file
         POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=')
         cat > "$ENV_FILE" <<EOL
-# Database Configuration
+# Database Configuration (Docker Compose - use 'postgres' hostname)
 DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/rpanel
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
