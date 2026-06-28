@@ -289,9 +289,11 @@ else
         cp .env.example "$ENV_FILE"
     else
         # Create basic .env file
+        POSTGRES_PASSWORD=$(openssl rand -base64 32 | tr -d '/+=')
         cat > "$ENV_FILE" <<EOL
 # Database Configuration
-DATABASE_URL=postgresql://postgres:$(openssl rand -base64 32)@localhost:5432/rpanel
+DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/rpanel
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
 # Application Configuration
 APP_ID=$(openssl rand -hex 16)
@@ -384,10 +386,18 @@ echo "     Done."
 log_section "Step 7/7: Building and starting R-Panel"
 echo "7/7 Building and starting R-Panel..."
 
-# Build application
-echo " - Building application..."
-export NODE_OPTIONS="--max-old-space-size=8192"
-pnpm build
+# Build application using Docker
+echo " - Building R-Panel Docker image..."
+docker build -t rpanel:latest . || {
+    echo " - Docker build failed, trying alternative build method..."
+    export NODE_OPTIONS="--max-old-space-size=8192"
+    pnpm build || {
+        echo " - Build failed. Your VPS may not have enough RAM."
+        echo " - Minimum 4GB RAM recommended for building from source."
+        echo " - Consider using a pre-built Docker image or upgrading your VPS."
+        exit 1
+    }
+}
 
 # Start application with Docker
 echo " - Starting R-Panel with Docker..."
