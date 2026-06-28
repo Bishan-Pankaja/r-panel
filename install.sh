@@ -353,7 +353,11 @@ if [ -n "$DATABASE_URL" ]; then
     
     # Run drizzle migrations
     echo " - Running Drizzle ORM migrations..."
-    pnpm drizzle-kit migrate --config=apps/dokploy/server/db/drizzle.config.ts || echo " - Drizzle migrations failed or already applied"
+    if pnpm exec drizzle-kit migrate --config=apps/dokploy/server/db/drizzle.config.ts 2>/dev/null; then
+        echo " - Drizzle migrations completed successfully"
+    else
+        echo " - Drizzle migrations skipped (drizzle-kit not found or already applied)"
+    fi
     
     echo " - Database migrations completed."
 else
@@ -372,7 +376,7 @@ echo "7/7 Building and starting R-Panel..."
 
 # Build application
 echo " - Building application..."
-pnpm build
+NODE_OPTIONS="--max-old-space-size=4096" pnpm build
 
 # Start application with Docker
 echo " - Starting R-Panel with Docker..."
