@@ -248,6 +248,10 @@ cd /data/rpanel/source
 
 # Clone repository
 echo " - Cloning R-Panel repository..."
+
+# Fix git ownership issue
+git config --global --add safe.directory /data/rpanel/source 2>/dev/null || true
+
 if [ -d ".git" ]; then
     echo " - Repository already exists, pulling latest changes..."
     git pull
