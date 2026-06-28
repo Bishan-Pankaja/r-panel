@@ -4,11 +4,16 @@ on:
   push:
     branches: [main, canary]
 
+# Disabled for R-Panel - original Dokploy workflows
+# To enable, configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets
+# and update IMAGE_NAME to your Docker Hub repository
+
 env:
   IMAGE_NAME: dokploy/monitoring
 
 jobs:
   docker-amd:
+    if: false # Disabled for R-Panel
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -44,6 +49,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
   docker-arm:
+    if: false # Disabled for R-Panel
     runs-on: ubuntu-24.04-arm
     steps:
       - name: Checkout
@@ -80,6 +86,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
 
   combine-manifests:
+    if: false # Disabled for R-Panel
     needs: [docker-amd, docker-arm]
     runs-on: ubuntu-latest
     steps:
