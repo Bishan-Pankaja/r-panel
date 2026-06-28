@@ -376,7 +376,8 @@ echo "7/7 Building and starting R-Panel..."
 
 # Build application
 echo " - Building application..."
-NODE_OPTIONS="--max-old-space-size=4096" pnpm build
+export NODE_OPTIONS="--max-old-space-size=8192"
+pnpm build
 
 # Start application with Docker
 echo " - Starting R-Panel with Docker..."
