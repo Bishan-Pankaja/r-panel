@@ -1,20 +1,13 @@
-version: '3.8'
-
 services:
   rpanel:
+    build: .
     image: rpanel:latest
     container_name: rpanel
     restart: unless-stopped
     ports:
       - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - DATABASE_URL=${DATABASE_URL}
-      - APP_ID=${APP_ID}
-      - APP_KEY=${APP_KEY}
-      - ROOT_USERNAME=${ROOT_USERNAME}
-      - ROOT_USER_EMAIL=${ROOT_USER_EMAIL}
-      - ROOT_USER_PASSWORD=${ROOT_USER_PASSWORD}
+    env_file:
+      - /data/rpanel/source/.env
     volumes:
       - /data/rpanel/ssh:/app/ssh
       - /data/rpanel/applications:/app/applications
@@ -24,6 +17,9 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - rpanel-network
+    depends_on:
+      postgres:
+        condition: service_started
 
   postgres:
     image: postgres:16-alpine

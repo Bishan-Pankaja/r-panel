@@ -413,7 +413,7 @@ fi
 
 # Start application with Docker
 echo " - Starting R-Panel with Docker..."
-docker-compose up -d
+docker-compose -f /data/rpanel/source/docker-compose.yml up -d
 
 echo " - Waiting for R-Panel to be ready..."
 sleep 10
