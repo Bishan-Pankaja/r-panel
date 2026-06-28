@@ -295,6 +295,9 @@ else
 DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/rpanel
 POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
+# Redis Configuration (Docker Compose - use 'redis' hostname)
+REDIS_URL=redis://redis:6379
+
 # Application Configuration
 APP_ID=$(openssl rand -hex 16)
 APP_KEY=base64:$(openssl rand -base64 32)
