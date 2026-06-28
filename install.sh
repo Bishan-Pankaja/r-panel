@@ -254,7 +254,8 @@ git config --global --add safe.directory /data/rpanel/source 2>/dev/null || true
 
 if [ -d ".git" ]; then
     echo " - Repository already exists, pulling latest changes..."
-    git pull
+    git config pull.rebase true
+    git pull || (echo " - Pull failed, resetting to remote..." && git fetch origin && git reset --hard origin/main)
 elif [ "$(ls -A .)" ]; then
     echo " - Directory exists but is not a git repository. Removing and cloning fresh..."
     rm -rf ./*
