@@ -386,18 +386,30 @@ echo "     Done."
 log_section "Step 7/7: Building and starting R-Panel"
 echo "7/7 Building and starting R-Panel..."
 
-# Build application using Docker
-echo " - Building R-Panel Docker image..."
-docker build -t rpanel:latest . || {
-    echo " - Docker build failed, trying alternative build method..."
-    export NODE_OPTIONS="--max-old-space-size=8192"
-    pnpm build || {
-        echo " - Build failed. Your VPS may not have enough RAM."
-        echo " - Minimum 4GB RAM recommended for building from source."
-        echo " - Consider using a pre-built Docker image or upgrading your VPS."
+# Check available RAM
+TOTAL_RAM=$(free -m | awk '/Mem:/ {print $2}')
+echo " - Available RAM: ${TOTAL_RAM}MB"
+
+if [ "$TOTAL_RAM" -lt 4096 ]; then
+    echo " - WARNING: Less than 4GB RAM detected. Build may fail."
+    echo " - Using pre-built Dokploy image instead of building from source..."
+    echo " - Pulling dokploy/dokploy:latest image..."
+    docker pull dokploy/dokploy:latest || {
+        echo " - Failed to pull pre-built image."
+        echo " - Your VPS has only ${TOTAL_RAM}MB RAM, which is insufficient for building."
+        echo " - Please upgrade to a VPS with at least 4GB RAM or use a pre-built image."
         exit 1
     }
-}
+    docker tag dokploy/dokploy:latest rpanel:latest
+else
+    # Build application using Docker
+    echo " - Building R-Panel Docker image..."
+    docker build -t rpanel:latest . || {
+        echo " - Docker build failed."
+        echo " - Your VPS may not have enough RAM for building."
+        exit 1
+    }
+fi
 
 # Start application with Docker
 echo " - Starting R-Panel with Docker..."
