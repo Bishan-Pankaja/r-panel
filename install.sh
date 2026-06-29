@@ -196,7 +196,7 @@ fi
 # Create dokploy-network as overlay network for Swarm
 echo " - Creating dokploy-network overlay network..."
 if ! docker network ls | grep -q dokploy-network; then
-    docker network create --driver overlay dokploy-network || echo " - Network may already exist"
+    docker network create --driver overlay --attachable dokploy-network || echo " - Network may already exist"
 else
     echo " - dokploy-network already exists."
 fi
