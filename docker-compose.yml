@@ -9,9 +9,6 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=rpanel-network"
       - "--providers.docker.swarmMode=true"
-      - "--providers.swarm.exposedbydefault=false"
-      - "--providers.swarm.network=dokploy-network"
-      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
     ports:
