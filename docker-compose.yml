@@ -1,4 +1,26 @@
 services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.network=dokploy-network"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - dokploy-network
+      - rpanel-network
+
   rpanel:
     build: .
     image: rpanel:latest
@@ -17,10 +39,13 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - rpanel-network
+      - dokploy-network
     depends_on:
       postgres:
         condition: service_started
       redis:
+        condition: service_started
+      traefik:
         condition: service_started
 
   postgres:
@@ -46,6 +71,8 @@ services:
 networks:
   rpanel-network:
     driver: bridge
+  dokploy-network:
+    external: true
 
 volumes:
   rpanel-postgres-data:
