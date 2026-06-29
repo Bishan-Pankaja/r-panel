@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v3.0
+    image: traefik:v2.10
     container_name: traefik
     restart: unless-stopped
     command:
@@ -8,7 +8,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=rpanel-network"
-      - "--providers.swarm=true"
+      - "--providers.docker.swarmMode=true"
       - "--providers.swarm.exposedbydefault=false"
       - "--providers.swarm.network=dokploy-network"
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
