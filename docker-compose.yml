@@ -72,7 +72,8 @@ networks:
   rpanel-network:
     driver: bridge
   dokploy-network:
-    external: true
+    driver: overlay
+    attachable: true
 
 volumes:
   rpanel-postgres-data:
