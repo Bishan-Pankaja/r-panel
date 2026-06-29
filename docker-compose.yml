@@ -7,7 +7,6 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.swarmMode=true"
-      - "--providers.docker.network=dokploy-network"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
@@ -18,7 +17,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - dokploy-network
       - rpanel-network
 
   rpanel:
@@ -39,7 +37,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - rpanel-network
-      - dokploy-network
     depends_on:
       postgres:
         condition: service_started
@@ -71,9 +68,6 @@ services:
 networks:
   rpanel-network:
     driver: bridge
-  dokploy-network:
-    driver: overlay
-    attachable: true
 
 volumes:
   rpanel-postgres-data:
