@@ -6,8 +6,8 @@ services:
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
-      - "--providers.docker.swarmMode=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=rpanel-network"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
     ports:
