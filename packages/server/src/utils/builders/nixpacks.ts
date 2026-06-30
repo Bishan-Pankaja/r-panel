@@ -5,7 +5,7 @@ import { prepareEnvironmentVariablesForShell } from "../docker/utils";
 import { getBuildAppDirectory } from "../filesystem/directory";
 import type { ApplicationNested } from ".";
 
-const CUSTOM_CONFIG_NAMES = ["rpanel.toml", "regz.toml", "deploy.toml"];
+const CUSTOM_CONFIG_NAMES = ["regz.toml", "rpanel.toml", "deploy.toml"];
 
 export const getNixpacksCommand = (application: ApplicationNested) => {
 	const { env, appName, publishDirectory, cleanCache } = application;
@@ -37,66 +37,172 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 	const nixpacksConfigPath = path.join(buildAppDirectory, "nixpacks.toml");
 	const customConfigChecks = CUSTOM_CONFIG_NAMES.map(
 		(name) =>
-			`[ -f "$BUILD_DIR/${name}" ] && [ ! -f "$CONFIG_FILE" ] && { echo "📄 Detected custom config: ${name}"; cp "$BUILD_DIR/${name}" "$CONFIG_FILE"; CONFIG_FILE="$CONFIG_FILE"; }`,
+			`[ -f "$BUILD_DIR/${name}" ] && [ ! -f "$CONFIG_FILE" ] && { echo "📄 Detected custom config: ${name}"; cp "$BUILD_DIR/${name}" "$CONFIG_FILE"; }`,
 	).join("\n");
 
-	// Smart auto-detection script: removes Bun/Deno triggers, detects project type,
-	// and configures Nixpacks accordingly. Respects existing nixpacks.toml with providers.
+	// Comprehensive project detection script for ALL Nixpacks-supported languages.
+	// Detection files match Nixpacks v1.41+ provider detection logic exactly.
+	// Bun/Deno trigger files are removed first to prevent auto-detection issues.
+	// Custom config filenames (regz.toml, rpanel.toml, deploy.toml) are supported.
 	const bashDetectionScript = `
-# === Nixpacks Smart Configuration ===
+# === Nixpacks Smart Configuration — All Languages ===
 BUILD_DIR="${buildAppDirectory}"
 CONFIG_FILE="${nixpacksConfigPath}"
 
-# Remove Bun/Deno/Supabase trigger files that confuse Nixpacks auto-detection (safe for all)
-rm -f "$BUILD_DIR/bun.lockb" "$BUILD_DIR/bun.lock" "$BUILD_DIR/deno.json" "$BUILD_DIR/deno.jsonc"
-rm -rf "$BUILD_DIR/supabase/functions" "$BUILD_DIR/.supabase"
+remove_bun_deno_triggers() {
+	rm -f "$BUILD_DIR/bun.lockb" "$BUILD_DIR/bun.lock" "$BUILD_DIR/deno.json" "$BUILD_DIR/deno.jsonc"
+	rm -rf "$BUILD_DIR/supabase/functions" "$BUILD_DIR/.supabase"
+}
 
-# Check for custom config filenames (e.g., regz.toml, rpanel.toml)
-${customConfigChecks}
+set_providers() {
+	local providers="$1"
+	if [ -f "$CONFIG_FILE" ]; then
+		echo "providers = [$providers]" > /tmp/nixpacks.toml.tmp
+		cat "$CONFIG_FILE" 2>/dev/null | grep -v '^providers' >> /tmp/nixpacks.toml.tmp || true
+		mv /tmp/nixpacks.toml.tmp "$CONFIG_FILE"
+	else
+		echo "providers = [$providers]" > "$CONFIG_FILE"
+	fi
+}
 
-# If config already has providers configured, respect it entirely
-if [ -f "$CONFIG_FILE" ] && grep -q '^providers' "$CONFIG_FILE" 2>/dev/null; then
-	echo "✅ Respecting existing provider configuration in $(basename "$CONFIG_FILE")"
-
-elif [ -f "$BUILD_DIR/package.json" ]; then
-	echo "🔍 Detected Node.js project"
-	# Force Node.js provider to prevent Bun/Deno auto-detection
-	{ echo 'providers = ["node"]'; cat "$CONFIG_FILE" 2>/dev/null | grep -v '^providers' || true; } > /tmp/nixpacks.toml.tmp
-	mv /tmp/nixpacks.toml.tmp "$CONFIG_FILE"
+apply_node_fixes() {
+	echo "🔧 Applying Node.js runtime fixes..."
 	# Fix ./node_modules/.bin/serve path (serve may not be installed)
 	sed -i 's|\\./node_modules/\\.bin/serve|npx serve|g' "$CONFIG_FILE"
 	# Hardcode port 3000 (PORT env may not be available at runtime)
 	sed -i 's|-l \\$PORT|-l 3000|g' "$CONFIG_FILE"
-	echo "✅ Node.js project configured"
+	echo "✅ Node.js runtime fixes applied"
+}
 
-elif [ -f "$BUILD_DIR/requirements.txt" ] || [ -f "$BUILD_DIR/setup.py" ] || [ -f "$BUILD_DIR/Pipfile" ] || [ -f "$BUILD_DIR/pyproject.toml" ]; then
-	echo "🐍 Detected Python project"
-	if [ ! -f "$CONFIG_FILE" ]; then
-		echo 'providers = ["python"]' > "$CONFIG_FILE"
+# Step 1: Remove Bun/Deno trigger files (safe for all project types)
+remove_bun_deno_triggers
+
+# Step 2: Check for custom config filenames (e.g., regz.toml, rpanel.toml)
+${customConfigChecks}
+
+# Step 3: If config already has providers configured, respect it entirely
+if [ -f "$CONFIG_FILE" ] && grep -q '^providers' "$CONFIG_FILE" 2>/dev/null; then
+	echo "✅ Respecting existing provider configuration in $(basename "$CONFIG_FILE")"
+	EXISTING_PROVIDER=$(grep '^providers' "$CONFIG_FILE" 2>/dev/null | grep -o '"[^"]*"' | head -1 | tr -d '"')
+	if [ "$EXISTING_PROVIDER" = "node" ]; then
+		apply_node_fixes
 	fi
-	echo "✅ Python project configured"
 
-elif [ -f "$BUILD_DIR/composer.json" ]; then
-	echo "🐘 Detected PHP project"
-	if [ ! -f "$CONFIG_FILE" ]; then
-		echo 'providers = ["php"]' > "$CONFIG_FILE"
-	fi
-	echo "✅ PHP project configured"
+# Step 4: Auto-detect project type
+# Order: most specific first, common frameworks last
 
-elif [ -f "$BUILD_DIR/go.mod" ]; then
+# --- Clojure ---
+elif [ -f "$BUILD_DIR/project.clj" ] || [ -f "$BUILD_DIR/build.clj" ]; then
+	echo "🍄 Detected Clojure project"
+	set_providers '"clojure"'
+
+# --- COBOL ---
+elif ls "$BUILD_DIR"/*.cbl 1>/dev/null 2>&1; then
+	echo "⚙️  Detected COBOL project"
+	set_providers '"cobol"'
+
+# --- Crystal ---
+elif [ -f "$BUILD_DIR/shard.yml" ]; then
+	echo "💎 Detected Crystal project"
+	set_providers '"crystal"'
+
+# --- C# ---
+elif ls "$BUILD_DIR"/*.csproj 1>/dev/null 2>&1; then
+	echo "🔷 Detected C# (.NET) project"
+	set_providers '"csharp"'
+
+# --- Dart ---
+elif [ -f "$BUILD_DIR/pubspec.yaml" ]; then
+	echo "🎯 Detected Dart project"
+	set_providers '"dart"'
+
+# --- Elixir ---
+elif [ -f "$BUILD_DIR/mix.exs" ]; then
+	echo "💧 Detected Elixir project"
+	set_providers '"elixir"'
+
+# --- F# ---
+elif ls "$BUILD_DIR"/*.fsproj 1>/dev/null 2>&1; then
+	echo "🔶 Detected F# (.NET) project"
+	set_providers '"fsharp"'
+
+# --- Gleam ---
+elif [ -f "$BUILD_DIR/gleam.toml" ] && [ -f "$BUILD_DIR/manifest.toml" ]; then
+	echo "🌟 Detected Gleam project"
+	set_providers '"gleam"'
+
+# --- Go ---
+elif [ -f "$BUILD_DIR/go.mod" ] || [ -f "$BUILD_DIR/main.go" ]; then
 	echo "🔵 Detected Go project"
-	if [ ! -f "$CONFIG_FILE" ]; then
-		echo 'providers = ["go"]' > "$CONFIG_FILE"
-	fi
-	echo "✅ Go project configured"
+	set_providers '"go"'
 
+# --- Haskell ---
+elif [ -f "$BUILD_DIR/package.yaml" ] && ls "$BUILD_DIR"/*.hs 1>/dev/null 2>&1; then
+	echo "λ Detected Haskell project"
+	set_providers '"haskell"'
+
+# --- Java ---
+elif [ -f "$BUILD_DIR/pom.xml" ] || [ -f "$BUILD_DIR/gradlew" ]; then
+	echo "☕ Detected Java project"
+	set_providers '"java"'
+
+# --- Lunatic (Rust + lunatic runner) ---
+elif [ -f "$BUILD_DIR/Cargo.toml" ] && [ -f "$BUILD_DIR/.cargo/config.toml" ] && grep -q 'runner.*=.*"lunatic"' "$BUILD_DIR/.cargo/config.toml" 2>/dev/null; then
+	echo "🌙 Detected Lunatic project"
+	set_providers '"lunatic"'
+
+# --- Node.js ---
+elif [ -f "$BUILD_DIR/package.json" ]; then
+	echo "🔍 Detected Node.js project"
+	set_providers '"node"'
+	apply_node_fixes
+
+# --- PHP ---
+elif [ -f "$BUILD_DIR/composer.json" ] || [ -f "$BUILD_DIR/index.php" ]; then
+	echo "🐘 Detected PHP project"
+	set_providers '"php"'
+
+# --- Python ---
+elif [ -f "$BUILD_DIR/requirements.txt" ] || [ -f "$BUILD_DIR/setup.py" ] || [ -f "$BUILD_DIR/Pipfile" ] || [ -f "$BUILD_DIR/pyproject.toml" ] || [ -f "$BUILD_DIR/main.py" ]; then
+	echo "🐍 Detected Python project"
+	set_providers '"python"'
+
+# --- Ruby ---
+elif [ -f "$BUILD_DIR/Gemfile" ]; then
+	echo "💎 Detected Ruby project"
+	set_providers '"ruby"'
+
+# --- Rust ---
 elif [ -f "$BUILD_DIR/Cargo.toml" ]; then
 	echo "🦀 Detected Rust project"
-	if [ ! -f "$CONFIG_FILE" ]; then
-		echo 'providers = ["rust"]' > "$CONFIG_FILE"
-	fi
-	echo "✅ Rust project configured"
+	set_providers '"rust"'
 
+# --- Scala ---
+elif [ -f "$BUILD_DIR/build.sbt" ]; then
+	echo "🔆 Detected Scala project"
+	set_providers '"scala"'
+
+# --- Scheme ---
+elif [ -f "$BUILD_DIR/haunt.scm" ]; then
+	echo "λ Detected Scheme project"
+	set_providers '"scheme"'
+
+# --- Staticfile ---
+elif [ -f "$BUILD_DIR/Staticfile" ] || [ -d "$BUILD_DIR/public" ] || [ -f "$BUILD_DIR/index.html" ]; then
+	echo "📄 Detected Staticfile project"
+	set_providers '"staticfile"'
+
+# --- Swift ---
+elif [ -f "$BUILD_DIR/Package.swift" ]; then
+	echo "🐦 Detected Swift project"
+	set_providers '"swift"'
+
+# --- Zig ---
+elif ls "$BUILD_DIR"/*.zig 1>/dev/null 2>&1; then
+	echo "⚡ Detected Zig project"
+	set_providers '"zig"'
+
+# --- No specific project type detected ---
 else
 	echo "ℹ️  No specific project type detected - letting Nixpacks auto-detect"
 fi
