@@ -10,4 +10,4 @@ cmd = "php -r 'copy(\"https://getcomposer.org/installer\", \"composer-setup.php\
 cmd = "composer dump-autoload -o"
 
 [start]
-cmd = "php -S 0.0.0.0:3000 -t public"
+cmd = "php -S 0.0.0.0:3000 -t ."
