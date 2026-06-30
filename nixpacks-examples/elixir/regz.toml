@@ -3,11 +3,11 @@ providers = ["elixir"]
 [phases.setup]
 nixPkgs = ["beam", "elixir"]
 
-[phases.install]
-cmds = ["mix local.hex --force", "mix deps.get"]
+[install]
+cmd = "mix local.hex --force && mix deps.get"
 
-[phases.build]
-cmds = ["mix release"]
+[build]
+cmd = "mix release"
 
-[phases.start]
+[start]
 cmd = "_build/prod/rel/app/bin/app start"

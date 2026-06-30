@@ -3,11 +3,11 @@ providers = ["scala"]
 [phases.setup]
 nixPkgs = ["sbt"]
 
-[phases.install]
-cmds = ["sbt update"]
+[install]
+cmd = "sbt update"
 
-[phases.build]
-cmds = ["sbt dist"]
+[build]
+cmd = "sbt dist"
 
-[phases.start]
+[start]
 cmd = "sbt run"

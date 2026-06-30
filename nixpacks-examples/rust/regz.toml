@@ -3,8 +3,8 @@ providers = ["rust"]
 [phases.setup]
 nixPkgs = ["rustc", "cargo"]
 
-[phases.build]
-cmds = ["cargo build --release"]
+[build]
+cmd = "cargo build --release"
 
-[phases.start]
+[start]
 cmd = "./target/release/app"

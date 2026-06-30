@@ -3,5 +3,5 @@ providers = ["staticfile"]
 [phases.setup]
 nixPkgs = ["nginx"]
 
-[phases.start]
+[start]
 cmd = "nginx -g 'daemon off;'"

@@ -3,11 +3,11 @@ providers = ["java"]
 [phases.setup]
 nixPkgs = ["jdk21", "maven"]
 
-[phases.install]
-cmds = ["mvn dependency:resolve"]
+[install]
+cmd = "mvn dependency:resolve"
 
-[phases.build]
-cmds = ["mvn package -DskipTests"]
+[build]
+cmd = "mvn package -DskipTests"
 
-[phases.start]
+[start]
 cmd = "java -jar target/app.jar"

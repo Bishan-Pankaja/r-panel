@@ -3,11 +3,11 @@ providers = ["fsharp"]
 [phases.setup]
 nixPkgs = ["dotnet-sdk_8"]
 
-[phases.install]
-cmds = ["dotnet restore"]
+[install]
+cmd = "dotnet restore"
 
-[phases.build]
-cmds = ["dotnet publish -c Release -o out"]
+[build]
+cmd = "dotnet publish -c Release -o out"
 
-[phases.start]
+[start]
 cmd = "dotnet out/app.dll"

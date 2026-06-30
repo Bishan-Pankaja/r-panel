@@ -3,11 +3,11 @@ providers = ["node"]
 [phases.setup]
 nixPkgs = ["nodejs_20"]
 
-[phases.install]
-cmds = ["npm ci"]
+[install]
+cmd = "npm ci"
 
-[phases.build]
-cmds = ["npm run build"]
+[build]
+cmd = "npm run build"
 
-[phases.start]
-cmd = "npm start"
+[start]
+cmd = "./node_modules/.bin/serve -s dist -l $PORT"

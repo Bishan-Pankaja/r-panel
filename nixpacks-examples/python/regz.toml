@@ -3,8 +3,8 @@ providers = ["python"]
 [phases.setup]
 nixPkgs = ["python311", "poetry"]
 
-[phases.install]
-cmds = ["poetry install --only main"]
+[install]
+cmd = "poetry install --only main"
 
-[phases.start]
+[start]
 cmd = "poetry run gunicorn -w 4 -b 0.0.0.0:8000 app:app"

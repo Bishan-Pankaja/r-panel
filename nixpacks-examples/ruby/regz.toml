@@ -3,11 +3,11 @@ providers = ["ruby"]
 [phases.setup]
 nixPkgs = ["ruby_3_3"]
 
-[phases.install]
-cmds = ["bundle install --deployment"]
+[install]
+cmd = "bundle install --deployment"
 
-[phases.build]
-cmds = ["bundle exec rake assets:precompile"]
+[build]
+cmd = "bundle exec rake assets:precompile"
 
-[phases.start]
+[start]
 cmd = "bundle exec puma -b tcp://0.0.0.0:3000"

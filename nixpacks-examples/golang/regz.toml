@@ -3,11 +3,11 @@ providers = ["go"]
 [phases.setup]
 nixPkgs = ["go_1_22"]
 
-[phases.install]
-cmds = ["go mod download"]
+[install]
+cmd = "go mod download"
 
-[phases.build]
-cmds = ["go build -o app ."]
+[build]
+cmd = "go build -o app ."
 
-[phases.start]
+[start]
 cmd = "./app"

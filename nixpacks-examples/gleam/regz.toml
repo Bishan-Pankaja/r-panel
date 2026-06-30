@@ -3,11 +3,11 @@ providers = ["gleam"]
 [phases.setup]
 nixPkgs = ["gleam", "erlang"]
 
-[phases.install]
-cmds = ["gleam deps download"]
+[install]
+cmd = "gleam deps download"
 
-[phases.build]
-cmds = ["gleam build"]
+[build]
+cmd = "gleam build"
 
-[phases.start]
+[start]
 cmd = "gleam run"

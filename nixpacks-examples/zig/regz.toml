@@ -3,8 +3,8 @@ providers = ["zig"]
 [phases.setup]
 nixPkgs = ["zig"]
 
-[phases.build]
-cmds = ["zig build-exe src/main.zig --name app"]
+[build]
+cmd = "zig build-exe src/main.zig --name app"
 
-[phases.start]
+[start]
 cmd = "./app"

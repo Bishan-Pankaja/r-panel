@@ -3,8 +3,8 @@ providers = ["scheme"]
 [phases.setup]
 nixPkgs = ["guile"]
 
-[phases.build]
-cmds = ["guild compile -o app main.scm"]
+[build]
+cmd = "guild compile -o app main.scm"
 
-[phases.start]
+[start]
 cmd = "guile main.scm"

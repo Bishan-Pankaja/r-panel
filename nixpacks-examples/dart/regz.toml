@@ -3,11 +3,11 @@ providers = ["dart"]
 [phases.setup]
 nixPkgs = ["dart"]
 
-[phases.install]
-cmds = ["dart pub get"]
+[install]
+cmd = "dart pub get"
 
-[phases.build]
-cmds = ["dart compile exe bin/app.dart -o app"]
+[build]
+cmd = "dart compile exe bin/app.dart -o app"
 
-[phases.start]
+[start]
 cmd = "./app"
