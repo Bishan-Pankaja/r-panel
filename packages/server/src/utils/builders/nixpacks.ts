@@ -5,6 +5,8 @@ import { prepareEnvironmentVariablesForShell } from "../docker/utils";
 import { getBuildAppDirectory } from "../filesystem/directory";
 import type { ApplicationNested } from ".";
 
+const CUSTOM_CONFIG_NAMES = ["rpanel.toml", "regz.toml", "deploy.toml"];
+
 export const getNixpacksCommand = (application: ApplicationNested) => {
 	const { env, appName, publishDirectory, cleanCache } = application;
 
@@ -32,26 +34,77 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 	}
 	const command = `nixpacks ${args.join(" ")}`;
 
-	// Set up providers: respect existing nixpacks.toml, otherwise default to node.
-	// Also remove Bun/Deno trigger files to prevent unwanted auto-detection.
 	const nixpacksConfigPath = path.join(buildAppDirectory, "nixpacks.toml");
-	const providersBashCmd = `
-rm -f "${buildAppDirectory}/bun.lockb" "${buildAppDirectory}/bun.lock" "${buildAppDirectory}/deno.json" "${buildAppDirectory}/deno.jsonc"
-rm -rf "${buildAppDirectory}/supabase/functions" "${buildAppDirectory}/.supabase"
-if grep -q '^providers' "${nixpacksConfigPath}" 2>/dev/null; then
-	echo "nixpacks.toml already has providers (respecting user config)";
+	const customConfigChecks = CUSTOM_CONFIG_NAMES.map(
+		(name) =>
+			`[ -f "$BUILD_DIR/${name}" ] && [ ! -f "$CONFIG_FILE" ] && { echo "📄 Detected custom config: ${name}"; cp "$BUILD_DIR/${name}" "$CONFIG_FILE"; CONFIG_FILE="$CONFIG_FILE"; }`,
+	).join("\n");
+
+	// Smart auto-detection script: removes Bun/Deno triggers, detects project type,
+	// and configures Nixpacks accordingly. Respects existing nixpacks.toml with providers.
+	const bashDetectionScript = `
+# === Nixpacks Smart Configuration ===
+BUILD_DIR="${buildAppDirectory}"
+CONFIG_FILE="${nixpacksConfigPath}"
+
+# Remove Bun/Deno/Supabase trigger files that confuse Nixpacks auto-detection (safe for all)
+rm -f "$BUILD_DIR/bun.lockb" "$BUILD_DIR/bun.lock" "$BUILD_DIR/deno.json" "$BUILD_DIR/deno.jsonc"
+rm -rf "$BUILD_DIR/supabase/functions" "$BUILD_DIR/.supabase"
+
+# Check for custom config filenames (e.g., regz.toml, rpanel.toml)
+${customConfigChecks}
+
+# If config already has providers configured, respect it entirely
+if [ -f "$CONFIG_FILE" ] && grep -q '^providers' "$CONFIG_FILE" 2>/dev/null; then
+	echo "✅ Respecting existing provider configuration in $(basename "$CONFIG_FILE")"
+
+elif [ -f "$BUILD_DIR/package.json" ]; then
+	echo "🔍 Detected Node.js project"
+	# Force Node.js provider to prevent Bun/Deno auto-detection
+	{ echo 'providers = ["node"]'; cat "$CONFIG_FILE" 2>/dev/null | grep -v '^providers' || true; } > /tmp/nixpacks.toml.tmp
+	mv /tmp/nixpacks.toml.tmp "$CONFIG_FILE"
+	# Fix ./node_modules/.bin/serve path (serve may not be installed)
+	sed -i 's|\\./node_modules/\\.bin/serve|npx serve|g' "$CONFIG_FILE"
+	# Hardcode port 3000 (PORT env may not be available at runtime)
+	sed -i 's|-l \\$PORT|-l 3000|g' "$CONFIG_FILE"
+	echo "✅ Node.js project configured"
+
+elif [ -f "$BUILD_DIR/requirements.txt" ] || [ -f "$BUILD_DIR/setup.py" ] || [ -f "$BUILD_DIR/Pipfile" ] || [ -f "$BUILD_DIR/pyproject.toml" ]; then
+	echo "🐍 Detected Python project"
+	if [ ! -f "$CONFIG_FILE" ]; then
+		echo 'providers = ["python"]' > "$CONFIG_FILE"
+	fi
+	echo "✅ Python project configured"
+
+elif [ -f "$BUILD_DIR/composer.json" ]; then
+	echo "🐘 Detected PHP project"
+	if [ ! -f "$CONFIG_FILE" ]; then
+		echo 'providers = ["php"]' > "$CONFIG_FILE"
+	fi
+	echo "✅ PHP project configured"
+
+elif [ -f "$BUILD_DIR/go.mod" ]; then
+	echo "🔵 Detected Go project"
+	if [ ! -f "$CONFIG_FILE" ]; then
+		echo 'providers = ["go"]' > "$CONFIG_FILE"
+	fi
+	echo "✅ Go project configured"
+
+elif [ -f "$BUILD_DIR/Cargo.toml" ]; then
+	echo "🦀 Detected Rust project"
+	if [ ! -f "$CONFIG_FILE" ]; then
+		echo 'providers = ["rust"]' > "$CONFIG_FILE"
+	fi
+	echo "✅ Rust project configured"
+
 else
-	{ echo 'providers = ["node"]'; cat "${nixpacksConfigPath}" 2>/dev/null || true; } > /tmp/nixpacks.toml.tmp
-	mv /tmp/nixpacks.toml.tmp "${nixpacksConfigPath}"
-	# Node-specific: replace serve binary + hardcode port
-	sed -i 's|\\./node_modules/\\.bin/serve|npx serve|g' "${nixpacksConfigPath}"
-	sed -i 's|-l $PORT|-l 3000|g' "${nixpacksConfigPath}"
+	echo "ℹ️  No specific project type detected - letting Nixpacks auto-detect"
 fi
 `;
 
 	let bashCommand = `
 		echo "Starting nixpacks build..." ;
-		${providersBashCmd}
+		${bashDetectionScript}
 		${command} || {
 			echo "❌ Nixpacks build failed" ;
 			exit 1;
