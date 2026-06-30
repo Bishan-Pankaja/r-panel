@@ -33,9 +33,10 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 	const command = `nixpacks ${args.join(" ")}`;
 
 	// Force Node.js provider to prevent Bun/Deno auto-detection (runs at bash level, after clone)
+	// First removes any existing providers line, then prepends providers = ["node"]
 	const nixpacksConfigPath = path.join(buildAppDirectory, "nixpacks.toml");
 	const providersBashCmd =
-		`{ echo 'providers = ["node"]'; cat "${nixpacksConfigPath}" 2>/dev/null || true; } > /tmp/nixpacks.toml && mv /tmp/nixpacks.toml "${nixpacksConfigPath}"`;
+		`sed -i '/^providers[[:space:]]*=/d' "${nixpacksConfigPath}" 2>/dev/null; printf '%s\\n' 'providers = ["node"]' | cat - "${nixpacksConfigPath}" 2>/dev/null > /tmp/nixpacks.toml && mv /tmp/nixpacks.toml "${nixpacksConfigPath}"`;
 
 	let bashCommand = `
 		echo "Starting nixpacks build..." ;
