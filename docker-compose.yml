@@ -3,23 +3,13 @@ services:
     image: traefik:v3.6.7
     container_name: dokploy-traefik
     restart: unless-stopped
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--providers.docker.network=rpanel-network"
-      - "--providers.swarm=true"
-      - "--providers.swarm.exposedbydefault=false"
-      - "--providers.file.directory=/etc/dokploy/traefik/dynamic"
-      - "--providers.file.watch=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - /etc/dokploy/traefik/traefik.yml:/etc/traefik/traefik.yml
       - /etc/dokploy/traefik/dynamic:/etc/dokploy/traefik/dynamic
     networks:
       - rpanel-network
