@@ -42,6 +42,8 @@ rm -rf "${buildAppDirectory}/supabase/functions" "${buildAppDirectory}/.supabase
 mv /tmp/nixpacks.toml.tmp "${nixpacksConfigPath}"
 # Replace ./node_modules/.bin/serve with npx serve (serve may not be in deps)
 sed -i 's|\./node_modules/\.bin/serve|npx serve|g' "${nixpacksConfigPath}"
+# Hardcode port 3000 instead of $PORT (PORT env is not set at runtime)
+sed -i 's|-l $PORT|-l 3000|g' "${nixpacksConfigPath}"
 `;
 
 	let bashCommand = `
