@@ -32,18 +32,21 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 	}
 	const command = `nixpacks ${args.join(" ")}`;
 
-	// Force Node.js provider to prevent Bun/Deno auto-detection (runs at bash level, after clone)
-	// Remove Bun/Deno trigger files, then ensure providers = ["node"] at top of nixpacks.toml
+	// Set up providers: respect existing nixpacks.toml, otherwise default to node.
+	// Also remove Bun/Deno trigger files to prevent unwanted auto-detection.
 	const nixpacksConfigPath = path.join(buildAppDirectory, "nixpacks.toml");
 	const providersBashCmd = `
 rm -f "${buildAppDirectory}/bun.lockb" "${buildAppDirectory}/bun.lock" "${buildAppDirectory}/deno.json" "${buildAppDirectory}/deno.jsonc"
 rm -rf "${buildAppDirectory}/supabase/functions" "${buildAppDirectory}/.supabase"
-{ echo 'providers = ["node"]'; cat "${nixpacksConfigPath}" 2>/dev/null | grep -v '^providers' || true; } > /tmp/nixpacks.toml.tmp
-mv /tmp/nixpacks.toml.tmp "${nixpacksConfigPath}"
-# Replace ./node_modules/.bin/serve with npx serve (serve may not be in deps)
-sed -i 's|\./node_modules/\.bin/serve|npx serve|g' "${nixpacksConfigPath}"
-# Hardcode port 3000 instead of $PORT (PORT env is not set at runtime)
-sed -i 's|-l $PORT|-l 3000|g' "${nixpacksConfigPath}"
+if grep -q '^providers' "${nixpacksConfigPath}" 2>/dev/null; then
+	echo "nixpacks.toml already has providers (respecting user config)";
+else
+	{ echo 'providers = ["node"]'; cat "${nixpacksConfigPath}" 2>/dev/null || true; } > /tmp/nixpacks.toml.tmp
+	mv /tmp/nixpacks.toml.tmp "${nixpacksConfigPath}"
+	# Node-specific: replace serve binary + hardcode port
+	sed -i 's|\\./node_modules/\\.bin/serve|npx serve|g' "${nixpacksConfigPath}"
+	sed -i 's|-l $PORT|-l 3000|g' "${nixpacksConfigPath}"
+fi
 `;
 
 	let bashCommand = `
