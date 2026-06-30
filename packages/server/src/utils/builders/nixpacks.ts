@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import path from "node:path";
 import { getStaticCommand } from "@dokploy/server/utils/builders/static";
 import { nanoid } from "nanoid";
@@ -10,19 +9,6 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 	const { env, appName, publishDirectory, cleanCache } = application;
 
 	const buildAppDirectory = getBuildAppDirectory(application);
-
-	// Force Node.js provider in nixpacks to prevent Bun/Deno auto-detection
-	const nixpacksTomlPath = path.join(buildAppDirectory, "nixpacks.toml");
-	const nixpacksOverride = 'providers = ["node"]\n\n';
-	if (fs.existsSync(nixpacksTomlPath)) {
-		const existing = fs.readFileSync(nixpacksTomlPath, "utf-8");
-		if (!existing.startsWith("providers")) {
-			fs.writeFileSync(nixpacksTomlPath, nixpacksOverride + existing);
-		}
-	} else {
-		fs.writeFileSync(nixpacksTomlPath, nixpacksOverride);
-	}
-
 	const buildContainerId = `${appName}-${nanoid(10)}`;
 	const envVariables = prepareEnvironmentVariablesForShell(
 		env,
@@ -45,8 +31,15 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 		args.push("--no-error-without-start");
 	}
 	const command = `nixpacks ${args.join(" ")}`;
+
+	// Force Node.js provider to prevent Bun/Deno auto-detection (runs at bash level, after clone)
+	const nixpacksConfigPath = path.join(buildAppDirectory, "nixpacks.toml");
+	const providersBashCmd =
+		`{ echo 'providers = ["node"]'; cat "${nixpacksConfigPath}" 2>/dev/null || true; } > /tmp/nixpacks.toml && mv /tmp/nixpacks.toml "${nixpacksConfigPath}"`;
+
 	let bashCommand = `
 		echo "Starting nixpacks build..." ;
+		${providersBashCmd} ;
 		${command} || {
 			echo "❌ Nixpacks build failed" ;
 			exit 1;
