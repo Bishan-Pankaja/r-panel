@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import path from "node:path";
 import { getStaticCommand } from "@dokploy/server/utils/builders/static";
 import { nanoid } from "nanoid";
@@ -9,6 +10,19 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 	const { env, appName, publishDirectory, cleanCache } = application;
 
 	const buildAppDirectory = getBuildAppDirectory(application);
+
+	// Force Node.js provider in nixpacks to prevent Bun/Deno auto-detection
+	const nixpacksTomlPath = path.join(buildAppDirectory, "nixpacks.toml");
+	const nixpacksOverride = 'providers = ["node"]\n\n';
+	if (fs.existsSync(nixpacksTomlPath)) {
+		const existing = fs.readFileSync(nixpacksTomlPath, "utf-8");
+		if (!existing.startsWith("providers")) {
+			fs.writeFileSync(nixpacksTomlPath, nixpacksOverride + existing);
+		}
+	} else {
+		fs.writeFileSync(nixpacksTomlPath, nixpacksOverride);
+	}
+
 	const buildContainerId = `${appName}-${nanoid(10)}`;
 	const envVariables = prepareEnvironmentVariablesForShell(
 		env,
