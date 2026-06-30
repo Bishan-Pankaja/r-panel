@@ -1,6 +1,6 @@
 import { IS_CLOUD, isAdminPresent, validateRequest } from "@dokploy/server";
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
-import { AlertTriangle, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -26,7 +26,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
-import { cn } from "@/lib/utils";
 
 const registerSchema = z
 	.object({
@@ -83,8 +82,6 @@ const Register = ({ isCloud }: Props) => {
 	const [isError, setIsError] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [data, setData] = useState<any>(null);
-	const [showPassword, setShowPassword] = useState(false);
-	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 	const form = useForm<Register>({
 		defaultValues: {
@@ -124,156 +121,178 @@ const Register = ({ isCloud }: Props) => {
 		}
 	};
 	return (
-		<div className="glass rounded-2xl p-8">
-			<div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
-				<Logo
-					className="size-6"
-					logoUrl={
-						whitelabeling?.loginLogoUrl ||
-						whitelabeling?.logoUrl ||
-						undefined
-					}
-				/>
-			</div>
-			<h1 className="text-2xl font-display font-bold text-center mb-1">
-				{isCloud ? "Create Account" : "Setup the server"}
-			</h1>
-			<p className="text-xs text-muted-foreground text-center mb-6">
-				Enter your details to {isCloud ? "create an account" : "setup the server"}
-			</p>
-			
-			{isError && (
-				<div className="my-2 flex flex-row items-center gap-2 rounded-lg bg-red-50 p-2 dark:bg-red-950">
-					<AlertTriangle className="text-red-600 dark:text-red-400" size={14} />
-					<span className="text-sm text-red-600 dark:text-red-400">
-						{error}
-					</span>
-				</div>
-			)}
-			{isCloud && data && (
-				<AlertBlock type="success" className="my-2">
-					<span>
-						Registered successfully, please check your inbox or spam
-						folder to confirm your account.
-					</span>
-				</AlertBlock>
-			)}
-			
-			{isCloud && (
-				<div className="grid grid-cols-2 gap-3 mb-4">
-					<SignInWithGithub className="w-full" />
-					<SignInWithGoogle className="w-full" />
-				</div>
-			)}
-			{isCloud && (
-				<p className="mb-4 text-center text-xs text-muted-foreground">
-					Or register with email
-				</p>
-			)}
-			
-			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-4"
-				>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">First Name</label>
-						<div className="relative">
-							<User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input 
-								placeholder="John" 
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("name")} 
-							/>
-						</div>
-					</div>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Last Name</label>
-						<div className="relative">
-							<User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input 
-								placeholder="Doe" 
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("lastName")} 
-							/>
-						</div>
-					</div>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Email</label>
-						<div className="relative">
-							<Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input 
-								placeholder="your@email.com" 
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("email")} 
-							/>
-						</div>
-					</div>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Password</label>
-						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input
-								type={showPassword ? "text" : "password"}
-								placeholder="••••••••"
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-10 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("password")}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowPassword(!showPassword)}
-								className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							>
-								{showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-							</button>
-						</div>
-					</div>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Confirm Password</label>
-						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input
-								type={showConfirmPassword ? "text" : "password"}
-								placeholder="••••••••"
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-10 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("confirmPassword")}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-								className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							>
-								{showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-							</button>
-						</div>
-					</div>
+		<div className="">
+			<div className="flex  w-full items-center justify-center ">
+				<div className="flex flex-col items-center gap-6 w-full">
+					<CardTitle className="text-3xl font-bold flex  items-center gap-3 text-amber-900">
+						<Link href="/" className="flex flex-row items-center gap-3">
+							<div className="relative">
+								<Logo
+									className="size-14"
+									logoUrl={
+										whitelabeling?.loginLogoUrl ||
+										whitelabeling?.logoUrl ||
+										undefined
+									}
+								/>
+								<div className="absolute inset-0 bg-amber-400 blur-2xl opacity-30 rounded-full" />
+							</div>
+						</Link>
+						<span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+							{isCloud ? "Welcome aboard!" : "Let's get started"}
+						</span>
+					</CardTitle>
+					<CardDescription className="text-amber-700 text-base">
+						{isCloud ? "Join us today and start building" : "Configure your server in just a few moments"}
+					</CardDescription>
+					<div className="mx-auto w-full max-w-lg bg-transparent">
+						{isError && (
+							<div className="my-2 flex flex-row items-center gap-2 rounded-lg bg-rose-100 border border-rose-200 p-3">
+								<AlertTriangle className="text-rose-600" />
+								<span className="text-sm text-rose-700 font-medium">
+									{error}
+								</span>
+							</div>
+						)}
+						{isCloud && data && (
+							<AlertBlock type="success" className="my-2 border-emerald-200 bg-emerald-50 text-emerald-800">
+								<span className="font-medium">
+									✨ Almost there! Check your inbox to confirm your account
+								</span>
+							</AlertBlock>
+						)}
+						<CardContent className="p-0">
+							{isCloud && (
+								<div className="flex flex-col gap-3 mb-6">
+									<SignInWithGithub />
+									<SignInWithGoogle />
+								</div>
+							)}
+							{isCloud && (
+								<div className="relative mb-6">
+									<div className="absolute inset-0 flex items-center">
+										<span className="w-full border-t border-amber-200" />
+									</div>
+									<div className="relative flex justify-center text-xs uppercase">
+										<span className="bg-white px-2 text-amber-600 font-semibold">or continue with email</span>
+									</div>
+								</div>
+							)}
+							<Form {...form}>
+								<form
+									onSubmit={form.handleSubmit(onSubmit)}
+									className="grid gap-4"
+								>
+									<div className="space-y-4">
+										<FormField
+											control={form.control}
+											name="name"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>First Name</FormLabel>
+													<FormControl>
+														<Input placeholder="John" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="lastName"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Last Name</FormLabel>
+													<FormControl>
+														<Input placeholder="Doe" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="email"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Email</FormLabel>
+													<FormControl>
+														<Input placeholder="email@hpanel.regz.lk" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="password"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Password</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="Password"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
-					<Button
-						type="submit"
-						isLoading={form.formState.isSubmitting}
-						className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium text-sm hover:shadow-[0_0_30px_hsl(var(--glow-primary))] hover:scale-[1.02] transition-all"
-					>
-						{isCloud ? "Create Account" : "Setup Server"}
-					</Button>
-				</form>
-			</Form>
-			
-			<div className="flex flex-row justify-center gap-4 mt-5">
-				{isCloud && (
-					<Link
-						className="text-xs text-muted-foreground hover:text-primary transition-colors"
-						href="/"
-					>
-						Already have an account? Sign in
-					</Link>
-				)}
-				<Link
-					className="text-xs text-muted-foreground hover:text-primary transition-colors"
-					href="https://hpanel.regz.lk"
-					target="_blank"
-				>
-					Need help?
-				</Link>
+										<FormField
+											control={form.control}
+											name="confirmPassword"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Confirm Password</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="Password"
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<Button
+											type="submit"
+											isLoading={form.formState.isSubmitting}
+											className="w-full"
+										>
+											Register
+										</Button>
+									</div>
+								</form>
+							</Form>
+							<div className="flex flex-row justify-between flex-wrap">
+								{isCloud && (
+									<div className="mt-4 text-center text-sm flex gap-2 text-muted-foreground">
+										Already have account?
+										<Link className="underline" href="/">
+											Sign in
+										</Link>
+									</div>
+								)}
+
+								<div className="mt-4 text-center text-sm flex flex-row justify-center gap-2  text-muted-foreground">
+									Need help?
+									<Link
+										className="underline"
+										href="https://hpanel.regz.lk"
+										target="_blank"
+									>
+										Contact us
+									</Link>
+								</div>
+							</div>
+						</CardContent>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

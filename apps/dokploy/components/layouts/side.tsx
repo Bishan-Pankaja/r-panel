@@ -31,7 +31,6 @@ import {
 	Rocket,
 	Server,
 	ShieldCheck,
-	ShoppingCart,
 	Star,
 	Tags,
 	Trash2,
@@ -103,7 +102,6 @@ type EnabledOpts = {
 	auth?: AuthQueryOutput;
 	permissions?: PermissionsOutput;
 	isCloud: boolean;
-	hasActiveSubscription?: boolean;
 };
 
 type SingleNavItem = {
@@ -138,11 +136,10 @@ type ExternalLink = {
 };
 
 // Menu type
-// Consists of home, settings, admin, and help items
+// Consists of home, settings, and help items
 type Menu = {
 	home: NavItem[];
 	settings: NavItem[];
-	admin: NavItem[];
 	help: ExternalLink[];
 };
 
@@ -160,35 +157,16 @@ const MENU: Menu = {
 		},
 		{
 			isSingle: true,
-			title: "Buy",
-			url: "/dashboard/buy",
-			icon: ShoppingCart,
-		},
-		{
-			isSingle: true,
 			title: "Projects",
 			url: "/dashboard/projects",
 			icon: Folder,
-			// Enabled for owner, admin, hobby, startup (with active subscription)
-			isEnabled: ({ auth, hasActiveSubscription }) => {
-				const role = auth?.role;
-				if (role === "owner" || role === "admin") return true;
-				if (role === "hobby" || role === "startup") return hasActiveSubscription;
-				return false;
-			},
 		},
 		{
 			isSingle: true,
 			title: "Deployments",
 			url: "/dashboard/deployments",
 			icon: Rocket,
-			// Enabled for owner, admin, hobby, startup (with active subscription)
-			isEnabled: ({ auth, hasActiveSubscription, permissions }) => {
-				const role = auth?.role;
-				if (role === "owner" || role === "admin") return !!permissions?.deployment.read;
-				if (role === "hobby" || role === "startup") return hasActiveSubscription && !!permissions?.deployment.read;
-				return false;
-			},
+			isEnabled: ({ permissions }) => !!permissions?.deployment.read,
 		},
 		{
 			isSingle: true,
@@ -204,52 +182,31 @@ const MENU: Menu = {
 			title: "Schedules",
 			url: "/dashboard/schedules",
 			icon: Clock,
-			// Enabled for owner, admin, hobby, startup (with active subscription)
-			isEnabled: ({ auth, hasActiveSubscription, permissions }) => {
-				const role = auth?.role;
-				if (role === "owner" || role === "admin") return !!permissions?.organization.update;
-				if (role === "hobby" || role === "startup") return hasActiveSubscription && !!permissions?.organization.update;
-				return false;
-			},
+			isEnabled: ({ permissions }) => !!permissions?.organization.update,
 		},
 		{
 			isSingle: true,
 			title: "Traefik File System",
 			url: "/dashboard/traefik",
 			icon: GalleryVerticalEnd,
-			// Enabled for owner, admin, hobby, startup (with active subscription)
-			isEnabled: ({ auth, hasActiveSubscription, permissions }) => {
-				const role = auth?.role;
-				if (role === "owner" || role === "admin") return !!permissions?.traefikFiles.read;
-				if (role === "hobby" || role === "startup") return hasActiveSubscription && !!permissions?.traefikFiles.read;
-				return false;
-			},
+			// Only enabled for users with access to Traefik files
+			isEnabled: ({ permissions }) => !!permissions?.traefikFiles.read,
 		},
 		{
 			isSingle: true,
 			title: "Docker",
 			url: "/dashboard/docker",
 			icon: BlocksIcon,
-			// Enabled for owner, admin, hobby, startup (with active subscription)
-			isEnabled: ({ auth, hasActiveSubscription, permissions }) => {
-				const role = auth?.role;
-				if (role === "owner" || role === "admin") return !!permissions?.docker.read;
-				if (role === "hobby" || role === "startup") return hasActiveSubscription && !!permissions?.docker.read;
-				return false;
-			},
+			// Only enabled for users with access to Docker
+			isEnabled: ({ permissions }) => !!permissions?.docker.read,
 		},
 		{
 			isSingle: true,
 			title: "Swarm",
 			url: "/dashboard/swarm",
 			icon: PieChart,
-			// Enabled for owner, admin, hobby, startup (with active subscription)
-			isEnabled: ({ auth, hasActiveSubscription, permissions }) => {
-				const role = auth?.role;
-				if (role === "owner" || role === "admin") return !!permissions?.docker.read;
-				if (role === "hobby" || role === "startup") return hasActiveSubscription && !!permissions?.docker.read;
-				return false;
-			},
+			// Only enabled for users with access to Docker
+			isEnabled: ({ permissions }) => !!permissions?.docker.read,
 		},
 		{
 			isSingle: true,
@@ -318,97 +275,95 @@ const MENU: Menu = {
 		// },
 	],
 
-	settings: [],
-
-	admin: [
+	settings: [
 		{
 			isSingle: true,
 			title: "Web Server",
 			url: "/dashboard/settings/server",
 			icon: Activity,
 			// Only enabled for admins in non-cloud environments
-			isEnabled: ({ auth, permissions, isCloud }) =>
-				!!((auth?.role === "admin" || auth?.role === "owner") && !isCloud),
+			isEnabled: ({ permissions, isCloud }) =>
+				!!(permissions?.organization.update && !isCloud),
+		},
+		{
+			isSingle: true,
+			title: "Profile",
+			url: "/dashboard/settings/profile",
+			icon: User,
 		},
 		{
 			isSingle: true,
 			title: "Remote Servers",
 			url: "/dashboard/settings/servers",
 			icon: Server,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.server.read,
 		},
 		{
 			isSingle: true,
 			title: "Deployments",
 			url: "/dashboard/settings/deployments",
 			icon: Boxes,
-			isEnabled: ({ auth, permissions, isCloud }) =>
-				!!((auth?.role === "admin" || auth?.role === "owner") && !isCloud),
+			isEnabled: ({ permissions, isCloud }) =>
+				!!(permissions?.server.read && !isCloud),
 		},
 		{
 			isSingle: true,
 			title: "Users",
 			icon: Users,
 			url: "/dashboard/settings/users",
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			// Only enabled for users with member.read permission
+			isEnabled: ({ permissions }) => !!permissions?.member.read,
 		},
 		{
 			isSingle: true,
 			title: "Audit Logs",
 			icon: ClipboardList,
 			url: "/dashboard/settings/audit-logs",
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.auditLog.read,
 		},
 		{
 			isSingle: true,
 			title: "SSH Keys",
 			icon: KeyRound,
 			url: "/dashboard/settings/ssh-keys",
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			// Only enabled for users with access to SSH keys
+			isEnabled: ({ permissions }) => !!permissions?.sshKeys.read,
 		},
 		{
 			title: "AI",
 			icon: BotIcon,
 			url: "/dashboard/settings/ai",
 			isSingle: true,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.organization.update,
 		},
 		{
 			isSingle: true,
 			title: "Tags",
 			url: "/dashboard/settings/tags",
 			icon: Tags,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.tag.read,
 		},
 		{
 			isSingle: true,
 			title: "Git",
 			url: "/dashboard/settings/git-providers",
 			icon: GitBranch,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			// Only enabled for users with access to Git providers
+			isEnabled: ({ permissions }) => !!permissions?.gitProviders.read,
 		},
 		{
 			isSingle: true,
 			title: "Registry",
 			url: "/dashboard/settings/registry",
 			icon: Package,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.registry.read,
 		},
 		{
 			isSingle: true,
 			title: "S3 Destinations",
 			url: "/dashboard/settings/destinations",
 			icon: Database,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.destination.read,
 		},
 
 		{
@@ -416,24 +371,23 @@ const MENU: Menu = {
 			title: "Certificates",
 			url: "/dashboard/settings/certificates",
 			icon: ShieldCheck,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.certificate.read,
 		},
 		{
 			isSingle: true,
 			title: "Cluster",
 			url: "/dashboard/settings/cluster",
 			icon: Boxes,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			// Only enabled for admins
+			isEnabled: ({ permissions }) => !!permissions?.organization.update,
 		},
 		{
 			isSingle: true,
 			title: "Notifications",
 			url: "/dashboard/settings/notifications",
 			icon: Bell,
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			// Only enabled for users with access to notifications
+			isEnabled: ({ permissions }) => !!permissions?.notification.read,
 		},
 		{
 			isSingle: true,
@@ -441,8 +395,7 @@ const MENU: Menu = {
 			url: "/dashboard/settings/billing",
 			icon: CreditCard,
 			// Only enabled for owners in cloud environments
-			isEnabled: ({ auth, isCloud }) =>
-				!!(auth?.role === "owner" && isCloud),
+			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && isCloud),
 		},
 		{
 			isSingle: true,
@@ -458,8 +411,7 @@ const MENU: Menu = {
 			url: "/dashboard/settings/sso",
 			icon: LogIn,
 			// Enabled for admins in both cloud and self-hosted (enterprise)
-			isEnabled: ({ auth, permissions }) =>
-				!!(auth?.role === "admin" || auth?.role === "owner"),
+			isEnabled: ({ permissions }) => !!permissions?.organization.update,
 		},
 		{
 			isSingle: true,
@@ -467,8 +419,7 @@ const MENU: Menu = {
 			url: "/dashboard/settings/whitelabeling",
 			icon: Palette,
 			// Only enabled for owners in non-cloud environments (enterprise)
-			isEnabled: ({ auth, isCloud }) =>
-				!!(auth?.role === "owner" && !isCloud),
+			isEnabled: ({ auth, isCloud }) => !!(auth?.role === "owner" && !isCloud),
 		},
 	],
 
@@ -499,11 +450,6 @@ function createMenuForAuthUser(opts: {
 		supportUrl?: string | null;
 	} | null;
 }): Menu {
-	// Check if user has active subscription
-	const hasActiveSubscription = opts.auth?.user.subscriptionEndDate
-		? new Date(opts.auth.user.subscriptionEndDate) > new Date()
-		: false;
-
 	const filterEnabled = <
 		T extends {
 			isEnabled?: (o: EnabledOpts) => boolean;
@@ -518,7 +464,6 @@ function createMenuForAuthUser(opts: {
 						auth: opts.auth,
 						permissions: opts.permissions,
 						isCloud: opts.isCloud,
-						hasActiveSubscription,
 					}),
 		) as T[];
 
@@ -536,7 +481,6 @@ function createMenuForAuthUser(opts: {
 	return {
 		home: filterEnabled(MENU.home),
 		settings: filterEnabled(MENU.settings),
-		admin: filterEnabled(MENU.admin),
 		help: helpItems,
 	};
 }
@@ -970,7 +914,6 @@ export default function Page({ children }: Props) {
 	const {
 		home: filteredHome,
 		settings: filteredSettings,
-		admin: filteredAdmin,
 		help,
 	} = createMenuForAuthUser({
 		auth,
@@ -980,7 +923,7 @@ export default function Page({ children }: Props) {
 	});
 
 	const activeItem = findActiveNavItem(
-		[...filteredHome, ...filteredSettings, ...filteredAdmin],
+		[...filteredHome, ...filteredSettings],
 		pathname,
 	);
 
@@ -1105,97 +1048,95 @@ export default function Page({ children }: Props) {
 							})}
 						</SidebarMenu>
 					</SidebarGroup>
-					{filteredAdmin.length > 0 && (
-						<SidebarGroup>
-							<SidebarGroupLabel>Admin</SidebarGroupLabel>
-							<SidebarMenu className="gap-1">
-								{filteredAdmin.map((item) => {
-									const isSingle = item.isSingle !== false;
-									const isActive = isSingle
-										? isActiveRoute({ itemUrl: item.url, pathname })
-										: item.items.some((item) =>
-												isActiveRoute({ itemUrl: item.url, pathname }),
-											);
+					<SidebarGroup>
+						<SidebarGroupLabel>Settings</SidebarGroupLabel>
+						<SidebarMenu className="gap-1">
+							{filteredSettings.map((item) => {
+								const isSingle = item.isSingle !== false;
+								const isActive = isSingle
+									? isActiveRoute({ itemUrl: item.url, pathname })
+									: item.items.some((item) =>
+											isActiveRoute({ itemUrl: item.url, pathname }),
+										);
 
-									return (
-										<Collapsible
-											key={item.title}
-											asChild
-											defaultOpen={isActive}
-											className="group/collapsible"
-										>
-											<SidebarMenuItem>
-												{isSingle ? (
-													<SidebarMenuButton
-														asChild
-														tooltip={item.title}
-														className={cn(isActive && "bg-border")}
+								return (
+									<Collapsible
+										key={item.title}
+										asChild
+										defaultOpen={isActive}
+										className="group/collapsible"
+									>
+										<SidebarMenuItem>
+											{isSingle ? (
+												<SidebarMenuButton
+													asChild
+													tooltip={item.title}
+													className={cn(isActive && "bg-border")}
+												>
+													<Link
+														href={item.url}
+														className="flex w-full items-center gap-2"
 													>
-														<Link
-															href={item.url}
-															className="flex w-full items-center gap-2"
+														{item.icon && (
+															<item.icon
+																className={cn(isActive && "text-primary")}
+															/>
+														)}
+														<span>{item.title}</span>
+													</Link>
+												</SidebarMenuButton>
+											) : (
+												<>
+													<CollapsibleTrigger asChild>
+														<SidebarMenuButton
+															tooltip={item.title}
+															isActive={isActive}
 														>
-															{item.icon && (
-																<item.icon
-																	className={cn(isActive && "text-primary")}
-																/>
-															)}
-															<span>{item.title}</span>
-														</Link>
-													</SidebarMenuButton>
-												) : (
-													<>
-														<CollapsibleTrigger asChild>
-															<SidebarMenuButton
-																tooltip={item.title}
-																isActive={isActive}
-															>
-																{item.icon && <item.icon />}
+															{item.icon && <item.icon />}
 
-																<span>{item.title}</span>
-																{item.items?.length && (
-																	<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-																)}
-															</SidebarMenuButton>
-														</CollapsibleTrigger>
-														<CollapsibleContent>
-															<SidebarMenuSub>
-																{item.items?.map((subItem) => (
-																	<SidebarMenuSubItem key={subItem.title}>
-																		<SidebarMenuSubButton
-																			asChild
-																			className={cn(isActive && "bg-border")}
+															<span>{item.title}</span>
+															{item.items?.length && (
+																<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+															)}
+														</SidebarMenuButton>
+													</CollapsibleTrigger>
+													<CollapsibleContent>
+														<SidebarMenuSub>
+															{item.items?.map((subItem) => (
+																<SidebarMenuSubItem key={subItem.title}>
+																	<SidebarMenuSubButton
+																		asChild
+																		className={cn(isActive && "bg-border")}
+																	>
+																		<Link
+																			href={subItem.url}
+																			className="flex w-full items-center"
 																		>
-																			<Link
-																				href={subItem.url}
-																				className="flex w-full items-center"
-																			>
-																				{subItem.icon && (
-																					<span className="mr-2">
-																						<subItem.icon
-																							className={cn(
-																								"h-4 w-4 text-muted-foreground",
-																								isActive && "text-primary",
-																							)}
-																						/>
-																					</span>
-																				)}
-																				<span>{subItem.title}</span>
-																			</Link>
-																		</SidebarMenuSubButton>
-																	</SidebarMenuSubItem>
-																))}
-															</SidebarMenuSub>
-														</CollapsibleContent>
-													</>
-												)}
-											</SidebarMenuItem>
-										</Collapsible>
-									);
-								})}
-							</SidebarMenu>
-						</SidebarGroup>
-					)}
+																			{subItem.icon && (
+																				<span className="mr-2">
+																					<subItem.icon
+																						className={cn(
+																							"h-4 w-4 text-muted-foreground",
+																							isActive && "text-primary",
+																						)}
+																					/>
+																				</span>
+																			)}
+																			<span>{subItem.title}</span>
+																		</Link>
+																	</SidebarMenuSubButton>
+																</SidebarMenuSubItem>
+															))}
+														</SidebarMenuSub>
+													</CollapsibleContent>
+												</>
+											)}
+										</SidebarMenuItem>
+									</Collapsible>
+								);
+							})}
+						</SidebarMenu>
+					</SidebarGroup>
 					<SidebarGroup className="group-data-[collapsible=icon]:hidden">
 						<SidebarGroupLabel>Extra</SidebarGroupLabel>
 						<SidebarMenu>

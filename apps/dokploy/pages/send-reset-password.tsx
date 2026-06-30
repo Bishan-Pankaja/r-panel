@@ -1,6 +1,5 @@
 import { IS_CLOUD } from "@dokploy/server";
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
-import { Mail } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
-import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
 	email: z
@@ -85,63 +83,79 @@ export default function Home() {
 		setIsLoading(false);
 	};
 	return (
-		<div className="glass rounded-2xl p-8">
-			<div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
-				<Logo
-					className="size-6"
-					logoUrl={
-						whitelabeling?.loginLogoUrl || whitelabeling?.logoUrl || undefined
-					}
-				/>
-			</div>
-			<h1 className="text-2xl font-display font-bold text-center mb-1">Reset Password</h1>
-			<p className="text-xs text-muted-foreground text-center mb-6">
-				Enter your email to reset your password
-			</p>
+		<div className="flex w-full items-center justify-center ">
+			<div className="flex flex-col items-center gap-4 w-full">
+				<Link href="/" className="flex flex-row items-center gap-2">
+					<Logo
+						logoUrl={
+							whitelabeling?.loginLogoUrl || whitelabeling?.logoUrl || undefined
+						}
+					/>
+					<span className="font-medium text-sm">
+						{whitelabeling?.appName || "Dokploy"}
+					</span>
+				</Link>
+				<CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+				<CardDescription>
+					Enter your email to reset your password
+				</CardDescription>
 
-			{error && (
-				<AlertBlock type="error" className="mb-4">
-					{error}
-				</AlertBlock>
-			)}
-			
-			{!temp.is2FAEnabled ? (
-				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(onSubmit)}
-						className="space-y-4"
-					>
-						<div className="space-y-1.5">
-							<label className="text-xs text-muted-foreground">Email</label>
-							<div className="relative">
-								<Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-								<Input
-									placeholder="your@email.com"
-									maxLength={255}
-									className="w-full bg-secondary/50 rounded-xl pl-9 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-									{...form.register("email")}
-								/>
+				<div className="mx-auto w-full max-w-lg bg-transparent ">
+					<CardContent className="p-0">
+						{error && (
+							<AlertBlock type="error" className="my-2">
+								{error}
+							</AlertBlock>
+						)}
+						{!temp.is2FAEnabled ? (
+							<Form {...form}>
+								<form
+									onSubmit={form.handleSubmit(onSubmit)}
+									className="grid gap-4"
+								>
+									<div className="space-y-4">
+										<FormField
+											control={form.control}
+											name="email"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Email</FormLabel>
+													<FormControl>
+														<Input
+															placeholder="Email"
+															maxLength={255}
+															{...field}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+
+										<Button
+											type="submit"
+											isLoading={isLoading}
+											className="w-full"
+										>
+											Send Reset Link
+										</Button>
+									</div>
+								</form>
+							</Form>
+						) : null}
+
+						<div className="flex flex-row justify-between flex-wrap">
+							<div className="mt-4 text-center text-sm flex flex-row justify-center gap-2">
+								<Link
+									className="hover:underline text-muted-foreground"
+									href="/"
+								>
+									Login
+								</Link>
 							</div>
 						</div>
-
-						<Button
-							type="submit"
-							isLoading={isLoading}
-							className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium text-sm hover:shadow-[0_0_30px_hsl(var(--glow-primary))] hover:scale-[1.02] transition-all"
-						>
-							Send Reset Link
-						</Button>
-					</form>
-				</Form>
-			) : null}
-
-			<div className="flex flex-row justify-center mt-5">
-				<Link
-					className="text-xs text-muted-foreground hover:text-primary transition-colors"
-					href="/"
-				>
-					Back to login
-				</Link>
+					</CardContent>
+				</div>
 			</div>
 		</div>
 	);

@@ -3,7 +3,6 @@ import {
 	IS_CLOUD,
 	isAdminPresent,
 } from "@dokploy/server";
-import { LogIn, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { validateRequest } from "@dokploy/server/lib/auth";
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
 import { REGEXP_ONLY_DIGITS } from "input-otp";
@@ -43,7 +42,6 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { api } from "@/utils/api";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
-import { cn } from "@/lib/utils";
 
 const LoginSchema = z.object({
 	email: z.string().email(),
@@ -72,7 +70,6 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 	const [twoFactorCode, setTwoFactorCode] = useState("");
 	const [isBackupCodeModalOpen, setIsBackupCodeModalOpen] = useState(false);
 	const [backupCode, setBackupCode] = useState("");
-	const [showPassword, setShowPassword] = useState(false);
 	const loginForm = useForm<LoginForm>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
@@ -181,54 +178,47 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 
 	const loginContent = (
 		<>
-			{IS_CLOUD && (
-				<div className="grid grid-cols-2 gap-3 mb-4">
-					<SignInWithGithub className="w-full" />
-					<SignInWithGoogle className="w-full" />
-				</div>
-			)}
+			{IS_CLOUD && <SignInWithGithub />}
+			{IS_CLOUD && <SignInWithGoogle />}
 			<Form {...loginForm}>
 				<form
 					onSubmit={loginForm.handleSubmit(onSubmit)}
 					className="space-y-4"
 					id="login-form"
 				>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Email</label>
-						<div className="relative">
-							<Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input 
-								placeholder="your@email.com" 
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...loginForm.register("email")} 
-							/>
-						</div>
-					</div>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Password</label>
-						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input
-								type={showPassword ? "text" : "password"}
-								placeholder="••••••••"
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-10 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...loginForm.register("password")}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowPassword(!showPassword)}
-								className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							>
-								{showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-							</button>
-						</div>
-					</div>
-					<Button 
-						className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium text-sm hover:shadow-[0_0_30px_hsl(var(--glow-primary))] hover:scale-[1.02] transition-all" 
-						type="submit" 
-						isLoading={isLoginLoading}
-					>
-						Sign In <LogIn size={14} />
+					<FormField
+						control={loginForm.control}
+						name="email"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="font-mono text-cyan-400">&gt; EMAIL</FormLabel>
+								<FormControl>
+									<Input placeholder="user@domain.com" {...field} className="font-mono bg-slate-900/50 border-slate-700" />
+								</FormControl>
+								<FormMessage className="font-mono" />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={loginForm.control}
+						name="password"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel className="font-mono text-cyan-400">&gt; PASSWORD</FormLabel>
+								<FormControl>
+									<Input
+										type="password"
+										placeholder="••••••••"
+										{...field}
+										className="font-mono bg-slate-900/50 border-slate-700"
+									/>
+								</FormControl>
+								<FormMessage className="font-mono" />
+							</FormItem>
+						)}
+					/>
+					<Button className="w-full font-mono bg-cyan-600 hover:bg-cyan-500" type="submit" isLoading={isLoginLoading}>
+						&gt; Authenticate
 					</Button>
 				</form>
 			</Form>
@@ -236,171 +226,193 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 	);
 
 	return (
-		<div className="glass rounded-2xl p-8">
-			<div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
-				<Logo
-					className="size-6"
-					logoUrl={
-						whitelabeling?.loginLogoUrl ||
-						whitelabeling?.logoUrl ||
-						undefined
-					}
-				/>
+		<>
+			<div className="flex flex-col space-y-2 text-center">
+				<h1 className="text-2xl font-semibold tracking-tight font-mono">
+					<div className="flex flex-row items-center justify-center gap-2">
+						<div className="relative">
+							<Logo
+								className="size-12"
+								logoUrl={
+									whitelabeling?.loginLogoUrl ||
+									whitelabeling?.logoUrl ||
+									undefined
+								}
+							/>
+							<div className="absolute inset-0 bg-cyan-500 blur-xl opacity-20" />
+						</div>
+						<span className="text-cyan-400">[</span>
+						<span className="text-white">Sign in</span>
+						<span className="text-cyan-400">]</span>
+					</div>
+				</h1>
+				<p className="text-sm text-slate-400 font-mono">
+					&gt; Enter credentials to authenticate
+				</p>
 			</div>
-			<h1 className="text-2xl font-display font-bold text-center mb-1">Welcome Back</h1>
-			<p className="text-xs text-muted-foreground text-center mb-6">Sign in to your account</p>
-			
 			{error && (
-				<AlertBlock type="error" className="mb-4">
-					<span>{error}</span>
+				<AlertBlock type="error" className="my-2 border-red-900/50 bg-red-950/30 text-red-400">
+					<span className="font-mono">⚠ {error}</span>
 				</AlertBlock>
 			)}
-			
-			{!isTwoFactor ? (
-				<>
-					{enforceSSO ? (
-						<SignInWithSSO enforce />
-					) : showSignInWithSSO ? (
-						<SignInWithSSO>{loginContent}</SignInWithSSO>
-					) : (
-						loginContent
-					)}
-				</>
-			) : (
-				<>
-					<form
-						onSubmit={onTwoFactorSubmit}
-						className="space-y-4"
-						id="two-factor-form"
-						autoComplete="on"
-					>
-						<div className="flex flex-col gap-2">
-							<Label htmlFor="totp-code" className="text-xs text-muted-foreground">2FA Code</Label>
-							<InputOTP
-								id="totp-code"
-								name="totp"
-								value={twoFactorCode}
-								onChange={setTwoFactorCode}
-								maxLength={6}
-								placeholder="••••••"
-								pattern={REGEXP_ONLY_DIGITS}
-								autoFocus
-								className="bg-secondary/50 rounded-xl"
-							/>
-							<CardDescription className="text-xs">
-								Enter the 6-digit code from your authenticator app
-							</CardDescription>
-							<button
-								type="button"
-								onClick={() => setIsBackupCodeModalOpen(true)}
-								className="text-xs text-muted-foreground hover:underline self-start mt-2"
+			<CardContent className="p-0">
+				{!isTwoFactor ? (
+					<>
+						{enforceSSO ? (
+							<SignInWithSSO enforce />
+						) : showSignInWithSSO ? (
+							<SignInWithSSO>{loginContent}</SignInWithSSO>
+						) : (
+							<div className="relative">
+								<div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 rounded-lg" />
+								<div className="relative">{loginContent}</div>
+							</div>
+						)}
+					</>
+				) : (
+					<>
+						<div className="relative">
+							<div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-cyan-500/10 rounded-lg" />
+							<form
+								onSubmit={onTwoFactorSubmit}
+								className="relative space-y-4"
+								id="two-factor-form"
+								autoComplete="on"
 							>
-								Lost access to your authenticator app?
-							</button>
-						</div>
-
-						<div className="flex gap-4">
-							<Button
-								variant="outline"
-								className="w-full rounded-xl"
-								type="button"
-								onClick={() => {
-									setIsTwoFactor(false);
-									setTwoFactorCode("");
-								}}
-							>
-								Back
-							</Button>
-							<Button
-								className="w-full rounded-xl"
-								type="submit"
-								isLoading={isTwoFactorLoading}
-							>
-								Verify
-							</Button>
-						</div>
-					</form>
-
-					<Dialog
-						open={isBackupCodeModalOpen}
-						onOpenChange={setIsBackupCodeModalOpen}
-					>
-						<DialogContent className="glass rounded-2xl">
-							<DialogHeader>
-								<DialogTitle>Enter Backup Code</DialogTitle>
-								<DialogDescription>
-									Enter one of your backup codes to access your account
-								</DialogDescription>
-							</DialogHeader>
-
-							<form onSubmit={onBackupCodeSubmit} className="space-y-4">
 								<div className="flex flex-col gap-2">
-									<Label className="text-xs text-muted-foreground">Backup Code</Label>
-									<Input
-										value={backupCode}
-										onChange={(e) => setBackupCode(e.target.value)}
-										placeholder="Enter your backup code"
-										className="font-mono bg-secondary/50 rounded-xl"
+									<Label htmlFor="totp-code" className="font-mono text-emerald-400">&gt; 2FA_CODE</Label>
+									<InputOTP
+										id="totp-code"
+										name="totp"
+										value={twoFactorCode}
+										onChange={setTwoFactorCode}
+										maxLength={6}
+										placeholder="••••••"
+										pattern={REGEXP_ONLY_DIGITS}
+										autoFocus
+										className="font-mono"
 									/>
-									<CardDescription className="text-xs">
-										Enter one of the backup codes you received when setting up
-										2FA
+									<CardDescription className="font-mono text-slate-400">
+										// Enter 6-digit code from authenticator
 									</CardDescription>
+									<button
+										type="button"
+										onClick={() => setIsBackupCodeModalOpen(true)}
+										className="text-sm text-emerald-400 hover:text-emerald-300 font-mono self-start mt-2"
+									>
+										? Lost authenticator access?
+									</button>
 								</div>
 
 								<div className="flex gap-4">
 									<Button
 										variant="outline"
-										className="w-full rounded-xl"
+										className="w-full font-mono border-slate-700 text-slate-300 hover:bg-slate-800"
 										type="button"
 										onClick={() => {
-											setIsBackupCodeModalOpen(false);
-											setBackupCode("");
+											setIsTwoFactor(false);
+											setTwoFactorCode("");
 										}}
 									>
-										Cancel
+										&lt; Back
 									</Button>
 									<Button
-										className="w-full rounded-xl"
+										className="w-full font-mono bg-emerald-600 hover:bg-emerald-500"
 										type="submit"
-										isLoading={isBackupCodeLoading}
+										isLoading={isTwoFactorLoading}
 									>
-										Verify
+										Verify &gt;
 									</Button>
 								</div>
 							</form>
-						</DialogContent>
-					</Dialog>
-				</>
-			)}
+						</div>
 
-			<div className="flex flex-row justify-center gap-4 mt-5">
-				{IS_CLOUD && (
-					<Link
-						className="text-xs text-muted-foreground hover:text-primary transition-colors"
-						href="/register"
-					>
-						Create an account
-					</Link>
+						<Dialog
+							open={isBackupCodeModalOpen}
+							onOpenChange={setIsBackupCodeModalOpen}
+						>
+							<DialogContent className="bg-slate-950 border-slate-800">
+								<DialogHeader>
+									<DialogTitle className="font-mono text-emerald-400">&gt; BACKUP_CODE</DialogTitle>
+									<DialogDescription className="font-mono text-slate-400">
+										// Enter recovery code from 2FA setup
+									</DialogDescription>
+								</DialogHeader>
+
+								<form onSubmit={onBackupCodeSubmit} className="space-y-4">
+									<div className="flex flex-col gap-2">
+										<Label className="font-mono text-emerald-400">&gt; RECOVERY_CODE</Label>
+										<Input
+											value={backupCode}
+											onChange={(e) => setBackupCode(e.target.value)}
+											placeholder="xxxx-xxxx-xxxx"
+											className="font-mono bg-slate-900 border-slate-700 text-emerald-300"
+										/>
+										<CardDescription className="font-mono text-slate-500">
+											// Format: XXXX-XXXX-XXXX
+										</CardDescription>
+									</div>
+
+									<div className="flex gap-4">
+										<Button
+											variant="outline"
+											className="w-full font-mono border-slate-700 text-slate-300 hover:bg-slate-800"
+											type="button"
+											onClick={() => {
+												setIsBackupCodeModalOpen(false);
+												setBackupCode("");
+											}}
+										>
+											Cancel
+										</Button>
+										<Button
+											className="w-full font-mono bg-emerald-600 hover:bg-emerald-500"
+											type="submit"
+											isLoading={isBackupCodeLoading}
+										>
+											Verify &gt;
+										</Button>
+									</div>
+								</form>
+							</DialogContent>
+						</Dialog>
+					</>
 				)}
-				{IS_CLOUD ? (
-					<Link
-						className="text-xs text-muted-foreground hover:text-primary transition-colors"
-						href="/send-reset-password"
-					>
-						Lost your password?
-					</Link>
-				) : (
-					<Link
-						className="text-xs text-muted-foreground hover:text-primary transition-colors"
-						href="https://hpanel.regz.lk/docs/core/reset-password"
-						target="_blank"
-					>
-						Lost your password?
-					</Link>
-				)}
-			</div>
-		</div>
+
+				<div className="flex flex-row justify-between flex-wrap">
+					<div className="mt-4 text-center text-sm flex flex-row justify-center gap-2">
+						{IS_CLOUD && (
+							<Link
+								className="hover:text-cyan-400 text-slate-400 font-mono transition-colors"
+								href="/register"
+							>
+								+ Create account
+							</Link>
+						)}
+					</div>
+
+					<div className="mt-4 text-sm flex flex-row justify-center gap-2">
+						{IS_CLOUD ? (
+							<Link
+								className="hover:text-cyan-400 text-slate-400 font-mono transition-colors"
+								href="/send-reset-password"
+							>
+								? Reset password
+							</Link>
+						) : (
+							<Link
+								className="hover:text-cyan-400 text-slate-400 font-mono transition-colors"
+								href="https://hpanel.regz.lk/docs/core/reset-password"
+								target="_blank"
+							>
+								? Reset password
+							</Link>
+						)}
+					</div>
+				</div>
+				<div className="p-2" />
+			</CardContent>
+		</>
 	);
 }
 

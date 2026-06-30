@@ -232,7 +232,6 @@ const { handler, api } = betterAuth({
 					}
 
 					if (IS_CLOUD || !isAdminPresent) {
-						// First user becomes owner
 						await db.transaction(async (tx) => {
 							const organization = await tx
 								.insert(schema.organization)
@@ -275,24 +274,6 @@ const { handler, api } = betterAuth({
 							createdAt: new Date(),
 							isDefault: true,
 						});
-					} else {
-						// Subsequent users in self-hosted mode become members
-						const organization = await db.query.member.findFirst({
-							where: eq(schema.member.role, "owner"),
-							with: {
-								organization: true,
-							},
-						});
-						
-						if (organization) {
-							await db.insert(schema.member).values({
-								userId: user.id,
-								organizationId: organization.organization.id,
-								role: "member",
-								createdAt: new Date(),
-								isDefault: true,
-							});
-						}
 					}
 				},
 			},
