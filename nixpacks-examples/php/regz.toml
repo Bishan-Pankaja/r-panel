@@ -1,0 +1,13 @@
+providers = ["php"]
+
+[phases.setup]
+nixPkgs = ["php83", "php83Extensions.pdo", "composer"]
+
+[phases.install]
+cmds = ["composer install --no-dev"]
+
+[phases.build]
+cmds = ["composer dump-autoload -o"]
+
+[phases.start]
+cmd = "php -S 0.0.0.0:8000 -t public"

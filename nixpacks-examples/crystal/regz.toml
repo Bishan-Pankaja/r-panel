@@ -1,0 +1,13 @@
+providers = ["crystal"]
+
+[phases.setup]
+nixPkgs = ["crystal"]
+
+[phases.install]
+cmds = ["shards install"]
+
+[phases.build]
+cmds = ["crystal build src/app.cr --release"]
+
+[phases.start]
+cmd = "./app"

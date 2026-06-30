@@ -1,0 +1,13 @@
+providers = ["swift"]
+
+[phases.setup]
+nixPkgs = ["swift"]
+
+[phases.install]
+cmds = ["swift package resolve"]
+
+[phases.build]
+cmds = ["swift build -c release"]
+
+[phases.start]
+cmd = ".build/release/app"

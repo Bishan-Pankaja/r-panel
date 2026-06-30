@@ -1,0 +1,10 @@
+providers = ["lunatic"]
+
+[phases.setup]
+nixPkgs = ["rustc", "cargo", "lunatic"]
+
+[phases.build]
+cmds = ["cargo build --release"]
+
+[phases.start]
+cmd = "./target/release/app"

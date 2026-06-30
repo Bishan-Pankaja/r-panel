@@ -1,0 +1,13 @@
+providers = ["clojure"]
+
+[phases.setup]
+nixPkgs = ["lein", "clojure"]
+
+[phases.install]
+cmds = ["lein deps"]
+
+[phases.build]
+cmds = ["lein uberjar"]
+
+[phases.start]
+cmd = "java -jar target/uberjar/app-standalone.jar"

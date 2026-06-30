@@ -1,0 +1,13 @@
+providers = ["haskell"]
+
+[phases.setup]
+nixPkgs = ["ghc", "cabal-install"]
+
+[phases.install]
+cmds = ["cabal update"]
+
+[phases.build]
+cmds = ["cabal build"]
+
+[phases.start]
+cmd = "cabal run app"

@@ -1,0 +1,10 @@
+providers = ["cobol"]
+
+[phases.setup]
+nixPkgs = ["gnucobol"]
+
+[phases.build]
+cmds = ["cobc -x -o app main.cbl"]
+
+[phases.start]
+cmd = "./app"
