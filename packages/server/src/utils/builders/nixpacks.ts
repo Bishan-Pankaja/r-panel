@@ -40,6 +40,8 @@ rm -f "${buildAppDirectory}/bun.lockb" "${buildAppDirectory}/bun.lock" "${buildA
 rm -rf "${buildAppDirectory}/supabase/functions" "${buildAppDirectory}/.supabase"
 { echo 'providers = ["node"]'; cat "${nixpacksConfigPath}" 2>/dev/null | grep -v '^providers' || true; } > /tmp/nixpacks.toml.tmp
 mv /tmp/nixpacks.toml.tmp "${nixpacksConfigPath}"
+# Replace ./node_modules/.bin/serve with npx serve (serve may not be in deps)
+sed -i 's|\./node_modules/\.bin/serve|npx serve|g' "${nixpacksConfigPath}"
 `;
 
 	let bashCommand = `
