@@ -76,6 +76,13 @@ export const createCompose = async (
 		});
 	}
 
+	try {
+		const settings = await db.query.webServerSettings.findFirst();
+
+	} catch (error) {
+		console.error("Failed to auto-create domain for compose", error);
+	}
+
 	return newDestination;
 };
 
@@ -107,6 +114,13 @@ export const createComposeByTemplate = async (
 			code: "BAD_REQUEST",
 			message: "Error input: Inserting compose",
 		});
+	}
+
+	try {
+		const settings = await db.query.webServerSettings.findFirst();
+
+	} catch (error) {
+		console.error("Failed to auto-create domain for compose template", error);
 	}
 
 	return newDestination;

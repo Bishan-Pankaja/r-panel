@@ -1,0 +1,97 @@
+ - Cloning R-Panel repository...
+ - Repository already exists, fetching and resetting to latest changes...
+HEAD is now at 59af8f2 fix: use . as doc root instead of public (directory may not exist)
+ - Installing dependencies...
+[WARN] The "pnpm" field in package.json is no longer read by pnpm. The following keys were ignored: "pnpm.overrides", "pnpm.peerDependencyRules", "pnpm.onlyBuiltDependencies". See https://pnpm.io/settings for the new home of each setting.
+ WARN  Unsupported engine: wanted: {"node":"^24.4.0"} (current: {"node":"v22.23.2","pnpm":"10.22.0"})
+apps/api                                 |  WARN  Unsupported engine: wanted: {"node":"^24.4.0"} (current: {"node":"v22.23.2","pnpm":"10.22.0"})
+apps/dokploy                             |  WARN  Unsupported engine: wanted: {"node":"^24.4.0"} (current: {"node":"v22.23.2","pnpm":"10.22.0"})
+apps/schedules                           |  WARN  Unsupported engine: wanted: {"node":"^24.4.0"} (current: {"node":"v22.23.2","pnpm":"10.22.0"})
+packages/server                          |  WARN  Unsupported engine: wanted: {"node":"^24.4.0"} (current: {"node":"v22.23.2","pnpm":"10.22.0"})
+Scope: all 5 workspace projects
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @prisma/client, @prisma/engines, prisma.            │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+Done in 6.9s using pnpm v10.22.0
+ - Setting up environment...
+ - Creating backup of existing .env file to .env-20260804-133754
+     Done.
+
+============================================================
+[2026-08-04 13:38:09] Step 6/7: Running database migrations
+============================================================
+6/7 Running database migrations...
+ - Database URL found, running migrations...
+ - Connecting to database at postgres:5432 as postgresql:postgres
+ - Adding subscription support columns...
+ - subscriptionTier column may already exist or failed
+ - subscriptionEndDate column may already exist or failed
+ - Running Drizzle ORM migrations...
+undefined
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command "drizzle-kit" not found
+ - Drizzle migrations skipped (drizzle-kit not found or already applied)
+ - Database migrations completed.
+     Done.
+
+============================================================
+[2026-08-04 13:38:11] Step 7/7: Building and starting R-Panel
+============================================================
+7/7 Building and starting R-Panel...
+ - Available RAM: 3399MB
+ - WARNING: Less than 4GB RAM detected. Build may fail.
+ - Using pre-built Dokploy image instead of building from source...
+ - Pulling dokploy/dokploy:latest image...
+latest: Pulling from dokploy/dokploy
+Digest: sha256:cb24001d40c6da4b220683522b98e3070530c8423b7bc390f503efc515b6b24f
+Status: Image is up to date for dokploy/dokploy:latest
+docker.io/dokploy/dokploy:latest
+ - Starting R-Panel with Docker...
+ Container rpanel-postgres Recreate 
+ Container rpanel-redis Recreate 
+ Container dokploy-traefik Recreate 
+ Container dokploy-traefik Recreated 
+ Container rpanel-postgres Recreated 
+ Container rpanel-redis Recreated 
+ Container rpanel-postgres Starting 
+ Container rpanel-redis Starting 
+ Container dokploy-traefik Starting 
+ Container rpanel-postgres Started 
+ Container rpanel-redis Started 
+ Container dokploy-traefik Started 
+ Container rpanel Starting 
+ Container rpanel Started 
+ - Waiting for R-Panel to be ready...
+ - WARNING: R-Panel container may not be running properly
+ - Check logs with: docker-compose logs
+     Done.
+
+==========================================
+   Installation Complete!
+==========================================
+
+Your R-Panel instance is ready to use!
+
+You can access R-Panel through your Public IPv4: http://163.245.209.129:3000
+
+📝 Important:
+   1. Backup your .env file: /data/rpanel/source/.env
+   2. Update .env with your database credentials if needed
+   3. Configure your domain name
+   4. Set up SSL certificates
+
+📋 Installation log: /data/rpanel/source/installation-20260804-133754.log
+
+
+============================================================
+[2026-08-04 13:38:27] Installation Complete
+============================================================
+[2026-08-04 13:38:27] R-Panel installation completed successfully
+[2026-08-04 13:38:27] Log file: /data/rpanel/source/installation-20260804-133754.log

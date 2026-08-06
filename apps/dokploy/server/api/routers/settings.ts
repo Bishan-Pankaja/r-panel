@@ -68,6 +68,7 @@ import {
 	apiTraefikConfig,
 	apiUpdateDockerCleanup,
 	apiUpdateWebServerBuildsConcurrency,
+	apiUpdateWebServerSettings,
 	projects,
 	server,
 } from "@/server/db/schema";
@@ -85,6 +86,20 @@ import {
 } from "../trpc";
 
 export const settingsRouter = createTRPCRouter({
+	updateWebServerSettings: adminProcedure
+		.input(apiUpdateWebServerSettings)
+		.mutation(async ({ input, ctx }) => {
+			if (IS_CLOUD) {
+				return true;
+			}
+			const settings = await updateWebServerSettings(input);
+			await audit(ctx, {
+				action: "update",
+				resourceType: "settings",
+				resourceName: "web-server-settings",
+			});
+			return settings;
+		}),
 	getWebServerSettings: protectedProcedure.query(async () => {
 		if (IS_CLOUD) {
 			return null;

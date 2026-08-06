@@ -204,10 +204,14 @@ export const ShowDomains = ({ id, type }: Props) => {
 		serverIp: application?.server?.ipAddress?.toString() || ip?.toString(),
 		canCreateDomain,
 		canDeleteDomain,
+		appName: application?.appName,
 	});
 
+	const previewDomains = data?.filter((d) => d.host.endsWith("preview.regz.lk")) || [];
+	const customDomains = data?.filter((d) => !d.host.endsWith("preview.regz.lk")) || [];
+
 	const table = useReactTable({
-		data: data ?? [],
+		data: customDomains,
 		columns,
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
@@ -227,17 +231,85 @@ export const ShowDomains = ({ id, type }: Props) => {
 
 	return (
 		<div className="flex w-full flex-col gap-5 ">
+			{previewDomains.length > 0 && (
+				<Card className="bg-background">
+					<CardHeader className="flex flex-row items-center flex-wrap gap-4 justify-between">
+						<div className="flex flex-col gap-1">
+							<CardTitle className="text-xl">Preview Domain</CardTitle>
+							<CardDescription>
+								System-managed preview URL for this application.
+							</CardDescription>
+						</div>
+					</CardHeader>
+					<CardContent className="flex w-full flex-col gap-4">
+						{previewDomains.map((item) => (
+							<Card
+								key={item.domainId}
+								className="relative overflow-hidden w-full border transition-all hover:shadow-md bg-transparent h-fit"
+							>
+								<CardContent className="p-6">
+									<div className="flex flex-col gap-4">
+										<div className="flex items-center justify-between flex-wrap gap-y-2">
+											<div className="flex gap-2 flex-wrap items-center">
+												<Badge variant="outline" className="bg-green-500/10 text-green-500">
+													<CheckCircle2 className="size-3 mr-1" />
+													Active
+												</Badge>
+											</div>
+											<div className="flex gap-2 flex-wrap">
+												<Button
+													variant="outline"
+													size="sm"
+													onClick={() => {
+														navigator.clipboard.writeText(
+															`${item.https ? "https" : "http"}://${item.host}${item.path}`,
+														);
+														toast.success("URL copied to clipboard");
+													}}
+												>
+													Copy URL
+												</Button>
+												<Link
+													target="_blank"
+													href={`${item.https ? "https" : "http"}://${item.host}${item.path}`}
+												>
+													<Button variant="default" size="sm">
+														Open <ExternalLink className="size-4 ml-2" />
+													</Button>
+												</Link>
+											</div>
+										</div>
+										<div className="w-full break-all">
+											<span className="text-base font-medium">
+												{item.host}
+											</span>
+										</div>
+										<div className="flex flex-wrap gap-3">
+											{item.certificateType && (
+												<Badge variant="outline">
+													Cert: {item.certificateType}
+												</Badge>
+											)}
+										</div>
+									</div>
+								</CardContent>
+							</Card>
+						))}
+					</CardContent>
+				</Card>
+			)}
+
 			<Card className="bg-background">
 				<CardHeader className="flex flex-row items-center flex-wrap gap-4 justify-between">
 					<div className="flex flex-col gap-1">
-						<CardTitle className="text-xl">Domains</CardTitle>
+						<CardTitle className="text-xl">Custom Domains</CardTitle>
 						<CardDescription>
 							Domains are used to access to the application
 						</CardDescription>
 					</div>
 
 					<div className="flex flex-row gap-2 flex-wrap">
-						{data && data?.length > 0 && (
+						{customDomains.length > 0 && (
 							<>
 								<Button
 									variant="outline"
@@ -273,7 +345,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 								Loading domains...
 							</span>
 						</div>
-					) : data?.length === 0 ? (
+					) : customDomains.length === 0 ? (
 						<div className="flex w-full flex-col items-center justify-center gap-3 min-h-[40vh]">
 							<GlobeIcon className="size-8 text-muted-foreground" />
 							<span className="text-base text-muted-foreground">
@@ -383,7 +455,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 									</TableBody>
 								</Table>
 							</div>
-							{data && data?.length > 0 && (
+							{customDomains.length > 0 && (
 								<div className="flex items-center justify-end space-x-2 py-4">
 									<div className="space-x-2 flex flex-wrap">
 										<Button
@@ -408,7 +480,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 gap-4 xl:grid-cols-2 w-full min-h-[40vh] ">
-							{data?.map((item) => {
+							{customDomains.map((item) => {
 								const validationState = validationStates[item.host];
 								return (
 									<Card
@@ -437,6 +509,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 																	application?.server?.ipAddress?.toString() ||
 																	ip?.toString()
 																}
+																appName={application?.appName}
 															/>
 														)}
 														{canCreateDomain && (
@@ -632,6 +705,13 @@ export const ShowDomains = ({ id, type }: Props) => {
 																			Error:
 																		</p>
 																		<p>{validationState.error}</p>
+																	</div>
+																) : validationState?.isValid && validationState?.resolvedIp ? (
+																	<div className="flex flex-col gap-1">
+																		<p className="font-medium text-green-500">
+																			Resolved:
+																		</p>
+																		<p className="break-all">{validationState.resolvedIp}</p>
 																	</div>
 																) : (
 																	"Click to validate DNS configuration"

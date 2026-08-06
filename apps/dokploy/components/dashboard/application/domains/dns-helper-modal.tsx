@@ -11,6 +11,8 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 
+import { api } from "@/utils/api";
+
 interface Props {
 	domain: {
 		host: string;
@@ -18,13 +20,22 @@ interface Props {
 		path?: string;
 	};
 	serverIp?: string;
+	appName?: string;
 }
 
-export const DnsHelperModal = ({ domain, serverIp }: Props) => {
+export const DnsHelperModal = ({ domain, serverIp, appName }: Props) => {
+	const { data: webServerSettings } = api.settings.getWebServerSettings.useQuery();
+	const panelDomain = "panel.regz.lk";
+	const gatewayDomain = "dns.regz.lk";
+	const cnameTarget = appName ? `${appName}.${gatewayDomain}` : panelDomain;
+	
 	const copyToClipboard = (text: string) => {
 		navigator.clipboard.writeText(text);
 		toast.success("Copied to clipboard!");
 	};
+
+	const domainParts = domain.host.split(".");
+	const cnameName = domainParts.length > 2 ? domainParts.slice(0, -2).join(".") : domainParts[0];
 
 	return (
 		<Dialog>
@@ -53,33 +64,59 @@ export const DnsHelperModal = ({ domain, serverIp }: Props) => {
 
 					<div className="flex flex-col gap-6">
 						<div className="rounded-lg border p-4">
-							<h3 className="font-medium mb-2">1. Add A Record</h3>
+							<h3 className="font-medium mb-2">1. Add DNS Record</h3>
 							<div className="flex flex-col gap-3">
 								<p className="text-sm text-muted-foreground">
-									Create an A record that points your domain to the server's IP
-									address:
+									Create a DNS record that points your domain to your server:
 								</p>
-								<div className="flex flex-col gap-2">
-									<div className="flex items-center justify-between gap-2 bg-muted p-3 rounded-md">
-										<div>
-											<p className="text-sm font-medium">Type: A</p>
-											<p className="text-sm">
-												Name: @ or {domain.host.split(".")[0]}
-											</p>
-											<p className="text-sm">
-												Value: {serverIp || "Your server IP"}
-											</p>
+								
+								{domainParts.length <= 2 && (
+									<div className="flex flex-col gap-2">
+										<p className="text-sm font-medium">A Record</p>
+										<div className="flex items-center justify-between gap-2 bg-muted p-3 rounded-md">
+											<div>
+												<p className="text-sm font-medium">Type: A</p>
+												<p className="text-sm">
+													Name: @ or www
+												</p>
+												<p className="text-sm">
+													Value: {serverIp || "163.245.209.129"}
+												</p>
+											</div>
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => copyToClipboard(serverIp || "163.245.209.129")}
+											>
+												<Copy className="size-4" />
+											</Button>
 										</div>
-										<Button
-											variant="ghost"
-											size="icon"
-											onClick={() => copyToClipboard(serverIp || "")}
-											disabled={!serverIp}
-										>
-											<Copy className="size-4" />
-										</Button>
 									</div>
-								</div>
+								)}
+
+								{domainParts.length > 2 && (
+									<div className="flex flex-col gap-2">
+										<p className="text-sm font-medium">CNAME Record</p>
+										<div className="flex items-center justify-between gap-2 bg-muted p-3 rounded-md">
+											<div>
+												<p className="text-sm font-medium">Type: CNAME</p>
+												<p className="text-sm">
+													Name: {cnameName}
+												</p>
+												<p className="text-sm">
+													Value: {cnameTarget}
+												</p>
+											</div>
+											<Button
+												variant="ghost"
+												size="icon"
+												onClick={() => copyToClipboard(cnameTarget)}
+											>
+												<Copy className="size-4" />
+											</Button>
+										</div>
+									</div>
+								)}
 							</div>
 						</div>
 

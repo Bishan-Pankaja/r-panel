@@ -66,7 +66,7 @@ export const createApplication = async (
 		});
 	}
 
-	return await db.transaction(async (tx) => {
+	const newApp = await db.transaction(async (tx) => {
 		const newApplication = await tx
 			.insert(applications)
 			.values({
@@ -89,6 +89,26 @@ export const createApplication = async (
 
 		return newApplication;
 	});
+
+	try {
+		const settings = await db.query.webServerSettings.findFirst();
+
+		// Auto-create preview domain hardcoded to preview.regz.lk
+		const previewDomain = "preview.regz.lk";
+		const { createDomain: createPreviewDomain } = await import("./domain");
+		await createPreviewDomain({
+			applicationId: newApp.applicationId,
+			host: `${newApp.appName}.${previewDomain}`,
+			https: true,
+			certificateType: "letsencrypt",
+			path: "/",
+			port: 3000,
+		});
+	} catch (error) {
+		console.error("Failed to auto-create domain for application", error);
+	}
+
+	return newApp;
 };
 
 export const findApplicationById = async (applicationId: string) => {

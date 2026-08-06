@@ -39,6 +39,7 @@ interface ColumnsProps {
 	serverIp?: string;
 	canCreateDomain: boolean;
 	canDeleteDomain: boolean;
+	appName?: string;
 }
 
 export const createColumns = ({
@@ -51,6 +52,7 @@ export const createColumns = ({
 	serverIp,
 	canCreateDomain,
 	canDeleteDomain,
+	appName,
 }: ColumnsProps): ColumnDef<Domain>[] => [
 	...(type === "compose"
 		? [
@@ -214,6 +216,11 @@ export const createColumns = ({
 											<p className="font-medium text-red-500">Error:</p>
 											<p>{validationState.error}</p>
 										</div>
+									) : validationState?.isValid && validationState?.resolvedIp ? (
+										<div className="flex flex-col gap-1">
+											<p className="font-medium text-green-500">Resolved:</p>
+											<p className="break-all">{validationState.resolvedIp}</p>
+										</div>
 									) : (
 										"Click to validate DNS configuration"
 									)}
@@ -264,6 +271,7 @@ export const createColumns = ({
 								path: domain.path || undefined,
 							}}
 							serverIp={serverIp}
+							appName={appName}
 						/>
 					)}
 					{canCreateDomain && (

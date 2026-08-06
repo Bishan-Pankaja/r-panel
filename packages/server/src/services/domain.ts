@@ -160,14 +160,39 @@ export const validateDomain = async (
 		// Remove protocol and path if present
 		const cleanDomain = domain.replace(/^https?:\/\//, "").split("/")[0];
 
+		// Check against DNS gateway or wildcard domains
+		// Skip DNS validation for preview domains (hardcoded)
+		const previewDomain = "preview.regz.lk";
+		const isPreviewDomain =
+			previewDomain && cleanDomain?.endsWith(`.${previewDomain}`);
+
+		if (isPreviewDomain) {
+			return {
+				isValid: true,
+				resolvedIp: "Wildcard/Gateway/Preview DNS Match",
+			};
+		}
+
+		let isCname = false;
+		let cnameTargets: string[] = [];
+		const resolveCname = promisify(dns.resolveCname);
+		try {
+			const cnames = await resolveCname(cleanDomain || "");
+			if (cnames && cnames.length > 0) {
+				cnameTargets = cnames.map((c) => c.toString());
+				isCname = true;
+			}
+		} catch (e) {
+			// Not a CNAME or failed to resolve CNAME
+		}
+
 		// Resolve the domain to get its IP
 		const ips = await resolveDns(cleanDomain || "");
-
 		const resolvedIps = ips.map((ip) => ip.toString());
 
 		// Check if any IP belongs to a CDN provider
 		const cdnProvider = ips
-			.map((ip) => detectCDNProvider(ip))
+			.map((ip) => detectCDNProvider(ip.toString()))
 			.find((provider) => provider !== null);
 
 		// If behind a CDN, we consider it valid but inform the user
@@ -177,6 +202,14 @@ export const validateDomain = async (
 				resolvedIp: resolvedIps.join(", "),
 				cdnProvider: cdnProvider.displayName,
 				error: cdnProvider.warningMessage,
+			};
+		}
+
+		// If it's a CNAME record, we accept it as valid per user request without forcing direct IP validation
+		if (isCname) {
+			return {
+				isValid: true,
+				resolvedIp: `CNAME to ${cnameTargets.join(", ")} (A: ${resolvedIps.join(", ")})`,
 			};
 		}
 

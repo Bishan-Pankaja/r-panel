@@ -8,8 +8,6 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--providers.docker.network=rpanel-network"
-      - "--providers.swarm=true"
-      - "--providers.swarm.exposedbydefault=false"
       - "--providers.file.directory=/etc/dokploy/traefik/dynamic"
       - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
@@ -33,8 +31,16 @@ services:
     image: rpanel:latest
     container_name: rpanel
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=rpanel-network"
+      - "traefik.http.routers.rpanel.rule=Host(`panel.regz.lk`)"
+      - "traefik.http.routers.rpanel.entrypoints=websecure"
+      - "traefik.http.routers.rpanel.tls=true"
+      - "traefik.http.routers.rpanel.tls.certresolver=letsencrypt"
+      - "traefik.http.services.rpanel.loadbalancer.server.port=3000"
+
     env_file:
       - /data/rpanel/source/.env
     volumes:
@@ -47,6 +53,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - rpanel-network
+      - dokploy-network
     depends_on:
       postgres:
         condition: service_started
@@ -67,6 +74,7 @@ services:
       - rpanel-postgres-data:/var/lib/postgresql/data
     networks:
       - rpanel-network
+      - dokploy-network
 
   redis:
     image: redis:7-alpine
@@ -74,9 +82,11 @@ services:
     restart: unless-stopped
     networks:
       - rpanel-network
+      - dokploy-network
 
 networks:
   rpanel-network:
+    name: rpanel-network
     driver: bridge
   dokploy-network:
     external: true

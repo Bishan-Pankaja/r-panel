@@ -6,9 +6,7 @@ import { eq } from "drizzle-orm";
  * Get the web server settings (singleton - only one row should exist)
  */
 export const getWebServerSettings = async () => {
-	const settings = await db.query.webServerSettings.findFirst({
-		orderBy: (settings, { asc }) => [asc(settings.createdAt)],
-	});
+	const settings = await db.query.webServerSettings.findFirst();
 
 	if (!settings) {
 		// Create default settings if none exist
