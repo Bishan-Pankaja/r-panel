@@ -132,15 +132,10 @@ export const createPreviewDeployment = async (
 	const application = await findApplicationById(schema.applicationId);
 	const appName = `preview-${application.appName}-${generatePassword(6)}`;
 
-	const org = await db.query.organization.findFirst({
-		where: eq(organization.id, application.environment.project.organizationId),
-	});
-	const generateDomain = await generateWildcardDomain(
-		application.previewWildcard || "*.sslip.io",
-		appName,
-		application.server?.ipAddress || "",
-		org?.ownerId || "",
-	);
+	// Preview domains DO NOT require Cloudflare authorization.
+	// Preview domains must automatically work using the platform wildcard DNS.
+	// Every deployment automatically receives {deployment-id}.preview.regz.lk
+	const generateDomain = `${appName}.preview.regz.lk`;
 
 	const octokit = authGithub(application?.github as Github);
 
@@ -238,7 +233,7 @@ const generateWildcardDomain = async (
 		throw new Error('The base domain must start with "*."');
 	}
 	const hash = `${appName}`;
-	if (baseDomain.includes("sslip.io")) {
+	if (baseDomain.includes("preview.regz.lk")) {
 		let ip = "";
 
 		if (process.env.NODE_ENV === "development") {

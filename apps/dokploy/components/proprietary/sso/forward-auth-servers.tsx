@@ -295,7 +295,7 @@ export const ForwardAuthServers = () => {
 													}
 													className="font-mono text-sm"
 												/>
-												{f?.host && !f.host.includes("sslip.io") && (
+												{f?.host && !f.host.includes("preview.regz.lk") && (
 													<DnsHelperModal
 														domain={{
 															host: f.host,
@@ -311,7 +311,7 @@ export const ForwardAuthServers = () => {
 													variant="secondary"
 													size="icon"
 													isLoading={isGenerating}
-													title="Generate sslip.io domain"
+													title="Generate preview.regz.lk domain"
 													onClick={() => handleGenerateDomain(srv.serverId)}
 												>
 													<Dices className="size-4 text-muted-foreground" />

@@ -498,7 +498,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 														</Badge>
 													)}
 													<div className="flex gap-2 flex-wrap">
-														{!item.host.includes("sslip.io") && (
+														{!item.host.includes("preview.regz.lk") && (
 															<DnsHelperModal
 																domain={{
 																	host: item.host,

@@ -293,6 +293,12 @@ const MENU: Menu = {
 		},
 		{
 			isSingle: true,
+			title: "Cloudflare",
+			url: "/dashboard/settings/cloudflare",
+			icon: Server,
+		},
+		{
+			isSingle: true,
 			title: "Remote Servers",
 			url: "/dashboard/settings/servers",
 			icon: Server,

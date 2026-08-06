@@ -49,6 +49,7 @@ import { swarmRouter } from "./routers/swarm";
 import { tagRouter } from "./routers/tag";
 import { userRouter } from "./routers/user";
 import { volumeBackupsRouter } from "./routers/volume-backups";
+import { cloudflareRouter } from "./routers/cloudflare";
 /**
  * This is the primary router for your server.
  *
@@ -57,6 +58,7 @@ import { volumeBackupsRouter } from "./routers/volume-backups";
 
 export const appRouter = createTRPCRouter({
 	admin: adminRouter,
+	cloudflare: cloudflareRouter,
 	application: applicationRouter,
 	backup: backupRouter,
 	bitbucket: bitbucketRouter,

@@ -1,0 +1,200 @@
+# Project Architecture & Structure
+
+This file provides an architectural overview of the codebase.
+
+## Directory Structure
+```
+├── .claude/
+  ├── skills/
+    ├── frontend-design/
+├── .devcontainer/
+  ├── Dockerfile
+  ├── devcontainer.json
+├── .dockerignore
+├── .env.production
+├── .github/
+  ├── CODEOWNERS
+  ├── FUNDING.yml
+  ├── ISSUE_TEMPLATE/
+    ├── bug_report.yml
+    ├── config.yml
+    ├── feature-request.yml
+  ├── pull_request_template.md
+  ├── sponsors/
+    ├── agentdock.png
+    ├── american-cloud.png
+    ├── awesome.png
+    ├── hostinger.jpg
+    ├── its.png
+    ├── light-node.webp
+    ├── logo.png
+    ├── lxaer.png
+    ├── mandarin.png
+    ├── openalternative.png
+    ├── startupfame.png
+    ├── synexa.png
+    ├── tuple.png
+  ├── workflows/
+    ├── create-pr.yml
+    ├── format.yml
+    ├── pull-request.yml
+    ├── sync-openapi-docs.yml
+├── .gitignore
+├── .nvmrc
+├── .vscode/
+  ├── extensions.json
+  ├── settings.json
+├── CONTRIBUTING.md
+├── Dockerfile
+├── Dockerfile.cloud
+├── Dockerfile.monitoring
+├── Dockerfile.schedule
+├── Dockerfile.server
+├── GUIDES.md
+├── LICENSE.MD
+├── LICENSE_PROPRIETARY.md
+├── README.md
+├── REGZ_CONFIG.md
+├── SECURITY.md
+├── TERMS_AND_CONDITIONS.md
+├── apps/
+  ├── api/
+    ├── .env.example
+    ├── .gitignore
+    ├── README.md
+    ├── package.json
+    ├── src/
+    ├── tsconfig.json
+  ├── dokploy/
+    ├── .dockerignore
+    ├── .env.example
+    ├── .env.production.example
+    ├── .gitignore
+    ├── __test__/
+    ├── components/
+    ├── components.json
+    ├── docker/
+    ├── drizzle/
+    ├── esbuild.config.ts
+    ├── hooks/
+    ├── lib/
+    ├── logo.png
+    ├── migration.ts
+    ├── next.config.mjs
+    ├── package.json
+    ├── pages/
+    ├── postcss.config.cjs
+    ├── public/
+    ├── reset-2fa.ts
+    ├── reset-password.ts
+    ├── scripts/
+    ├── server/
+    ├── setup.ts
+    ├── styles/
+    ├── tailwind.config.ts
+    ├── templates/
+    ├── tsconfig.json
+    ├── tsconfig.server.json
+    ├── tsconfig.tsbuildinfo
+    ├── types/
+    ├── utils/
+    ├── wait-for-postgres.ts
+  ├── monitoring/
+    ├── .gitignore
+    ├── LICENSE.md
+    ├── README.md
+    ├── config/
+    ├── containers/
+    ├── database/
+    ├── go.mod
+    ├── go.sum
+    ├── main.go
+    ├── middleware/
+    ├── monitoring/
+  ├── schedules/
+    ├── .gitignore
+    ├── README.md
+    ├── package.json
+    ├── src/
+    ├── tsconfig.build.json
+    ├── tsconfig.json
+├── biome.json
+├── docker-compose.backup.yml
+├── docker-compose.yml
+├── install.ps1
+├── install.sh
+├── installation-20260804-133754.log
+├── migrations/
+  ├── add_subscription_support.sql
+├── nixpacks-examples/
+  ├── README.md
+  ├── clojure/
+    ├── regz.toml
+  ├── cobol/
+    ├── regz.toml
+  ├── crystal/
+    ├── regz.toml
+  ├── csharp/
+    ├── regz.toml
+  ├── dart/
+    ├── regz.toml
+  ├── elixir/
+    ├── regz.toml
+  ├── fsharp/
+    ├── regz.toml
+  ├── gleam/
+    ├── regz.toml
+  ├── golang/
+    ├── regz.toml
+  ├── haskell/
+    ├── regz.toml
+  ├── java/
+    ├── regz.toml
+  ├── lunatic/
+    ├── regz.toml
+  ├── nodejs/
+    ├── regz.toml
+  ├── php/
+    ├── regz.toml
+  ├── python/
+    ├── regz.toml
+  ├── ruby/
+    ├── regz.toml
+  ├── rust/
+    ├── regz.toml
+  ├── scala/
+    ├── regz.toml
+  ├── scheme/
+    ├── regz.toml
+  ├── staticfile/
+    ├── regz.toml
+  ├── swift/
+    ├── regz.toml
+  ├── zig/
+    ├── regz.toml
+├── package.json
+├── packages/
+  ├── server/
+    ├── auth-schema.ts
+    ├── auth-schema2.ts
+    ├── esbuild.config.ts
+    ├── package.json
+    ├── scripts/
+    ├── src/
+    ├── tsconfig.json
+    ├── tsconfig.server.json
+    ├── tsconfig.server.no-decl.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+```
+
+## Key Dependencies
+
+### Development Dependencies
+- `@biomejs/biome`: `2.1.1`
+- `@types/node`: `^24.4.0`
+- `dotenv`: `16.4.5`
+- `esbuild`: `0.20.2`
+- `lint-staged`: `^15.5.2`
+- `tsx`: `4.16.2`
+

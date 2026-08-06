@@ -24,9 +24,9 @@
 			}
 		],
 		"incremental": true,
+		"ignoreDeprecations": "6.0",
 		/* Path Aliases */
 		"baseUrl": ".",
-		"ignoreDeprecations": "5.0",
 		"paths": {
 			"@/*": ["./*"],
 			"@dokploy/server": ["../../packages/server/src/index.ts"],

@@ -88,7 +88,7 @@ export const ShowPreviewSettings = ({ applicationId }: Props) => {
 	const form = useForm<Schema>({
 		defaultValues: {
 			env: "",
-			wildcardDomain: "*.sslip.io",
+			wildcardDomain: "*.preview.regz.lk",
 			port: 3000,
 			previewLimit: 3,
 			previewLabels: [],
@@ -102,7 +102,7 @@ export const ShowPreviewSettings = ({ applicationId }: Props) => {
 
 	const previewHttps = form.watch("previewHttps");
 	const wildcardDomain = form.watch("wildcardDomain");
-	const isTraefikMeDomain = wildcardDomain?.includes("sslip.io") || false;
+	const isTraefikMeDomain = wildcardDomain?.includes("preview.regz.lk") || false;
 
 	useEffect(() => {
 		setIsEnabled(data?.isPreviewDeploymentsActive || false);
@@ -114,7 +114,7 @@ export const ShowPreviewSettings = ({ applicationId }: Props) => {
 				env: data.previewEnv || "",
 				buildArgs: data.previewBuildArgs || "",
 				buildSecrets: data.previewBuildSecrets || "",
-				wildcardDomain: data.previewWildcard || "*.sslip.io",
+				wildcardDomain: data.previewWildcard || "*.preview.regz.lk",
 				port: data.previewPort || 3000,
 				previewLabels: data.previewLabels || [],
 				previewLimit: data.previewLimit || 3,
@@ -173,7 +173,7 @@ export const ShowPreviewSettings = ({ applicationId }: Props) => {
 					<div className="grid gap-4">
 						{isTraefikMeDomain && (
 							<AlertBlock type="info">
-								<strong>Note:</strong> sslip.io is a public HTTP service and
+								<strong>Note:</strong> preview.regz.lk is a public HTTP service and
 								does not support SSL/HTTPS. HTTPS and certificate options will
 								not have any effect.
 							</AlertBlock>
@@ -192,7 +192,7 @@ export const ShowPreviewSettings = ({ applicationId }: Props) => {
 											<FormItem>
 												<FormLabel>Wildcard Domain</FormLabel>
 												<FormControl>
-													<Input placeholder="*.sslip.io" {...field} />
+													<Input placeholder="*.preview.regz.lk" {...field} />
 												</FormControl>
 												<FormMessage />
 											</FormItem>

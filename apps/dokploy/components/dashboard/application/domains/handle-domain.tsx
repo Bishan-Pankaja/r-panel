@@ -225,7 +225,7 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 	const https = form.watch("https");
 	const domainType = form.watch("domainType");
 	const host = form.watch("host");
-	const isTraefikMeDomain = host?.includes("sslip.io") || false;
+	const isTraefikMeDomain = host?.includes("preview.regz.lk") || false;
 
 	useEffect(() => {
 		if (data) {
@@ -513,7 +513,7 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 									render={({ field }) => (
 										<FormItem>
 											{!canGenerateTraefikMeDomains &&
-												field.value.includes("sslip.io") && (
+												field.value.includes("preview.regz.lk") && (
 													<AlertBlock type="warning">
 														You need to set an IP address in your{" "}
 														<Link
@@ -524,14 +524,13 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 																? "Remote Servers -> Server -> Edit Server -> Update IP Address"
 																: "Web Server -> Server -> Update Server IP"}
 														</Link>{" "}
-														to make your sslip.io domain work.
+														to make your preview.regz.lk domain work.
 													</AlertBlock>
 												)}
 											{isTraefikMeDomain && (
 												<AlertBlock type="info">
-													<strong>Note:</strong> sslip.io is a public HTTP
-													service and does not support SSL/HTTPS. HTTPS and
-													certificate options will not have any effect.
+													<strong>Note:</strong> preview.regz.lk supports SSL/HTTPS.
+													You can enable HTTPS and select Let's Encrypt to automatically provision a certificate.
 												</AlertBlock>
 											)}
 											<FormLabel>Host</FormLabel>
@@ -567,7 +566,7 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 															sideOffset={5}
 															className="max-w-[10rem]"
 														>
-															<p>Generate sslip.io domain</p>
+															<p>Generate preview.regz.lk domain</p>
 														</TooltipContent>
 													</Tooltip>
 												</TooltipProvider>
