@@ -12,7 +12,7 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 export const cloudflareRouter = createTRPCRouter({
 	getConnectUrl: protectedProcedure
 		.input(z.object({ state: z.string() }))
-		.query(({ input }) => {
+		.mutation(({ input }) => {
 			return { url: getCloudflareAuthUrl(input.state) };
 		}),
 

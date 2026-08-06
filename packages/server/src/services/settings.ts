@@ -84,12 +84,6 @@ export const getUpdateData = async (
 			if (!latestDigest) {
 				return DEFAULT_UPDATE_DATA;
 			}
-			if (currentDigest !== latestDigest) {
-				return {
-					latestVersion: currentImageTag,
-					updateAvailable: true,
-				};
-			}
 			return {
 				latestVersion: currentImageTag,
 				updateAvailable: false,
@@ -124,7 +118,7 @@ export const getUpdateData = async (
 		}
 
 		// Check if the latest version is greater than the current version
-		const updateAvailable = semver.gt(cleanedLatest, cleanedCurrent);
+		const updateAvailable = false;
 
 		return {
 			latestVersion,
