@@ -9,7 +9,7 @@ export function getCloudflareAuthUrl(state: string) {
 		response_type: "code",
 		client_id: CLIENT_ID,
 		redirect_uri: REDIRECT_URI,
-		scope: "zone:read dns:edit user:read",
+		scope: "#zone:read #dns:edit #user:read",
 		state,
 	});
 	return `https://dash.cloudflare.com/oauth2/auth?${params.toString()}`;
