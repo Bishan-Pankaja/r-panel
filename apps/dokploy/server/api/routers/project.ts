@@ -378,6 +378,7 @@ export const projectRouter = createTRPCRouter({
 				ctx.user.showOtherUsersProjects === false
 					? or(
 							eq(projects.userId, ctx.user.id),
+							ctx.user.id === ctx.user.ownerId ? sql`${projects.userId} IS NULL` : sql`false`,
 							sql`exists (
 								select 1 from "member" 
 								where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
@@ -695,6 +696,7 @@ export const projectRouter = createTRPCRouter({
 				baseConditions.push(
 					or(
 						eq(projects.userId, ctx.user.id),
+						ctx.user.id === ctx.user.ownerId ? sql`${projects.userId} IS NULL` : sql`false`,
 						sql`exists (
 							select 1 from "member" 
 							where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
