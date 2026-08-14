@@ -207,8 +207,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 		appName: application?.appName,
 	});
 
-	const previewDomains = data?.filter((d) => d.host.endsWith("preview.regz.lk")) || [];
-	const customDomains = data?.filter((d) => !d.host.endsWith("preview.regz.lk")) || [];
+	const customDomains = data || [];
 
 	const table = useReactTable({
 		data: customDomains,
@@ -231,80 +230,12 @@ export const ShowDomains = ({ id, type }: Props) => {
 
 	return (
 		<div className="flex w-full flex-col gap-5 ">
-			{previewDomains.length > 0 && (
-				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center flex-wrap gap-4 justify-between">
-						<div className="flex flex-col gap-1">
-							<CardTitle className="text-xl">Preview Domain</CardTitle>
-							<CardDescription>
-								System-managed preview URL for this application.
-							</CardDescription>
-						</div>
-					</CardHeader>
-					<CardContent className="flex w-full flex-col gap-4">
-						{previewDomains.map((item) => (
-							<Card
-								key={item.domainId}
-								className="relative overflow-hidden w-full border transition-all hover:shadow-md bg-transparent h-fit"
-							>
-								<CardContent className="p-6">
-									<div className="flex flex-col gap-4">
-										<div className="flex items-center justify-between flex-wrap gap-y-2">
-											<div className="flex gap-2 flex-wrap items-center">
-												<Badge variant="outline" className="bg-green-500/10 text-green-500">
-													<CheckCircle2 className="size-3 mr-1" />
-													Active
-												</Badge>
-											</div>
-											<div className="flex gap-2 flex-wrap">
-												<Button
-													variant="outline"
-													size="sm"
-													onClick={() => {
-														navigator.clipboard.writeText(
-															`${item.https ? "https" : "http"}://${item.host}${item.path}`,
-														);
-														toast.success("URL copied to clipboard");
-													}}
-												>
-													Copy URL
-												</Button>
-												<Link
-													target="_blank"
-													href={`${item.https ? "https" : "http"}://${item.host}${item.path}`}
-												>
-													<Button variant="default" size="sm">
-														Open <ExternalLink className="size-4 ml-2" />
-													</Button>
-												</Link>
-											</div>
-										</div>
-										<div className="w-full break-all">
-											<span className="text-base font-medium">
-												{item.host}
-											</span>
-										</div>
-										<div className="flex flex-wrap gap-3">
-											{item.certificateType && (
-												<Badge variant="outline">
-													Cert: {item.certificateType}
-												</Badge>
-											)}
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-						))}
-					</CardContent>
-				</Card>
-			)}
-
 			<Card className="bg-background">
 				<CardHeader className="flex flex-row items-center flex-wrap gap-4 justify-between">
 					<div className="flex flex-col gap-1">
-						<CardTitle className="text-xl">Custom Domains</CardTitle>
+						<CardTitle className="text-xl">Domains</CardTitle>
 						<CardDescription>
-							Domains are used to access to the application
+							Domains are used to access the application
 						</CardDescription>
 					</div>
 
@@ -498,20 +429,18 @@ export const ShowDomains = ({ id, type }: Props) => {
 														</Badge>
 													)}
 													<div className="flex gap-2 flex-wrap">
-														{!item.host.includes("preview.regz.lk") && (
-															<DnsHelperModal
-																domain={{
-																	host: item.host,
-																	https: item.https,
-																	path: item.path || undefined,
-																}}
-																serverIp={
-																	application?.server?.ipAddress?.toString() ||
-																	ip?.toString()
-																}
-																appName={application?.appName}
-															/>
-														)}
+														<DnsHelperModal
+															domain={{
+																host: item.host,
+																https: item.https,
+																path: item.path || undefined,
+															}}
+															serverIp={
+																application?.server?.ipAddress?.toString() ||
+																ip?.toString()
+															}
+															appName={application?.appName}
+														/>
 														{canCreateDomain && (
 															<AddDomain
 																id={id}

@@ -37,6 +37,7 @@ interface CreateContextOptions {
 				ownerId: string;
 				enableEnterpriseFeatures: boolean;
 				isValidEnterpriseLicense: boolean;
+				showOtherUsersProjects: boolean;
 		  })
 		| null;
 	session:
@@ -96,6 +97,7 @@ export const createTRPCContext = async (opts: CreateNextContextOptions) => {
 					role: user.role as "owner" | "member" | "admin",
 					id: user.id,
 					ownerId: user.ownerId,
+					showOtherUsersProjects: (user as any).showOtherUsersProjects,
 				}
 			: null,
 	});

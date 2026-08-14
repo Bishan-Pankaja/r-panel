@@ -170,64 +170,62 @@ export const createColumns = ({
 							{domain.certificateType}
 						</Badge>
 					)}
-					{!domain.host.includes("preview.regz.lk") && (
-						<TooltipProvider>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<Badge
-										variant="outline"
-										className={
-											validationState?.isValid
-												? "bg-green-500/10 text-green-500 cursor-pointer"
-												: validationState?.error
-													? "bg-red-500/10 text-red-500 cursor-pointer"
-													: "bg-yellow-500/10 text-yellow-500 cursor-pointer"
-										}
-										onClick={() => handleValidateDomain(domain.host)}
-									>
-										{validationState?.isLoading ? (
-											<>
-												<Loader2 className="size-3 mr-1 animate-spin" />
-												Checking...
-											</>
-										) : validationState?.isValid ? (
-											<>
-												<CheckCircle2 className="size-3 mr-1" />
-												{validationState.message && validationState.cdnProvider
-													? `${validationState.cdnProvider}`
-													: "Valid"}
-											</>
-										) : validationState?.error ? (
-											<>
-												<XCircle className="size-3 mr-1" />
-												Invalid
-											</>
-										) : (
-											<>
-												<RefreshCw className="size-3 mr-1" />
-												Validate
-											</>
-										)}
-									</Badge>
-								</TooltipTrigger>
-								<TooltipContent className="max-w-xs">
-									{validationState?.error ? (
-										<div className="flex flex-col gap-1">
-											<p className="font-medium text-red-500">Error:</p>
-											<p>{validationState.error}</p>
-										</div>
-									) : validationState?.isValid && validationState?.resolvedIp ? (
-										<div className="flex flex-col gap-1">
-											<p className="font-medium text-green-500">Resolved:</p>
-											<p className="break-all">{validationState.resolvedIp}</p>
-										</div>
+					<TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<Badge
+									variant="outline"
+									className={
+										validationState?.isValid
+											? "bg-green-500/10 text-green-500 cursor-pointer"
+											: validationState?.error
+												? "bg-red-500/10 text-red-500 cursor-pointer"
+												: "bg-yellow-500/10 text-yellow-500 cursor-pointer"
+									}
+									onClick={() => handleValidateDomain(domain.host)}
+								>
+									{validationState?.isLoading ? (
+										<>
+											<Loader2 className="size-3 mr-1 animate-spin" />
+											Checking...
+										</>
+									) : validationState?.isValid ? (
+										<>
+											<CheckCircle2 className="size-3 mr-1" />
+											{validationState.message && validationState.cdnProvider
+												? `${validationState.cdnProvider}`
+												: "Valid"}
+										</>
+									) : validationState?.error ? (
+										<>
+											<XCircle className="size-3 mr-1" />
+											Invalid
+										</>
 									) : (
-										"Click to validate DNS configuration"
+										<>
+											<RefreshCw className="size-3 mr-1" />
+											Validate
+										</>
 									)}
-								</TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
-					)}
+								</Badge>
+							</TooltipTrigger>
+							<TooltipContent className="max-w-xs">
+								{validationState?.error ? (
+									<div className="flex flex-col gap-1">
+										<p className="font-medium text-red-500">Error:</p>
+										<p>{validationState.error}</p>
+									</div>
+								) : validationState?.isValid && validationState?.resolvedIp ? (
+									<div className="flex flex-col gap-1">
+										<p className="font-medium text-green-500">Resolved:</p>
+										<p className="break-all">{validationState.resolvedIp}</p>
+									</div>
+								) : (
+									"Click to validate DNS configuration"
+								)}
+							</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
 				</div>
 			);
 		},
@@ -263,17 +261,15 @@ export const createColumns = ({
 
 			return (
 				<div className="flex items-center gap-2">
-					{!domain.host.includes("preview.regz.lk") && (
-						<DnsHelperModal
-							domain={{
-								host: domain.host,
-								https: domain.https,
-								path: domain.path || undefined,
-							}}
-							serverIp={serverIp}
-							appName={appName}
-						/>
-					)}
+					<DnsHelperModal
+						domain={{
+							host: domain.host,
+							https: domain.https,
+							path: domain.path || undefined,
+						}}
+						serverIp={serverIp}
+						appName={appName}
+					/>
 					{canCreateDomain && (
 						<AddDomain id={id} type={type} domainId={domain.domainId}>
 							<Button

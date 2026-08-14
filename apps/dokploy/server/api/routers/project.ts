@@ -370,7 +370,17 @@ export const projectRouter = createTRPCRouter({
 					},
 				},
 			},
-			where: eq(projects.organizationId, ctx.session.activeOrganizationId),
+			where: and(
+				eq(projects.organizationId, ctx.session.activeOrganizationId),
+				ctx.user.showOtherUsersProjects === false
+					? sql`exists (
+						select 1 from "member" 
+						where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
+						and "member"."user_id" = ${ctx.user.id} 
+						and ${projects.projectId} = any("member"."accessed_projects")
+					)`
+					: undefined
+			),
 			orderBy: desc(projects.createdAt),
 		});
 	}),
@@ -674,6 +684,15 @@ export const projectRouter = createTRPCRouter({
 						accessedProjects.map((id) => sql`${id}`),
 						sql`, `,
 					)})`,
+				);
+			} else if (ctx.user.showOtherUsersProjects === false) {
+				baseConditions.push(
+					sql`exists (
+						select 1 from "member" 
+						where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
+						and "member"."user_id" = ${ctx.user.id} 
+						and ${projects.projectId} = any("member"."accessed_projects")
+					)`
 				);
 			}
 

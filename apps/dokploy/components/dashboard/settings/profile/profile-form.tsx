@@ -43,6 +43,7 @@ const profileSchema = z.object({
 	firstName: z.string().optional(),
 	lastName: z.string().optional(),
 	allowImpersonation: z.boolean().optional().default(false),
+	showOtherUsersProjects: z.boolean().optional().default(true),
 });
 
 type Profile = z.infer<typeof profileSchema>;
@@ -89,6 +90,7 @@ export const ProfileForm = () => {
 			image: data?.user?.image || "",
 			currentPassword: "",
 			allowImpersonation: data?.user?.allowImpersonation || false,
+			showOtherUsersProjects: data?.user?.showOtherUsersProjects !== false,
 			firstName: data?.user?.firstName || "",
 			lastName: data?.user?.lastName || "",
 		},
@@ -104,6 +106,7 @@ export const ProfileForm = () => {
 					image: data?.user?.image || "",
 					currentPassword: form.getValues("currentPassword") || "",
 					allowImpersonation: data?.user?.allowImpersonation,
+					showOtherUsersProjects: data?.user?.showOtherUsersProjects !== false,
 					firstName: data?.user?.firstName || "",
 					lastName: data?.user?.lastName || "",
 				},
@@ -112,6 +115,7 @@ export const ProfileForm = () => {
 				},
 			);
 			form.setValue("allowImpersonation", data?.user?.allowImpersonation);
+			form.setValue("showOtherUsersProjects", data?.user?.showOtherUsersProjects !== false);
 
 			if (data.user.email) {
 				generateSHA256Hash(data.user.email).then((hash) => {
@@ -129,6 +133,7 @@ export const ProfileForm = () => {
 				image: values.image,
 				currentPassword: values.currentPassword || undefined,
 				allowImpersonation: values.allowImpersonation,
+				showOtherUsersProjects: values.showOtherUsersProjects,
 				firstName: values.firstName || undefined,
 				lastName: values.lastName || undefined,
 			});
@@ -141,6 +146,7 @@ export const ProfileForm = () => {
 				currentPassword: "",
 				firstName: values.firstName || "",
 				lastName: values.lastName || "",
+				showOtherUsersProjects: values.showOtherUsersProjects,
 			});
 		} catch (error) {
 			toast.error("Error updating the profile");
@@ -429,6 +435,29 @@ export const ProfileForm = () => {
 																	account for troubleshooting and support
 																	purposes. This helps them quickly identify and
 																	resolve any issues you may encounter.
+																</FormDescription>
+															</div>
+															<FormControl>
+																<Switch
+																	checked={field.value}
+																	onCheckedChange={field.onChange}
+																/>
+															</FormControl>
+														</FormItem>
+													)}
+												/>
+											)}
+
+											{data?.role === "owner" && (
+												<FormField
+													control={form.control}
+													name="showOtherUsersProjects"
+													render={({ field }) => (
+														<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
+															<div className="space-y-0.5">
+																<FormLabel>Show other users' projects</FormLabel>
+																<FormDescription>
+																	When enabled, you will see projects created by other users in the organization. When disabled, only projects you have access to will be shown.
 																</FormDescription>
 															</div>
 															<FormControl>

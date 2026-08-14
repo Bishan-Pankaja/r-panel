@@ -375,6 +375,11 @@ const { handler, api } = betterAuth({
 				type: "boolean",
 				defaultValue: false,
 			},
+			showOtherUsersProjects: {
+				fieldName: "showOtherUsersProjects",
+				type: "boolean",
+				defaultValue: true,
+			},
 			lastName: {
 				type: "string",
 				required: false,
@@ -513,6 +518,7 @@ export const validateRequest = async (request: IncomingMessage) => {
 					ownerId: member?.organization.ownerId || apiKeyRecord.user.id,
 					enableEnterpriseFeatures: userFromDb.enableEnterpriseFeatures,
 					isValidEnterpriseLicense: userFromDb.isValidEnterpriseLicense,
+					showOtherUsersProjects: userFromDb.showOtherUsersProjects,
 				},
 			};
 
@@ -565,6 +571,8 @@ export const validateRequest = async (request: IncomingMessage) => {
 			member?.user.enableEnterpriseFeatures || false;
 		session.user.isValidEnterpriseLicense =
 			member?.user.isValidEnterpriseLicense || false;
+		(session.user as any).showOtherUsersProjects =
+			member?.user.showOtherUsersProjects !== false;
 		session.session.activeOrganizationId = member?.organization.id || "";
 		if (member) {
 			session.user.ownerId = member.organization.ownerId;

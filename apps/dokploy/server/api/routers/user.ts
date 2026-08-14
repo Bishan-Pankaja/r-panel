@@ -242,7 +242,10 @@ export const userRouter = createTRPCRouter({
 			}
 
 			try {
-				const result = await updateUser(ctx.user.id, input);
+				const result = await updateUser(ctx.user.id, {
+					...input,
+					showOtherUsersProjects: input.showOtherUsersProjects,
+				});
 				await audit(ctx, {
 					action: "update",
 					resourceType: "user",

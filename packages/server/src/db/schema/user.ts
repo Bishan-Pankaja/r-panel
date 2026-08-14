@@ -54,6 +54,7 @@ export const user = pgTable("user", {
 	// Metrics
 	enablePaidFeatures: boolean("enablePaidFeatures").notNull().default(false),
 	allowImpersonation: boolean("allowImpersonation").notNull().default(false),
+	showOtherUsersProjects: boolean("showOtherUsersProjects").notNull().default(true),
 	// Enterprise / proprietary features
 	enableEnterpriseFeatures: boolean("enableEnterpriseFeatures")
 		.notNull()
@@ -242,4 +243,5 @@ export const apiUpdateUser = createSchema.partial().extend({
 	currentPassword: z.string().optional(),
 	firstName: z.string().optional(),
 	lastName: z.string().optional(),
+	showOtherUsersProjects: z.boolean().optional(),
 });
