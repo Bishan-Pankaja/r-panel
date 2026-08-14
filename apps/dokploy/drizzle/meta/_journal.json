@@ -1226,6 +1226,13 @@
       "when": 1786022511268,
       "tag": "0174_sad_rumiko_fujikawa",
       "breakpoints": true
+    },
+    {
+      "idx": 175,
+      "version": "7",
+      "when": 1786684586009,
+      "tag": "0175_windy_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }
