@@ -82,7 +82,10 @@ export const projectRouter = createTRPCRouter({
 				}
 
 				const project = await createProject(
-					input,
+					{
+						...input,
+						userId: ctx.user.id,
+					},
 					ctx.session.activeOrganizationId,
 				);
 				await addNewProject(ctx, project.project.projectId);
@@ -373,12 +376,15 @@ export const projectRouter = createTRPCRouter({
 			where: and(
 				eq(projects.organizationId, ctx.session.activeOrganizationId),
 				ctx.user.showOtherUsersProjects === false
-					? sql`exists (
-						select 1 from "member" 
-						where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
-						and "member"."user_id" = ${ctx.user.id} 
-						and ${projects.projectId} = any("member"."accessed_projects")
-					)`
+					? or(
+							eq(projects.userId, ctx.user.id),
+							sql`exists (
+								select 1 from "member" 
+								where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
+								and "member"."user_id" = ${ctx.user.id} 
+								and ${projects.projectId} = any("member"."accessed_projects")
+							)`
+						)
 					: undefined
 			),
 			orderBy: desc(projects.createdAt),
@@ -687,12 +693,15 @@ export const projectRouter = createTRPCRouter({
 				);
 			} else if (ctx.user.showOtherUsersProjects === false) {
 				baseConditions.push(
-					sql`exists (
-						select 1 from "member" 
-						where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
-						and "member"."user_id" = ${ctx.user.id} 
-						and ${projects.projectId} = any("member"."accessed_projects")
-					)`
+					or(
+						eq(projects.userId, ctx.user.id),
+						sql`exists (
+							select 1 from "member" 
+							where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
+							and "member"."user_id" = ${ctx.user.id} 
+							and ${projects.projectId} = any("member"."accessed_projects")
+						)`
+					)!
 				);
 			}
 
@@ -871,6 +880,7 @@ export const projectRouter = createTRPCRouter({
 								name: input.name,
 								description: input.description,
 								env: sourceEnvironment?.project.env,
+								userId: ctx.user.id,
 							},
 							ctx.session.activeOrganizationId,
 						).then((value) => value.environment);

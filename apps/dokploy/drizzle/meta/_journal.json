@@ -1233,6 +1233,13 @@
       "when": 1786684586009,
       "tag": "0175_windy_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 176,
+      "version": "7",
+      "when": 1786688455865,
+      "tag": "0176_bitter_kingpin",
+      "breakpoints": true
     }
   ]
 }

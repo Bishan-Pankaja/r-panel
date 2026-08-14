@@ -18,7 +18,7 @@ import { createProductionEnvironment } from "./environment";
 export type Project = typeof projects.$inferSelect;
 
 export const createProject = async (
-	input: z.infer<typeof apiCreateProject>,
+	input: z.infer<typeof apiCreateProject> & { userId?: string },
 	organizationId: string,
 ) => {
 	const newProject = await db

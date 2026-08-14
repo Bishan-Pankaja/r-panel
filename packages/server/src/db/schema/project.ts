@@ -6,6 +6,7 @@ import { z } from "zod";
 import { organization } from "./account";
 import { environments } from "./environment";
 import { projectTags } from "./tag";
+import { user } from "./user";
 
 export const projects = pgTable("project", {
 	projectId: text("projectId")
@@ -22,6 +23,7 @@ export const projects = pgTable("project", {
 		.notNull()
 		.references(() => organization.id, { onDelete: "cascade" }),
 	env: text("env").notNull().default(""),
+	userId: text("userId"),
 });
 
 export const projectRelations = relations(projects, ({ many, one }) => ({
@@ -30,6 +32,10 @@ export const projectRelations = relations(projects, ({ many, one }) => ({
 	organization: one(organization, {
 		fields: [projects.organizationId],
 		references: [organization.id],
+	}),
+	user: one(user, {
+		fields: [projects.userId],
+		references: [user.id],
 	}),
 }));
 
