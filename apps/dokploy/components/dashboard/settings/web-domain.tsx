@@ -153,7 +153,7 @@ export const WebDomain = () => {
 												<FormControl>
 													<Input
 														className="w-full"
-														placeholder={"hpanel.regz.lk"}
+														placeholder={"dash.regz.lk"}
 														{...field}
 													/>
 												</FormControl>

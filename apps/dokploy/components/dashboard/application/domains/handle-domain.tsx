@@ -536,7 +536,7 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 											<FormLabel>Host</FormLabel>
 											<div className="flex gap-2">
 												<FormControl>
-													<Input placeholder="api.hpanel.regz.lk" {...field} />
+													<Input placeholder="api.dash.regz.lk" {...field} />
 												</FormControl>
 												<TooltipProvider delayDuration={0}>
 													<Tooltip>

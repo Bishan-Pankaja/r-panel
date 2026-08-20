@@ -106,7 +106,7 @@ export const removeUserById = async (userId: string) => {
 
 export const getDokployUrl = async () => {
 	if (IS_CLOUD) {
-		return "https://hpanel.regz.lk";
+		return "https://dash.regz.lk";
 	}
 	const settings = await getWebServerSettings();
 

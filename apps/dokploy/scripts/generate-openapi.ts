@@ -23,7 +23,7 @@ async function generateOpenAPI() {
 			title: "Dokploy API",
 			version: "1.0.0",
 			baseUrl: "https://your-dokploy-instance.com/api",
-			docsUrl: "https://hpanel.regz.lk/docs/api",
+			docsUrl: "https://dash.regz.lk/docs/api",
 			tags: [
 				"admin",
 				"docker",
@@ -73,7 +73,7 @@ async function generateOpenAPI() {
 			version: "1.0.0",
 			contact: {
 				name: "Dokploy Team",
-				url: "https://hpanel.regz.lk",
+				url: "https://dash.regz.lk",
 			},
 			license: {
 				name: "Apache 2.0",
@@ -105,7 +105,7 @@ async function generateOpenAPI() {
 		// Add external docs
 		openApiDocument.externalDocs = {
 			description: "Full documentation",
-			url: "https://hpanel.regz.lk/docs",
+			url: "https://dash.regz.lk/docs",
 		};
 
 		// Write to root of repo

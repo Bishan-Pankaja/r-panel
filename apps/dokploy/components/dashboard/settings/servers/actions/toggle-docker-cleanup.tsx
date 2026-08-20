@@ -77,7 +77,7 @@ export const ToggleDockerCleanup = ({ serverId }: Props) => {
 						<p className="mt-1">
 							For custom cleanup strategies, use{" "}
 							<a
-								href="https://hpanel.regz.lk/docs/core/schedule-jobs#example-1-automatic-docker-cleanup"
+								href="https://dash.regz.lk/docs/core/schedule-jobs#example-1-automatic-docker-cleanup"
 								target="_blank"
 								rel="noopener noreferrer"
 								className="underline text-primary"

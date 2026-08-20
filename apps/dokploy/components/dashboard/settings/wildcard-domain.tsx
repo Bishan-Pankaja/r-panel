@@ -123,7 +123,7 @@ export const WildcardDomain = () => {
 											<FormControl>
 												<Input
 													className="w-full"
-													placeholder="panel.regz.lk"
+													placeholder="dash.regz.lk"
 													{...field}
 													value={field.value || ""}
 												/>

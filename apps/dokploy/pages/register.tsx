@@ -217,7 +217,7 @@ const Register = ({ isCloud }: Props) => {
 												<FormItem>
 													<FormLabel>Email</FormLabel>
 													<FormControl>
-														<Input placeholder="email@hpanel.regz.lk" {...field} />
+														<Input placeholder="email@dash.regz.lk" {...field} />
 													</FormControl>
 													<FormMessage />
 												</FormItem>
@@ -283,7 +283,7 @@ const Register = ({ isCloud }: Props) => {
 									Need help?
 									<Link
 										className="underline"
-										href="https://hpanel.regz.lk"
+										href="https://dash.regz.lk"
 										target="_blank"
 									>
 										Contact us

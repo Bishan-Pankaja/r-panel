@@ -66,7 +66,7 @@ export function formatContactDataForHubSpot(
 			},
 		],
 		context: {
-			pageUri: "https://hpanel.regz.lk/register",
+			pageUri: "https://dash.regz.lk/register",
 			pageName: "Sign Up",
 		},
 	};

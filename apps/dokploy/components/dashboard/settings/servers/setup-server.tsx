@@ -191,7 +191,7 @@ export const SetupServer = ({ serverId, asButton = false }: Props) => {
 											Automatic process
 										</span>
 										<Link
-											href="https://hpanel.regz.lk/docs/core/remote-servers/instructions#requirements"
+											href="https://dash.regz.lk/docs/core/remote-servers/instructions#requirements"
 											target="_blank"
 											className="text-primary flex flex-row gap-2"
 										>

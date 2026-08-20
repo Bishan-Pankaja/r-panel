@@ -27,7 +27,7 @@ const Dashboard = () => {
 			{/* <AlertBlock>
 				You are watching the <strong>Free</strong> plan.{" "}
 				<a
-					href="https://hpanel.regz.lk#pricing"
+					href="https://dash.regz.lk#pricing"
 					target="_blank"
 					className="underline"
 					rel="noreferrer"

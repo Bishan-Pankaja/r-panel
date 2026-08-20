@@ -7,7 +7,7 @@ import { user as userSchema } from "../../db/schema/user";
 export const LICENSE_KEY_URL =
 	// process.env.NODE_ENV === "development"
 	// 	? "http://localhost:4002"
-	"https://hpanel.regz.lk/licenses-api";
+	"https://dash.regz.lk/licenses-api";
 
 export const initEnterpriseBackupCronJobs = async () => {
 	scheduleJob("enterprise-check", "0 0 */3 * *", async () => {

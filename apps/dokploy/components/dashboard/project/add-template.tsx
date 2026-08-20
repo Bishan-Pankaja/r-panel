@@ -421,7 +421,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 										>
 											{/** biome-ignore lint/performance/noImgElement: this is a valid use for img tag */}
 											<img
-												src={`${customBaseUrl || "https://hpanel.regz.lk/templates/"}/blueprints/${template?.id}/${template?.logo}`}
+												src={`${customBaseUrl || "https://dash.regz.lk/templates/"}/blueprints/${template?.id}/${template?.logo}`}
 												className={cn(
 													"object-contain",
 													viewMode === "detailed" ? "size-24" : "size-16",

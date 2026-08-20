@@ -2,7 +2,7 @@ import { getCloudflareAccount, saveCloudflareAccount } from "./cloudflare-accoun
 
 const CLIENT_ID = "94dc2289f2f5abcbce765d027fdb601c";
 const CLIENT_SECRET = "cfoc_lS6SrWc3051k7JY805ARswUqSDobIcJKo9SCooejb87c8848";
-const REDIRECT_URI = "https://panel.regz.lk/api/cloudflare/callback";
+const REDIRECT_URI = "https://dash.regz.lk/api/cloudflare/callback";
 
 export function getCloudflareAuthUrl(state: string) {
 	const params = new URLSearchParams({

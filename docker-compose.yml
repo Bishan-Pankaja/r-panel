@@ -35,7 +35,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=rpanel-network"
-      - "traefik.http.routers.rpanel.rule=Host(`panel.regz.lk`)"
+      - "traefik.http.routers.rpanel.rule=Host(`dash.regz.lk`)"
       - "traefik.http.routers.rpanel.entrypoints=websecure"
       - "traefik.http.routers.rpanel.tls=true"
       - "traefik.http.routers.rpanel.tls.certresolver=letsencrypt"

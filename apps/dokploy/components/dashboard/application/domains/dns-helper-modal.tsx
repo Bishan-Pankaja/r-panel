@@ -25,7 +25,7 @@ interface Props {
 
 export const DnsHelperModal = ({ domain, serverIp, appName }: Props) => {
 	const { data: webServerSettings } = api.settings.getWebServerSettings.useQuery();
-	const panelDomain = "panel.regz.lk";
+	const panelDomain = "dash.regz.lk";
 	const gatewayDomain = "dns.regz.lk";
 	const cnameTarget = appName ? `${appName}.${gatewayDomain}` : panelDomain;
 	

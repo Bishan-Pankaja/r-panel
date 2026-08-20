@@ -1079,7 +1079,7 @@ export const ShowBilling = () => {
 											</ul>
 											<Button variant="outline" className="mt-6 w-full" asChild>
 												<Link
-													href="https://hpanel.regz.lk/contact"
+													href="https://dash.regz.lk/contact"
 													target="_blank"
 													rel="noopener noreferrer"
 												>

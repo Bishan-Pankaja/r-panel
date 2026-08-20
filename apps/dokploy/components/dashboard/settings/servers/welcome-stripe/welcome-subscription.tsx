@@ -382,7 +382,7 @@ export const WelcomeSubscription = () => {
 													variant="outline"
 												>
 													<Link
-														href="https://hpanel.regz.lk/docs/core"
+														href="https://dash.regz.lk/docs/core"
 														aria-label="Dokploy Docs"
 														target="_blank"
 														className="flex flex-row items-center gap-2 "

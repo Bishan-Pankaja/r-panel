@@ -402,7 +402,7 @@ export default function Home({ IS_CLOUD, enforceSSO }: Props) {
 						) : (
 							<Link
 								className="hover:text-cyan-400 text-slate-400 font-mono transition-colors"
-								href="https://hpanel.regz.lk/docs/core/reset-password"
+								href="https://dash.regz.lk/docs/core/reset-password"
 								target="_blank"
 							>
 								? Reset password

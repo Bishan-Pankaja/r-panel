@@ -432,7 +432,7 @@ const MENU: Menu = {
 	help: [
 		{
 			name: "Documentation",
-			url: "https://hpanel.regz.lk/docs/core",
+			url: "https://dash.regz.lk/docs/core",
 			icon: BookIcon,
 		},
 		{
