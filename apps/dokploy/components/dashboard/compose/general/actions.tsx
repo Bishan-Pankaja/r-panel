@@ -33,8 +33,10 @@ export const ComposeActions = ({ composeId }: Props) => {
 		{ enabled: !!composeId },
 	);
 	const { mutateAsync: update } = api.compose.update.useMutation();
-	const { mutateAsync: deploy } = api.compose.deploy.useMutation();
-	const { mutateAsync: redeploy } = api.compose.redeploy.useMutation();
+	const { mutateAsync: deploy, isPending: isDeploying } =
+		api.compose.deploy.useMutation();
+	const { mutateAsync: redeploy, isPending: isReloading } =
+		api.compose.redeploy.useMutation();
 	const { mutateAsync: start, isPending: isStarting } =
 		api.compose.start.useMutation();
 	const { mutateAsync: stop, isPending: isStopping } =
@@ -44,6 +46,7 @@ export const ComposeActions = ({ composeId }: Props) => {
 			<TooltipProvider delayDuration={0} disableHoverableContent={false}>
 				{canDeploy && (
 					<DialogAction
+						immediate
 						title="Deploy Compose"
 						description="Are you sure you want to deploy this compose?"
 						type="default"
@@ -65,7 +68,7 @@ export const ComposeActions = ({ composeId }: Props) => {
 					>
 						<Button
 							variant="default"
-							isLoading={data?.composeStatus === "running"}
+							isLoading={isDeploying}
 							className="flex items-center gap-1.5 group focus-visible:ring-2 focus-visible:ring-offset-2"
 						>
 							<Tooltip>
@@ -88,6 +91,7 @@ export const ComposeActions = ({ composeId }: Props) => {
 				)}
 				{canDeploy && (
 					<DialogAction
+						immediate
 						title="Reload Compose"
 						description="Are you sure you want to reload this compose?"
 						type="default"
@@ -106,7 +110,7 @@ export const ComposeActions = ({ composeId }: Props) => {
 					>
 						<Button
 							variant="secondary"
-							isLoading={data?.composeStatus === "running"}
+							isLoading={isReloading}
 							className="flex items-center gap-1.5 group focus-visible:ring-2 focus-visible:ring-offset-2"
 						>
 							<Tooltip>
@@ -129,6 +133,7 @@ export const ComposeActions = ({ composeId }: Props) => {
 					(data?.composeType === "docker-compose" &&
 					data?.composeStatus === "idle" ? (
 						<DialogAction
+							immediate
 							title="Start Compose"
 							description="Are you sure you want to start this compose?"
 							type="default"
@@ -169,6 +174,7 @@ export const ComposeActions = ({ composeId }: Props) => {
 						</DialogAction>
 					) : (
 						<DialogAction
+							immediate
 							title="Stop Compose"
 							description="Are you sure you want to stop this compose?"
 							onClick={async () => {

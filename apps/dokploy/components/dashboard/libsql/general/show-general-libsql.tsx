@@ -93,6 +93,7 @@ export const ShowGeneralLibsql = ({ libsqlId, actionsOnly = false }: Props) => {
 							<>
 								<TooltipProvider delayDuration={0}>
 									<DialogAction
+										immediate
 										title="Deploy Libsql"
 										description="Are you sure you want to deploy this Libsql?"
 										type="default"
@@ -104,7 +105,7 @@ export const ShowGeneralLibsql = ({ libsqlId, actionsOnly = false }: Props) => {
 									>
 										<Button
 											variant="default"
-											isLoading={data?.applicationStatus === "running"}
+											isLoading={isDeploying}
 											className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
 										>
 											<Tooltip>
@@ -125,6 +126,7 @@ export const ShowGeneralLibsql = ({ libsqlId, actionsOnly = false }: Props) => {
 								</TooltipProvider>
 								<TooltipProvider delayDuration={0}>
 									<DialogAction
+										immediate
 										title="Reload Libsql"
 										description="Are you sure you want to reload this libsql?"
 										type="default"
@@ -166,6 +168,7 @@ export const ShowGeneralLibsql = ({ libsqlId, actionsOnly = false }: Props) => {
 								{data?.applicationStatus === "idle" ? (
 									<TooltipProvider delayDuration={0}>
 										<DialogAction
+											immediate
 											title="Start Libsql"
 											description="Are you sure you want to start this Libsql?"
 											type="default"
@@ -209,6 +212,7 @@ export const ShowGeneralLibsql = ({ libsqlId, actionsOnly = false }: Props) => {
 								) : (
 									<TooltipProvider delayDuration={0}>
 										<DialogAction
+											immediate
 											title="Stop Libsql"
 											description="Are you sure you want to stop this Libsql?"
 											onClick={async () => {

@@ -89,6 +89,7 @@ export const ShowGeneralMysql = ({ mysqlId, actionsOnly = false }: Props) => {
 						<TooltipProvider delayDuration={0}>
 							{canDeploy && (
 								<DialogAction
+									immediate
 									title="Deploy MySQL"
 									description="Are you sure you want to deploy this mysql?"
 									type="default"
@@ -100,7 +101,7 @@ export const ShowGeneralMysql = ({ mysqlId, actionsOnly = false }: Props) => {
 								>
 									<Button
 										variant="default"
-										isLoading={data?.applicationStatus === "running"}
+										isLoading={isDeploying}
 										className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
 									>
 										<Tooltip>
@@ -121,6 +122,7 @@ export const ShowGeneralMysql = ({ mysqlId, actionsOnly = false }: Props) => {
 							)}
 							{canDeploy && (
 								<DialogAction
+									immediate
 									title="Reload MySQL"
 									description="Are you sure you want to reload this mysql?"
 									type="default"
@@ -162,6 +164,7 @@ export const ShowGeneralMysql = ({ mysqlId, actionsOnly = false }: Props) => {
 							{canDeploy &&
 								(data?.applicationStatus === "idle" ? (
 									<DialogAction
+										immediate
 										title="Start MySQL"
 										description="Are you sure you want to start this mysql?"
 										type="default"
@@ -203,6 +206,7 @@ export const ShowGeneralMysql = ({ mysqlId, actionsOnly = false }: Props) => {
 									</DialogAction>
 								) : (
 									<DialogAction
+										immediate
 										title="Stop MySQL"
 										description="Are you sure you want to stop this mysql?"
 										onClick={async () => {

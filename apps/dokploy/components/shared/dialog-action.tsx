@@ -1,3 +1,4 @@
+import * as React from "react";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -17,6 +18,7 @@ interface Props {
 	children?: React.ReactNode;
 	disabled?: boolean;
 	type?: "default" | "destructive";
+	immediate?: boolean;
 }
 
 export const DialogAction = ({
@@ -26,7 +28,19 @@ export const DialogAction = ({
 	title,
 	disabled,
 	type,
+	immediate = false,
 }: Props) => {
+	if (immediate && React.isValidElement(children)) {
+		const child = children as React.ReactElement<any>;
+		return React.cloneElement(child, {
+			disabled: disabled || child.props.disabled,
+			onClick: async (event: React.MouseEvent<HTMLButtonElement>) => {
+				await child.props.onClick?.(event);
+				await onClick();
+			},
+		});
+	}
+
 	return (
 		<AlertDialog>
 			<AlertDialogTrigger asChild>{children}</AlertDialogTrigger>

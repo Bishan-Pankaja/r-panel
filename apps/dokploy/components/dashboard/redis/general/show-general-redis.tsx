@@ -90,6 +90,7 @@ export const ShowGeneralRedis = ({ redisId, actionsOnly = false }: Props) => {
 						<TooltipProvider delayDuration={0}>
 							{canDeploy && (
 								<DialogAction
+									immediate
 									title="Deploy Redis"
 									description="Are you sure you want to deploy this redis?"
 									type="default"
@@ -101,7 +102,7 @@ export const ShowGeneralRedis = ({ redisId, actionsOnly = false }: Props) => {
 								>
 									<Button
 										variant="default"
-										isLoading={data?.applicationStatus === "running"}
+										isLoading={isDeploying}
 										className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
 									>
 										<Tooltip>
@@ -122,6 +123,7 @@ export const ShowGeneralRedis = ({ redisId, actionsOnly = false }: Props) => {
 							)}
 							{canDeploy && (
 								<DialogAction
+									immediate
 									title="Reload Redis"
 									description="Are you sure you want to reload this redis?"
 									type="default"
@@ -163,6 +165,7 @@ export const ShowGeneralRedis = ({ redisId, actionsOnly = false }: Props) => {
 							{canDeploy &&
 								(data?.applicationStatus === "idle" ? (
 									<DialogAction
+										immediate
 										title="Start Redis"
 										description="Are you sure you want to start this redis?"
 										type="default"
@@ -204,6 +207,7 @@ export const ShowGeneralRedis = ({ redisId, actionsOnly = false }: Props) => {
 									</DialogAction>
 								) : (
 									<DialogAction
+										immediate
 										title="Stop Redis"
 										description="Are you sure you want to stop this redis?"
 										onClick={async () => {

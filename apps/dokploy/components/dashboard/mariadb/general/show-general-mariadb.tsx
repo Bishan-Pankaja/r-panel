@@ -94,6 +94,7 @@ export const ShowGeneralMariadb = ({
 						{canDeploy && (
 							<TooltipProvider delayDuration={0}>
 								<DialogAction
+									immediate
 									title="Deploy Mariadb"
 									description="Are you sure you want to deploy this mariadb?"
 									type="default"
@@ -105,7 +106,7 @@ export const ShowGeneralMariadb = ({
 								>
 									<Button
 										variant="default"
-										isLoading={data?.applicationStatus === "running"}
+										isLoading={isDeploying}
 										className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
 									>
 										<Tooltip>
@@ -128,6 +129,7 @@ export const ShowGeneralMariadb = ({
 						{canDeploy && (
 							<TooltipProvider delayDuration={0}>
 								<DialogAction
+									immediate
 									title="Reload Mariadb"
 									description="Are you sure you want to reload this mariadb?"
 									type="default"
@@ -171,6 +173,7 @@ export const ShowGeneralMariadb = ({
 							(data?.applicationStatus === "idle" ? (
 								<TooltipProvider delayDuration={0}>
 									<DialogAction
+										immediate
 										title="Start Mariadb"
 										description="Are you sure you want to start this mariadb?"
 										type="default"
@@ -214,6 +217,7 @@ export const ShowGeneralMariadb = ({
 							) : (
 								<TooltipProvider delayDuration={0}>
 									<DialogAction
+										immediate
 										title="Stop Mariadb"
 										description="Are you sure you want to stop this mariadb?"
 										onClick={async () => {

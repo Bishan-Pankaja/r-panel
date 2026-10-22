@@ -94,6 +94,7 @@ export const ShowGeneralPostgres = ({
 						<TooltipProvider disableHoverableContent={false}>
 							{canDeploy && (
 								<DialogAction
+									immediate
 									title="Deploy PostgreSQL"
 									description="Are you sure you want to deploy this postgres?"
 									type="default"
@@ -105,7 +106,7 @@ export const ShowGeneralPostgres = ({
 								>
 									<Button
 										variant="default"
-										isLoading={data?.applicationStatus === "running"}
+										isLoading={isDeploying}
 										className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
 									>
 										<Tooltip>
@@ -126,6 +127,7 @@ export const ShowGeneralPostgres = ({
 							)}
 							{canDeploy && (
 								<DialogAction
+									immediate
 									title="Reload PostgreSQL"
 									description="Are you sure you want to reload this postgres?"
 									type="default"
@@ -169,6 +171,7 @@ export const ShowGeneralPostgres = ({
 							{canDeploy &&
 								(data?.applicationStatus === "idle" ? (
 									<DialogAction
+										immediate
 										title="Start PostgreSQL"
 										description="Are you sure you want to start this postgres?"
 										type="default"
@@ -210,6 +213,7 @@ export const ShowGeneralPostgres = ({
 									</DialogAction>
 								) : (
 									<DialogAction
+										immediate
 										title="Stop PostgreSQL"
 										description="Are you sure you want to stop this postgres?"
 										onClick={async () => {
