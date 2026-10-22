@@ -12,6 +12,7 @@ import {
 import {
 	CheckCircle2,
 	ChevronDown,
+	Cloud,
 	ExternalLink,
 	GlobeIcon,
 	InfoIcon,
@@ -25,7 +26,7 @@ import {
 	XCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +120,10 @@ export const ShowDomains = ({ id, type }: Props) => {
 	const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
 	const [rowSelection, setRowSelection] = useState({});
 	const { data: ip } = api.settings.getIp.useQuery();
+	const { data: cloudflareAccount } =
+		api.cloudflare.getConnectedAccount.useQuery();
+	const { mutateAsync: autoConfigureDns, isPending: isAutoConfiguringDns } =
+		api.cloudflare.autoConfigureDomainDns.useMutation();
 
 	const {
 		data,
@@ -194,6 +199,52 @@ export const ShowDomains = ({ id, type }: Props) => {
 		}
 	};
 
+	const handleAutoConfigureDns = async (domainId: string, host: string) => {
+		try {
+			await autoConfigureDns({ domainId });
+			toast.success(
+				"Cloudflare DNS record created. DNS propagation may take a few minutes.",
+			);
+			window.setTimeout(() => {
+				void handleValidateDomain(host);
+			}, 10_000);
+		} catch (error) {
+			toast.error(
+				error instanceof Error
+					? error.message
+					: "Failed to configure DNS with Cloudflare.",
+			);
+		}
+	};
+
+	const domainsRef = useRef(data);
+	useEffect(() => {
+		domainsRef.current = data;
+	}, [data]);
+
+	const validateDomainRef = useRef(handleValidateDomain);
+	useEffect(() => {
+		validateDomainRef.current = handleValidateDomain;
+	}, [handleValidateDomain]);
+
+	useEffect(() => {
+		// Initial check on mount
+		if (domainsRef.current) {
+			domainsRef.current.forEach((domain) => {
+				validateDomainRef.current(domain.host);
+			});
+		}
+
+		// Interval check every 10s
+		const interval = setInterval(() => {
+			if (!domainsRef.current) return;
+			domainsRef.current.forEach((domain) => {
+				validateDomainRef.current(domain.host);
+			});
+		}, 10000);
+		return () => clearInterval(interval);
+	}, []);
+
 	const columns = createColumns({
 		id,
 		type,
@@ -205,6 +256,9 @@ export const ShowDomains = ({ id, type }: Props) => {
 		canCreateDomain,
 		canDeleteDomain,
 		appName: application?.appName,
+		hasCloudflareAccount: !!cloudflareAccount,
+		handleAutoConfigureDns,
+		isAutoConfiguringDns,
 	});
 
 	const customDomains = data || [];
@@ -230,7 +284,7 @@ export const ShowDomains = ({ id, type }: Props) => {
 
 	return (
 		<div className="flex w-full flex-col gap-5 ">
-			<Card className="bg-background">
+			<Card className="">
 				<CardHeader className="flex flex-row items-center flex-wrap gap-4 justify-between">
 					<div className="flex flex-col gap-1">
 						<CardTitle className="text-xl">Domains</CardTitle>
@@ -416,12 +470,12 @@ export const ShowDomains = ({ id, type }: Props) => {
 								return (
 									<Card
 										key={item.domainId}
-										className="relative overflow-hidden w-full border transition-all hover:shadow-md bg-transparent h-fit"
+										className="relative overflow-hidden w-full border border-zinc-800/80 transition-all hover:shadow-md bg-[#161616]/70 hover:bg-[#1a1a1a] h-fit rounded-xl"
 									>
-										<CardContent className="p-6">
-											<div className="flex flex-col gap-4">
+										<CardContent className="p-6 pt-8 sm:p-7 sm:pt-8">
+											<div className="flex flex-col gap-5">
 												{/* Service & Domain Info */}
-												<div className="flex items-center justify-between flex-wrap gap-y-2">
+												<div className="flex items-center flex-wrap gap-3">
 													{item.serviceName && (
 														<Badge variant="outline" className="w-fit">
 															<Server className="size-3 mr-1" />
@@ -505,29 +559,20 @@ export const ShowDomains = ({ id, type }: Props) => {
 													</Link>
 												</div>
 
-												{/* Domain Details */}
-												<div className="flex flex-wrap gap-3">
+												{/* Domain Details Summary Bar */}
+												<div className="flex flex-wrap items-center gap-2 p-1.5 mt-1 bg-[#161616]/80 rounded-lg border border-zinc-800/80">
 													<TooltipProvider>
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<Badge variant="secondary">
-																	<InfoIcon className="size-3 mr-1" />
-																	Path: {item.path || "/"}
-																</Badge>
-															</TooltipTrigger>
-															<TooltipContent>
-																<p>URL path for this service</p>
-															</TooltipContent>
-														</Tooltip>
-													</TooltipProvider>
-
-													<TooltipProvider>
-														<Tooltip>
-															<TooltipTrigger asChild>
-																<Badge variant="secondary">
-																	<InfoIcon className="size-3 mr-1" />
-																	Port: {item.port}
-																</Badge>
+																<div className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-white/5 rounded-md transition-colors cursor-default">
+																	<InfoIcon className="size-3.5 text-zinc-500" />
+																	<span className="text-xs font-medium text-zinc-400">
+																		Port
+																	</span>
+																	<span className="text-xs font-mono text-zinc-200">
+																		{item.port}
+																	</span>
+																</div>
 															</TooltipTrigger>
 															<TooltipContent>
 																<p>Container port exposed</p>
@@ -535,14 +580,20 @@ export const ShowDomains = ({ id, type }: Props) => {
 														</Tooltip>
 													</TooltipProvider>
 
+													<div className="w-px h-4 bg-zinc-800" />
+
 													<TooltipProvider>
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<Badge
-																	variant={item.https ? "outline" : "secondary"}
-																>
-																	{item.https ? "HTTPS" : "HTTP"}
-																</Badge>
+																<div className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-white/5 rounded-md transition-colors cursor-default">
+																	<GlobeIcon className="size-3.5 text-zinc-500" />
+																	<span className="text-xs font-medium text-zinc-400">
+																		Protocol
+																	</span>
+																	<span className="text-xs font-mono text-zinc-200">
+																		{item.https ? "HTTPS" : "HTTP"}
+																	</span>
+																</div>
 															</TooltipTrigger>
 															<TooltipContent>
 																<p>
@@ -555,60 +606,94 @@ export const ShowDomains = ({ id, type }: Props) => {
 													</TooltipProvider>
 
 													{item.certificateType && (
-														<TooltipProvider>
-															<Tooltip>
-																<TooltipTrigger asChild>
-																	<Badge variant="outline">
-																		Cert: {item.certificateType}
-																	</Badge>
-																</TooltipTrigger>
-																<TooltipContent>
-																	<p>SSL Certificate Provider</p>
-																</TooltipContent>
-															</Tooltip>
-														</TooltipProvider>
+														<>
+															<div className="w-px h-4 bg-zinc-800" />
+															<TooltipProvider>
+																<Tooltip>
+																	<TooltipTrigger asChild>
+																		<div className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-white/5 rounded-md transition-colors cursor-default">
+																			<CheckCircle2 className="size-3.5 text-zinc-500" />
+																			<span className="text-xs font-medium text-zinc-400">
+																				Cert
+																			</span>
+																			<span className="text-xs font-mono text-zinc-200">
+																				{item.certificateType}
+																			</span>
+																		</div>
+																	</TooltipTrigger>
+																	<TooltipContent>
+																		<p>SSL Certificate Provider</p>
+																	</TooltipContent>
+																</Tooltip>
+															</TooltipProvider>
+														</>
 													)}
 
-													{item.middlewares?.map((middleware, index) => (
-														<TooltipProvider key={`${middleware}-${index}`}>
-															<Tooltip>
-																<TooltipTrigger asChild>
-																	<Badge variant="secondary">
-																		<InfoIcon className="size-3 mr-1" />
-																		Middleware: {middleware}
-																	</Badge>
-																</TooltipTrigger>
-																<TooltipContent>
-																	<p>Traefik middleware reference</p>
-																</TooltipContent>
-															</Tooltip>
-														</TooltipProvider>
-													))}
+													{item.middlewares && item.middlewares.length > 0 && (
+														<>
+															<div className="w-px h-4 bg-zinc-800" />
+															<TooltipProvider>
+																<Tooltip>
+																	<TooltipTrigger asChild>
+																		<div className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-white/5 rounded-md transition-colors cursor-default">
+																			<LayoutList className="size-3.5 text-zinc-500" />
+																			<span className="text-xs font-medium text-zinc-400">
+																				Middlewares
+																			</span>
+																			<span className="text-xs font-mono text-zinc-200">
+																				{item.middlewares.length}
+																			</span>
+																		</div>
+																	</TooltipTrigger>
+																	<TooltipContent>
+																		<div className="flex flex-col gap-1">
+																			<p className="font-medium">
+																				Traefik Middlewares:
+																			</p>
+																			<ul className="list-disc list-inside">
+																				{item.middlewares.map((m, idx) => (
+																					<li
+																						key={idx}
+																						className="text-zinc-300"
+																					>
+																						{m}
+																					</li>
+																				))}
+																			</ul>
+																		</div>
+																	</TooltipContent>
+																</Tooltip>
+															</TooltipProvider>
+														</>
+													)}
+
+													<div className="flex-1" />
 
 													<TooltipProvider>
 														<Tooltip>
 															<TooltipTrigger asChild>
-																<Badge
-																	variant="outline"
-																	className={
+																<Button
+																	variant="ghost"
+																	size="sm"
+																	className={`h-7 px-3 text-xs font-medium border ${
 																		validationState?.isValid
-																			? "bg-green-500/10 text-green-500 cursor-pointer"
+																			? "bg-green-500/10 hover:bg-green-500/20 text-green-400 border-green-500/20"
 																			: validationState?.error
-																				? "bg-red-500/10 text-red-500 cursor-pointer"
-																				: "bg-yellow-500/10 text-yellow-500 cursor-pointer"
-																	}
+																				? "bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20"
+																				: "bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border-yellow-500/20"
+																	}`}
 																	onClick={() =>
 																		handleValidateDomain(item.host)
 																	}
 																>
 																	{validationState?.isLoading ? (
 																		<>
-																			<Loader2 className="size-3 mr-1 animate-spin" />
+																			<Loader2 className="size-3.5 mr-1.5 animate-spin" />
 																			Checking DNS...
 																		</>
 																	) : validationState?.isValid ? (
 																		<>
-																			<CheckCircle2 className="size-3 mr-1" />
+																			<CheckCircle2 className="size-3.5 mr-1.5" />
 																			{validationState.message &&
 																			validationState.cdnProvider
 																				? `Behind ${validationState.cdnProvider}`
@@ -616,16 +701,16 @@ export const ShowDomains = ({ id, type }: Props) => {
 																		</>
 																	) : validationState?.error ? (
 																		<>
-																			<XCircle className="size-3 mr-1" />
-																			{validationState.error}
+																			<XCircle className="size-3.5 mr-1.5" />
+																			Error
 																		</>
 																	) : (
 																		<>
-																			<RefreshCw className="size-3 mr-1" />
+																			<RefreshCw className="size-3.5 mr-1.5" />
 																			Validate DNS
 																		</>
 																	)}
-																</Badge>
+																</Button>
 															</TooltipTrigger>
 															<TooltipContent className="max-w-xs">
 																{validationState?.error ? (
@@ -633,21 +718,65 @@ export const ShowDomains = ({ id, type }: Props) => {
 																		<p className="font-medium text-red-500">
 																			Error:
 																		</p>
-																		<p>{validationState.error}</p>
+																		<p className="text-xs text-muted-foreground break-all">
+																			{validationState.error}
+																		</p>
 																	</div>
-																) : validationState?.isValid && validationState?.resolvedIp ? (
+																) : validationState?.isValid &&
+																	validationState?.message ? (
 																	<div className="flex flex-col gap-1">
 																		<p className="font-medium text-green-500">
-																			Resolved:
+																			Warning:
 																		</p>
-																		<p className="break-all">{validationState.resolvedIp}</p>
+																		<p className="text-xs text-muted-foreground break-all">
+																			{validationState.message}
+																		</p>
 																	</div>
+																) : validationState?.isValid ? (
+																	<p>DNS records are correctly configured</p>
 																) : (
-																	"Click to validate DNS configuration"
+																	<p>Click to check DNS configuration</p>
 																)}
 															</TooltipContent>
 														</Tooltip>
 													</TooltipProvider>
+													{validationState?.error &&
+														canCreateDomain &&
+														(cloudflareAccount ? (
+															<Button
+																variant="outline"
+																size="sm"
+																className="h-7 gap-1.5 border-orange-500/30 bg-orange-500/10 px-2.5 text-xs text-orange-300 hover:bg-orange-500/20"
+																disabled={isAutoConfiguringDns}
+																onClick={() =>
+																	handleAutoConfigureDns(
+																		item.domainId,
+																		item.host,
+																	)
+																}
+															>
+																{isAutoConfiguringDns ? (
+																	<Loader2 className="size-3.5 animate-spin" />
+																) : (
+																	<Cloud className="size-3.5" />
+																)}
+																Auto-configure DNS
+															</Button>
+														) : (
+															<Button
+																variant="outline"
+																size="sm"
+																className="h-7 gap-1.5 px-2.5 text-xs"
+																onClick={() =>
+																	window.location.assign(
+																		"/dashboard/settings/cloudflare",
+																	)
+																}
+															>
+																<Cloud className="size-3.5" />
+																Connect Cloudflare
+															</Button>
+														))}
 												</div>
 											</div>
 										</CardContent>

@@ -115,7 +115,7 @@ export const ShowBuildServer = ({ applicationId }: Props) => {
 	};
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader>
 				<div className="flex flex-row items-center gap-2">
 					<Server className="size-6 text-muted-foreground" />

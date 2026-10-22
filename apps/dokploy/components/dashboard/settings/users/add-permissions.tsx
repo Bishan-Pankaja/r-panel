@@ -26,6 +26,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
+import { Input, NumberInput } from "@/components/ui/input";
 import { api, type RouterOutputs } from "@/utils/api";
 
 /** Shape returned by project.allForPermissions (admin only). Used for the permissions UI. */
@@ -183,6 +184,9 @@ const addPermissions = z.object({
 	canAccessToSSHKeys: z.boolean().optional().default(false),
 	canAccessToGitProviders: z.boolean().optional().default(false),
 	canCreateEnvironments: z.boolean().optional().default(false),
+	limitRam: z.number().min(0).optional(),
+	limitCpu: z.number().min(0).optional(),
+	limitDisk: z.number().min(0).optional(),
 });
 
 type AddPermissions = z.infer<typeof addPermissions>;
@@ -239,6 +243,9 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 			canAccessToSSHKeys: false,
 			canAccessToGitProviders: false,
 			canCreateEnvironments: false,
+			limitRam: 0,
+			limitCpu: 0,
+			limitDisk: 0,
 		},
 		resolver: zodResolver(addPermissions),
 	});
@@ -258,13 +265,16 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 				canDeleteEnvironments: data.canDeleteEnvironments || false,
 				canAccessToTraefikFiles: data.canAccessToTraefikFiles,
 				canAccessToDocker: data.canAccessToDocker,
-				canAccessToAPI: data.canAccessToAPI,
-				canAccessToSSHKeys: data.canAccessToSSHKeys,
-				canAccessToGitProviders: data.canAccessToGitProviders,
-				canCreateEnvironments: data.canCreateEnvironments,
+				canAccessToAPI: data.canAccessToAPI || false,
+				canAccessToSSHKeys: data.canAccessToSSHKeys || false,
+				canAccessToGitProviders: data.canAccessToGitProviders || false,
+				canCreateEnvironments: data.canCreateEnvironments || false,
+				limitRam: data.limitRam || 0,
+				limitCpu: data.limitCpu || 0,
+				limitDisk: data.limitDisk || 0,
 			});
 		}
-	}, [form, form.reset, data, isOpen]);
+	}, [data, isOpen, form]);
 
 	const onSubmit = async (data: AddPermissions) => {
 		await mutateAsync({
@@ -285,6 +295,9 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 			canAccessToSSHKeys: data.canAccessToSSHKeys,
 			canAccessToGitProviders: data.canAccessToGitProviders,
 			canCreateEnvironments: data.canCreateEnvironments,
+			limitRam: data.limitRam ?? 0,
+			limitCpu: data.limitCpu ?? 0,
+			limitDisk: data.limitDisk ?? 0,
 		})
 			.then(async () => {
 				toast.success("Permissions updated");
@@ -302,13 +315,13 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 					className="w-full cursor-pointer"
 					onSelect={(e) => e.preventDefault()}
 				>
-					Add Permissions
+					Edit Limits & Access
 				</DropdownMenuItem>
 			</DialogTrigger>
-			<DialogContent className="max-h-[85vh]  sm:max-w-4xl">
+			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl">
 				<DialogHeader>
-					<DialogTitle>Permissions</DialogTitle>
-					<DialogDescription>Add or remove permissions</DialogDescription>
+					<DialogTitle>Limits & Access</DialogTitle>
+					<DialogDescription>Modify user resource quotas and permissions</DialogDescription>
 				</DialogHeader>
 				{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
 
@@ -549,6 +562,58 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 								/>
 							</>
 						)}
+
+						<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 border p-4 rounded-lg">
+							<div className="col-span-1 md:col-span-3 mb-2">
+								<FormLabel className="text-base">Resource Quotas</FormLabel>
+								<FormDescription>
+									Set maximum resource limits for this user across all their services (0 = unlimited).
+								</FormDescription>
+							</div>
+							<FormField
+								control={form.control}
+								name="limitRam"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>RAM Limit (MB)</FormLabel>
+										<FormControl>
+											<NumberInput placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>Max Memory</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="limitCpu"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>CPU Cores Limit</FormLabel>
+										<FormControl>
+											<NumberInput step="0.1" placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>Max CPUs</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="limitDisk"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Disk Limit (GB)</FormLabel>
+										<FormControl>
+											<NumberInput placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>Max Storage</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
 						<FormField
 							control={form.control}
 							name="accessedProjects"

@@ -64,7 +64,7 @@ export const TerminalModal = ({
 				</DropdownMenuItem>
 			)}
 			<DialogContent
-				className="sm:max-w-7xl"
+				className="sm:w-full"
 				onEscapeKeyDown={(event) => event.preventDefault()}
 			>
 				<DialogHeader className="flex flex-col gap-1">

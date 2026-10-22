@@ -9,7 +9,6 @@ import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { ForwardAuthServers } from "@/components/proprietary/sso/forward-auth-servers";
 import { SSOSettings } from "@/components/proprietary/sso/sso-settings";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -24,36 +23,32 @@ interface Props {
 const Page = ({ isCloud }: Props) => {
 	return (
 		<div className="w-full">
-			<div className="h-full rounded-xl max-w-5xl mx-auto flex flex-col gap-4">
-				<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-					<div className="rounded-xl bg-background shadow-md">
-						<div className="p-6">
-								<SSOSettings />
-						</div>
-					</div>
-				</Card>
-				<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-					<div className="rounded-xl bg-background shadow-md">
-							<ForwardAuthServers />
-					</div>
-				</Card>
+			<div className="h-full rounded-xl w-full flex flex-col gap-4">
+				<div className="w-full">
+					<SSOSettings />
+				</div>
+				<div className="w-full mt-6">
+					<ForwardAuthServers />
+				</div>
 				{!isCloud && (
-					<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-						<div className="rounded-xl bg-background shadow-md">
-								<CardHeader>
-									<CardTitle className="text-xl">
+					<div className="w-full mt-6 p-4 md:p-6 flex flex-col gap-6">
+						<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+							<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+								<div>
+									<CardTitle className="text-xl flex flex-row gap-2 text-white">
 										Self-hosted Restrictions
 									</CardTitle>
-									<CardDescription>
+									<CardDescription className="text-zinc-400 mt-1">
 										Control deployment targets and authentication behavior.
 									</CardDescription>
-								</CardHeader>
-								<CardContent className="flex flex-col gap-4">
-									<ToggleRemoteServersOnly />
-									<ToggleEnforceSSO />
-								</CardContent>
+								</div>
+							</CardHeader>
+							<CardContent className="flex flex-col gap-4 p-4">
+								<ToggleRemoteServersOnly />
+								<ToggleEnforceSSO />
+							</CardContent>
 						</div>
-					</Card>
+					</div>
 				)}
 			</div>
 		</div>

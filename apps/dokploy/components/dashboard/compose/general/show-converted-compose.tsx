@@ -52,7 +52,7 @@ export const ShowConvertedCompose = ({ composeId }: Props) => {
 					Preview Compose
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-6xl max-h-[50rem]">
+			<DialogContent className="sm:w-full max-h-[50rem]">
 				<DialogHeader>
 					<DialogTitle>Converted Compose</DialogTitle>
 					<DialogDescription>

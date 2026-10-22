@@ -16,19 +16,14 @@ const Page = () => {
 	const { data: user } = api.user.get.useQuery();
 	return (
 		<div className="w-full">
-			<div className="h-full rounded-xl  max-w-5xl mx-auto flex flex-col gap-4">
+			<div className="h-full rounded-xl w-full flex flex-col">
 				<WebDomain />
-
 				<WebServer />
-				<div className="w-full flex flex-col gap-4">
-					<Card className="h-full bg-sidebar  p-2.5 rounded-xl  mx-auto w-full">
-						<ShowBackups
-							id={user?.userId ?? ""}
-							databaseType="web-server"
-							backupType="database"
-						/>
-					</Card>
-				</div>
+				<ShowBackups
+					id={user?.userId ?? ""}
+					databaseType="web-server"
+					backupType="database"
+				/>
 			</div>
 		</div>
 	);
@@ -43,11 +38,11 @@ export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
 	const { req, res } = ctx;
-	if (IS_CLOUD) {
+if (IS_CLOUD) {
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/dashboard/home",
+				destination: "/dashboard/projects",
 			},
 		};
 	}

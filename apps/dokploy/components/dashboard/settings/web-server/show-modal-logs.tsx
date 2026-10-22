@@ -67,7 +67,7 @@ export const ShowModalLogs = ({
 	return (
 		<Dialog>
 			<DialogTrigger asChild>{children}</DialogTrigger>
-			<DialogContent className="max-h-[85vh]  sm:max-w-7xl">
+			<DialogContent className="max-h-[85vh]  sm:w-full">
 				<DialogHeader>
 					<DialogTitle>View Logs</DialogTitle>
 					<DialogDescription>View the logs for {appName}</DialogDescription>

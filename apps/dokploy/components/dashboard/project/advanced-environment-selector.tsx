@@ -199,17 +199,25 @@ export const AdvancedEnvironmentSelector = ({
 		<>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
-					<Button variant="ghost" className="h-auto p-2 font-normal">
-						<div className="flex items-center gap-1">
-							<span className="text-muted-foreground">/</span>
-							<span>{currentEnv?.name || "Select Environment"}</span>
-							<ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
-						</div>
-					</Button>
+					<button
+						type="button"
+						className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg bg-[#1a1a1a] hover:bg-[#202020] border border-zinc-800/80 text-xs font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer outline-none"
+					>
+						<span className="text-zinc-500">/</span>
+						<span className="truncate max-w-[120px]">
+							{currentEnv?.name || "Select Environment"}
+						</span>
+						<ChevronDownIcon className="size-3 text-zinc-500" />
+					</button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent className="w-[300px]" align="start">
-					<DropdownMenuLabel>Environments</DropdownMenuLabel>
-					<DropdownMenuSeparator />
+				<DropdownMenuContent
+					className="w-[280px] bg-[#18181b] border-zinc-800 text-zinc-200 p-1.5 rounded-xl shadow-2xl space-y-1"
+					align="start"
+				>
+					<DropdownMenuLabel className="text-[11px] font-medium text-zinc-400 px-2 py-1">
+						Environments
+					</DropdownMenuLabel>
+					<DropdownMenuSeparator className="bg-zinc-800/80 my-1" />
 
 					{environments?.map((environment) => {
 						const servicesCount =
@@ -223,10 +231,10 @@ export const AdvancedEnvironmentSelector = ({
 						return (
 							<div
 								key={environment.environmentId}
-								className="flex items-center"
+								className="flex items-center group/env rounded-lg hover:bg-zinc-800/80"
 							>
 								<DropdownMenuItem
-									className="flex-1 cursor-pointer"
+									className="flex-1 cursor-pointer text-xs p-2 text-zinc-300 focus:text-white focus:bg-transparent"
 									onClick={() => {
 										router.push(
 											`/dashboard/project/${projectId}/environment/${environment.environmentId}`,
@@ -234,53 +242,54 @@ export const AdvancedEnvironmentSelector = ({
 									}}
 								>
 									<div className="flex items-center justify-between w-full">
-										<span>
-											{environment.name} ({servicesCount})
+										<span className="truncate font-medium">
+											{environment.name}{" "}
+											<span className="text-zinc-500 text-[11px]">
+												({servicesCount})
+											</span>
 										</span>
 										{environment.environmentId === currentEnvironmentId && (
-											<div className="w-2 h-2 bg-blue-500 rounded-full" />
+											<div className="size-2 bg-blue-500 rounded-full shrink-0 shadow-sm" />
 										)}
 									</div>
 								</DropdownMenuItem>
-								<div className="flex items-center gap-1 px-2">
+								<div className="flex items-center gap-1 px-1 opacity-0 group-hover/env:opacity-100 transition-opacity">
 									{!environment.isDefault && (
-										<Button
-											variant="ghost"
-											size="sm"
-											className="h-6 w-6 p-0"
+										<button
+											type="button"
+											className="size-6 flex items-center justify-center rounded text-zinc-400 hover:text-white hover:bg-zinc-700/50"
 											onClick={(e) => {
 												e.stopPropagation();
 												openEditDialog(environment);
 											}}
 										>
-											<PencilIcon className="h-3 w-3" />
-										</Button>
+											<PencilIcon className="size-3" />
+										</button>
 									)}
 									{canDeleteEnvironments && !environment.isDefault && (
-										<Button
-											variant="ghost"
-											size="sm"
-											className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+										<button
+											type="button"
+											className="size-6 flex items-center justify-center rounded text-red-400 hover:text-red-300 hover:bg-red-500/10"
 											onClick={(e) => {
 												e.stopPropagation();
 												openDeleteDialog(environment);
 											}}
 										>
-											<TrashIcon className="h-3 w-3" />
-										</Button>
+											<TrashIcon className="size-3" />
+										</button>
 									)}
 								</div>
 							</div>
 						);
 					})}
 
-					<DropdownMenuSeparator />
+					<DropdownMenuSeparator className="bg-zinc-800/80 my-1" />
 					{canCreateEnvironments && (
 						<DropdownMenuItem
-							className="cursor-pointer"
+							className="cursor-pointer text-xs text-blue-400 hover:text-blue-300 focus:text-blue-300 focus:bg-blue-500/10 p-2 rounded-lg font-medium"
 							onClick={() => setIsCreateDialogOpen(true)}
 						>
-							<PlusIcon className="h-4 w-4 mr-2" />
+							<PlusIcon className="size-3.5 mr-2" />
 							Create Environment
 						</DropdownMenuItem>
 					)}
@@ -288,31 +297,43 @@ export const AdvancedEnvironmentSelector = ({
 			</DropdownMenu>
 
 			<Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-				<DialogContent>
+				<DialogContent className="bg-[#18181b] border-zinc-800 text-zinc-200">
 					<DialogHeader>
-						<DialogTitle>Create Environment</DialogTitle>
-						<DialogDescription>
+						<DialogTitle className="text-white">Create Environment</DialogTitle>
+						<DialogDescription className="text-zinc-400 text-xs">
 							Create a new environment for your project.
 						</DialogDescription>
 					</DialogHeader>
 
 					<div className="space-y-4">
 						<div className="space-y-1">
-							<Label htmlFor="name">Name</Label>
+							<Label
+								htmlFor="name"
+								className="text-xs font-medium text-zinc-300"
+							>
+								Name
+							</Label>
 							<Input
 								id="name"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								placeholder="Environment name"
+								className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							/>
 						</div>
 						<div className="space-y-1">
-							<Label htmlFor="description">Description (optional)</Label>
+							<Label
+								htmlFor="description"
+								className="text-xs font-medium text-zinc-300"
+							>
+								Description (optional)
+							</Label>
 							<Textarea
 								id="description"
 								value={description}
 								onChange={(e) => setDescription(e.target.value)}
 								placeholder="Environment description"
+								className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							/>
 						</div>
 					</div>
@@ -320,6 +341,7 @@ export const AdvancedEnvironmentSelector = ({
 					<DialogFooter>
 						<Button
 							variant="outline"
+							className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							onClick={() => {
 								setIsCreateDialogOpen(false);
 								setName("");
@@ -331,6 +353,7 @@ export const AdvancedEnvironmentSelector = ({
 						<Button
 							onClick={handleCreateEnvironment}
 							disabled={!name.trim() || createEnvironment.isPending}
+							className="bg-blue-600 hover:bg-blue-500 text-xs rounded-xl font-semibold"
 						>
 							{createEnvironment.isPending ? "Creating..." : "Create"}
 						</Button>
@@ -340,31 +363,43 @@ export const AdvancedEnvironmentSelector = ({
 
 			{/* Edit Environment Dialog */}
 			<Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-				<DialogContent>
+				<DialogContent className="bg-[#18181b] border-zinc-800 text-zinc-200">
 					<DialogHeader>
-						<DialogTitle>Edit Environment</DialogTitle>
-						<DialogDescription>
+						<DialogTitle className="text-white">Edit Environment</DialogTitle>
+						<DialogDescription className="text-zinc-400 text-xs">
 							Update the environment details.
 						</DialogDescription>
 					</DialogHeader>
 
 					<div className="space-y-4">
 						<div className="space-y-1">
-							<Label htmlFor="edit-name">Name</Label>
+							<Label
+								htmlFor="edit-name"
+								className="text-xs font-medium text-zinc-300"
+							>
+								Name
+							</Label>
 							<Input
 								id="edit-name"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								placeholder="Environment name"
+								className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							/>
 						</div>
 						<div className="space-y-1">
-							<Label htmlFor="edit-description">Description (optional)</Label>
+							<Label
+								htmlFor="edit-description"
+								className="text-xs font-medium text-zinc-300"
+							>
+								Description (optional)
+							</Label>
 							<Textarea
 								id="edit-description"
 								value={description}
 								onChange={(e) => setDescription(e.target.value)}
 								placeholder="Environment description"
+								className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							/>
 						</div>
 					</div>
@@ -372,6 +407,7 @@ export const AdvancedEnvironmentSelector = ({
 					<DialogFooter>
 						<Button
 							variant="outline"
+							className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							onClick={() => {
 								setIsEditDialogOpen(false);
 								setSelectedEnvironment(null);
@@ -384,6 +420,7 @@ export const AdvancedEnvironmentSelector = ({
 						<Button
 							onClick={handleUpdateEnvironment}
 							disabled={!name.trim() || updateEnvironment.isPending}
+							className="bg-blue-600 hover:bg-blue-500 text-xs rounded-xl font-semibold"
 						>
 							{updateEnvironment.isPending ? "Updating..." : "Update"}
 						</Button>
@@ -393,10 +430,10 @@ export const AdvancedEnvironmentSelector = ({
 
 			{/* Delete Environment Dialog */}
 			<Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-				<DialogContent>
+				<DialogContent className="bg-[#18181b] border-zinc-800 text-zinc-200">
 					<DialogHeader>
-						<DialogTitle>Delete Environment</DialogTitle>
-						<DialogDescription>
+						<DialogTitle className="text-white">Delete Environment</DialogTitle>
+						<DialogDescription className="text-zinc-400 text-xs">
 							Are you sure you want to delete the environment "
 							{selectedEnvironment?.name}"? This action cannot be undone and
 							will also delete all services in this environment.
@@ -412,6 +449,7 @@ export const AdvancedEnvironmentSelector = ({
 					<DialogFooter>
 						<Button
 							variant="outline"
+							className="bg-[#1a1a1a] border-zinc-800 text-xs rounded-xl"
 							onClick={() => {
 								setIsDeleteDialogOpen(false);
 								setSelectedEnvironment(null);
@@ -421,6 +459,7 @@ export const AdvancedEnvironmentSelector = ({
 						</Button>
 						<Button
 							variant="destructive"
+							className="text-xs rounded-xl font-semibold"
 							onClick={handleDeleteEnvironment}
 							disabled={
 								deleteEnvironment.isPending ||

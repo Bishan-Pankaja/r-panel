@@ -17,7 +17,7 @@ export const SummaryCards = ({
 	runningContainerCount,
 }: SummaryCardsProps) => (
 	<div className="grid gap-4 md:grid-cols-3">
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-sm font-medium">Swarm Nodes</CardTitle>
 				<div className="p-2 bg-emerald-600/20 text-emerald-600 rounded-md">
@@ -34,7 +34,7 @@ export const SummaryCards = ({
 			</CardContent>
 		</Card>
 
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-sm font-medium">Services</CardTitle>
 				<div className="p-2 bg-emerald-600/20 text-emerald-600 rounded-md">
@@ -51,7 +51,7 @@ export const SummaryCards = ({
 			</CardContent>
 		</Card>
 
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
 				<CardTitle className="text-sm font-medium">
 					Running Containers

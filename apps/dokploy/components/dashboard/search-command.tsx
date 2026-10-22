@@ -167,7 +167,7 @@ export const SearchCommand = () => {
 					<CommandGroup heading={"Application"} hidden={true}>
 						<CommandItem
 							onSelect={() => {
-								router.push("/dashboard/home");
+								router.push("/dashboard/projects");
 								setOpen(false);
 							}}
 						>

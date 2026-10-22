@@ -202,24 +202,17 @@ export const ContainerFreeMonitoring = ({
 	}, [appName]);
 
 	return (
-		<div className="rounded-xl bg-background flex flex-col gap-4">
-			<header className="flex items-center justify-between">
-				<div className="space-y-1">
-					<h1 className="text-2xl font-semibold tracking-tight">Monitoring</h1>
-					<p className="text-sm text-muted-foreground">
-						Watch the usage of your server in the current app
-					</p>
-				</div>
-			</header>
-
-			<div className="grid gap-6 lg:grid-cols-2">
-				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">CPU Usage</CardTitle>
+		<div className="flex flex-col gap-5 w-full">
+			<div className="grid gap-4 lg:grid-cols-2 w-full">
+				<Card className="bg-[#161616]/70 border border-zinc-800/80 rounded-xl p-0">
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-5">
+						<CardTitle className="text-sm font-semibold text-zinc-200">
+							CPU Usage
+						</CardTitle>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="p-5 pt-0">
 						<div className="flex flex-col gap-2 w-full">
-							<span className="text-sm text-muted-foreground">
+							<span className="text-xs text-zinc-400">
 								Used: {String(currentData.cpu.value ?? "0%")}
 							</span>
 							<Progress
@@ -233,13 +226,15 @@ export const ContainerFreeMonitoring = ({
 						</div>
 					</CardContent>
 				</Card>
-				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
+				<Card className="bg-[#161616]/70 border border-zinc-800/80 rounded-xl p-0">
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-5">
+						<CardTitle className="text-sm font-semibold text-zinc-200">
+							Memory Usage
+						</CardTitle>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="p-5 pt-0">
 						<div className="flex flex-col gap-2 w-full">
-							<span className="text-sm text-muted-foreground">
+							<span className="text-xs text-zinc-400">
 								{`Used:  ${currentData.memory.value.used} / Limit: ${currentData.memory.value.total} `}
 							</span>
 							<Progress
@@ -264,13 +259,15 @@ export const ContainerFreeMonitoring = ({
 					</CardContent>
 				</Card>
 				{appName === "dokploy" && (
-					<Card className="bg-background">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">Disk Space</CardTitle>
+					<Card className="bg-[#161616]/70 border border-zinc-800/80 rounded-xl p-0">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-5">
+							<CardTitle className="text-sm font-semibold text-zinc-200">
+								Disk Space
+							</CardTitle>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="p-5 pt-0">
 							<div className="flex flex-col gap-2 w-full">
-								<span className="text-sm text-muted-foreground">
+								<span className="text-xs text-zinc-400">
 									{`Used:  ${currentData.disk.value.diskUsage} GB / Limit: ${currentData.disk.value.diskTotal} GB`}
 								</span>
 								<Progress
@@ -286,38 +283,42 @@ export const ContainerFreeMonitoring = ({
 					</Card>
 				)}
 				{appName === "dokploy" && (
-					<Card className="bg-background">
-						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-							<CardTitle className="text-sm font-medium">
+					<Card className="bg-[#161616]/70 border border-zinc-800/80 rounded-xl p-0">
+						<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-5">
+							<CardTitle className="text-sm font-semibold text-zinc-200">
 								Docker Disk Usage
 							</CardTitle>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="p-5 pt-0">
 							<DockerDiskUsageChart />
 						</CardContent>
 					</Card>
 				)}
 
-				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Block I/O</CardTitle>
+				<Card className="bg-[#161616]/70 border border-zinc-800/80 rounded-xl p-0">
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-5">
+						<CardTitle className="text-sm font-semibold text-zinc-200">
+							Block I/O
+						</CardTitle>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="p-5 pt-0">
 						<div className="flex flex-col gap-2 w-full">
-							<span className="text-sm text-muted-foreground">
+							<span className="text-xs text-zinc-400">
 								{`Read:  ${currentData.block.value.readMb}  / Write: ${currentData.block.value.writeMb} `}
 							</span>
 							<DockerBlockChart accumulativeData={accumulativeData.block} />
 						</div>
 					</CardContent>
 				</Card>
-				<Card className="bg-background">
-					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-						<CardTitle className="text-sm font-medium">Network I/O</CardTitle>
+				<Card className="bg-[#161616]/70 border border-zinc-800/80 rounded-xl p-0">
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-5">
+						<CardTitle className="text-sm font-semibold text-zinc-200">
+							Network I/O
+						</CardTitle>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="p-5 pt-0">
 						<div className="flex flex-col gap-2 w-full">
-							<span className="text-sm text-muted-foreground">
+							<span className="text-xs text-zinc-400">
 								{`In MB: ${currentData.network.value.inputMb}  / Out MB: ${currentData.network.value.outputMb} `}
 							</span>
 							<DockerNetworkChart accumulativeData={accumulativeData.network} />

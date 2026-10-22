@@ -83,7 +83,7 @@ export const WelcomeSubscription = () => {
 				}
 			}}
 		>
-			<DialogContent className="sm:max-w-7xl min-h-[75vh]">
+			<DialogContent className="sm:w-full min-h-[75vh]">
 				{showConfetti ?? "Flaso"}
 				<div className="flex justify-center items-center w-full">
 					{showConfetti && (
@@ -326,7 +326,7 @@ export const WelcomeSubscription = () => {
 											{features.map((feature) => (
 												<div
 													key={feature.title}
-													className="flex flex-col items-start p-4 bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow"
+													className="flex flex-col items-start p-4 bg-transparent rounded-lg shadow-md hover:shadow-lg transition-shadow"
 												>
 													<div className="text-3xl mb-2">{feature.icon}</div>
 													<h3 className="text-lg font-medium mb-1">
@@ -425,7 +425,7 @@ export const WelcomeSubscription = () => {
 								onClick={() => {
 									if (stepper.isLast) {
 										setIsOpen(false);
-										push("/dashboard/home");
+										push("/dashboard/projects");
 									} else {
 										stepper.next();
 									}

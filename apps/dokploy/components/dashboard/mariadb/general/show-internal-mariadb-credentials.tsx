@@ -17,7 +17,7 @@ export const ShowInternalMariadbCredentials = ({ mariadbId }: Props) => {
 	return (
 		<>
 			<div className="flex w-full flex-col gap-5 ">
-				<Card className="bg-background">
+				<Card className="">
 					<CardHeader>
 						<CardTitle className="text-xl">Internal Credentials</CardTitle>
 					</CardHeader>

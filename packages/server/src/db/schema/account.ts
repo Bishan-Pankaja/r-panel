@@ -171,6 +171,10 @@ export const member = pgTable("member", {
 		.array()
 		.notNull()
 		.default(sql`ARRAY[]::text[]`),
+	// Limits (Quotas)
+	limitRam: integer("limitRam").default(0), // RAM limit in MB (0 = unlimited)
+	limitCpu: integer("limitCpu").default(0), // CPU core limit (e.g., 2 = 2 cores, 0 = unlimited)
+	limitDisk: integer("limitDisk").default(0), // Disk limit in GB (0 = unlimited)
 });
 
 export const memberRelations = relations(member, ({ one }) => ({

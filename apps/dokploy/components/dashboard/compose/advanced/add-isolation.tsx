@@ -109,7 +109,7 @@ export const IsolatedDeploymentTab = ({ composeId }: Props) => {
 	};
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader>
 				<CardTitle className="text-xl">Enable Isolated Deployment</CardTitle>
 				<CardDescription>
@@ -202,7 +202,7 @@ export const IsolatedDeploymentTab = ({ composeId }: Props) => {
 									Preview Compose
 								</Button>
 								<Dialog open={isOpenPreview} onOpenChange={setIsOpenPreview}>
-									<DialogContent className="sm:max-w-6xl max-h-[80vh]">
+									<DialogContent className="sm:w-full max-h-[80vh]">
 										<DialogHeader>
 											<DialogTitle>Isolated Deployment Preview</DialogTitle>
 											<DialogDescription>

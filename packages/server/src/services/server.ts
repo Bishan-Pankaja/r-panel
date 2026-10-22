@@ -3,11 +3,13 @@ import {
 	type apiCreateServer,
 	member,
 	organization,
+	projects,
 	server,
+	user,
 } from "@dokploy/server/db/schema";
 import { hasValidLicense } from "@dokploy/server/services/proprietary/license-key";
 import { TRPCError } from "@trpc/server";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import type { z } from "zod";
 
 export type Server = typeof server.$inferSelect;
@@ -66,14 +68,42 @@ export const findServersByUserId = async (userId: string) => {
 	return servers;
 };
 
+export const updateServer = async (
+	serverId: string,
+	input: Partial<z.infer<typeof apiCreateServer>>,
+) => {
+	const updatedServer = await db
+		.update(server)
+		.set(input)
+		.where(eq(server.serverId, serverId))
+		.returning()
+		.then((value) => value[0]);
+
+	if (!updatedServer) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Error updating the server",
+		});
+	}
+
+	return updatedServer;
+};
+
 export const deleteServer = async (serverId: string) => {
-	const currentServer = await db
+	const deletedServer = await db
 		.delete(server)
 		.where(eq(server.serverId, serverId))
 		.returning()
 		.then((value) => value[0]);
 
-	return currentServer;
+	if (!deletedServer) {
+		throw new TRPCError({
+			code: "BAD_REQUEST",
+			message: "Error deleting the server",
+		});
+	}
+
+	return deletedServer;
 };
 
 export const haveActiveServices = async (serverId: string) => {
@@ -154,15 +184,79 @@ export const getAccessibleServerIds = async (session: {
 		columns: { accessedServers: true, role: true },
 	});
 
-	if (memberRecord?.role === "owner" || memberRecord?.role === "admin") {
-		return new Set(allOrgServers.map((s) => s.serverId));
-	}
+	const userRecord = await db.query.user.findFirst({
+		where: eq(user.id, userId),
+		columns: { showOtherUsersProjects: true },
+	});
+
+	const isOwnerOrAdmin =
+		memberRecord?.role === "owner" || memberRecord?.role === "admin";
+	const showOther = userRecord?.showOtherUsersProjects !== false;
 
 	const licensed = await hasValidLicense(activeOrganizationId);
 
-	if (!licensed) {
+	if (showOther && (isOwnerOrAdmin || !licensed)) {
 		return new Set(allOrgServers.map((s) => s.serverId));
 	}
 
-	return new Set(memberRecord?.accessedServers ?? []);
+	const accessibleServers = new Set<string>(
+		memberRecord?.accessedServers ?? [],
+	);
+
+	const accessibleProjects = await db.query.projects.findMany({
+		where: and(
+			eq(projects.organizationId, activeOrganizationId),
+			!showOther
+				? or(
+						eq(projects.userId, userId),
+						isOwnerOrAdmin
+							? sql`${projects.userId} IS NULL`
+							: sql`false`,
+						sql`exists (
+							select 1 from "member" 
+							where "member"."organization_id" = ${activeOrganizationId} 
+							and "member"."user_id" = ${userId} 
+							and "projects"."projectId" = any("member"."accesedProjects")
+						)`,
+					)
+				: undefined,
+		),
+		with: {
+			environments: {
+				with: {
+					applications: { columns: { serverId: true } },
+					compose: { columns: { serverId: true } },
+					postgres: { columns: { serverId: true } },
+					mysql: { columns: { serverId: true } },
+					mariadb: { columns: { serverId: true } },
+					mongo: { columns: { serverId: true } },
+					redis: { columns: { serverId: true } },
+					libsql: { columns: { serverId: true } },
+				},
+			},
+		},
+	});
+
+	for (const p of accessibleProjects) {
+		for (const env of p.environments || []) {
+			for (const app of env.applications || [])
+				if (app.serverId) accessibleServers.add(app.serverId);
+			for (const comp of env.compose || [])
+				if (comp.serverId) accessibleServers.add(comp.serverId);
+			for (const pg of env.postgres || [])
+				if (pg.serverId) accessibleServers.add(pg.serverId);
+			for (const my of env.mysql || [])
+				if (my.serverId) accessibleServers.add(my.serverId);
+			for (const maria of env.mariadb || [])
+				if (maria.serverId) accessibleServers.add(maria.serverId);
+			for (const m of env.mongo || [])
+				if (m.serverId) accessibleServers.add(m.serverId);
+			for (const red of env.redis || [])
+				if (red.serverId) accessibleServers.add(red.serverId);
+			for (const lib of env.libsql || [])
+				if (lib.serverId) accessibleServers.add(lib.serverId);
+		}
+	}
+
+	return accessibleServers;
 };

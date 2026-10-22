@@ -177,7 +177,7 @@ export const ImpersonationBar = () => {
 
 				<div
 					className={cn(
-						"fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 flex items-center justify-center gap-4 z-40 transition-all duration-200 ease-in-out",
+						"fixed bottom-0 left-0 right-0 bg-transparent border-t border-border p-4 flex items-center justify-center gap-4 z-40 transition-all duration-200 ease-in-out",
 						showBar ? "translate-y-0" : "translate-y-full",
 					)}
 				>

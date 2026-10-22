@@ -90,7 +90,7 @@ export const DockerTerminalModal = ({
 		<Dialog open={mainDialogOpen} onOpenChange={handleMainDialogOpenChange}>
 			<DialogTrigger asChild>{children}</DialogTrigger>
 			<DialogContent
-				className="max-h-[85vh] sm:max-w-7xl"
+				className="max-h-[85vh] sm:w-full"
 				onEscapeKeyDown={(event) => event.preventDefault()}
 			>
 				<DialogHeader>

@@ -138,8 +138,8 @@ const Invitation = ({
 				invitationId: token,
 			});
 
-			toast.success("Account created successfully");
-			router.push("/dashboard/home");
+toast.success("Account created successfully");
+			router.push("/dashboard/projects");
 		} catch {
 			toast.error("An error occurred while creating your account");
 		}

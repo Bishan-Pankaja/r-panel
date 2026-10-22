@@ -29,7 +29,7 @@ export const SecurityAudit = ({ serverId }: Props) => {
 	return (
 		<CardContent className="p-0">
 			<div className="flex flex-col gap-4">
-				<Card className="bg-background">
+				<Card className="">
 					<CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
 						<div className="flex flex-row gap-2 justify-between w-full  max-sm:flex-col">
 							<div className="flex flex-col gap-1">

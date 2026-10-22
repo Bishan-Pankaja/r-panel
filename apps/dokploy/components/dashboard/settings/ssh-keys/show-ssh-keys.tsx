@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -21,9 +20,9 @@ export const ShowDestinations = () => {
 
 	return (
 		<div className="w-full">
-			<Card className="h-full bg-sidebar  p-2.5 rounded-xl  max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader className="">
+			<div className="w-full">
+				<div className="overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+					<CardHeader className="p-4 border-b border-zinc-800/40">
 						<CardTitle className="text-xl flex flex-row gap-2">
 							<KeyRound className="size-6 text-muted-foreground self-center" />
 							SSH Keys
@@ -33,7 +32,7 @@ export const ShowDestinations = () => {
 							servers, git private repositories, and more.
 						</CardDescription>
 					</CardHeader>
-					<CardContent className="space-y-2 py-8 border-t">
+					<CardContent className="space-y-2 p-4">
 						{isPending ? (
 							<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[25vh]">
 								<span>Loading...</span>
@@ -55,9 +54,9 @@ export const ShowDestinations = () => {
 											{data?.map((sshKey, index) => (
 												<div
 													key={sshKey.sshKeyId}
-													className="flex items-center justify-between bg-sidebar p-1 w-full rounded-lg"
+													className="flex items-center justify-between bg-transparent p-1 w-full rounded-lg"
 												>
-													<div className="flex items-center justify-between p-3.5 rounded-lg bg-background border  w-full">
+													<div className="flex items-center justify-between p-3.5 rounded-lg bg-transparent border  w-full">
 														<div className="flex items-center justify-between">
 															<div className="flex flex-col">
 																<span className="text-sm font-medium">
@@ -132,7 +131,7 @@ export const ShowDestinations = () => {
 						)}
 					</CardContent>
 				</div>
-			</Card>
+			</div>
 		</div>
 	);
 };

@@ -11,6 +11,7 @@ import { z } from "zod";
 import { OnboardingLayout } from "@/components/layouts/onboarding-layout";
 import { SignInWithGithub } from "@/components/proprietary/auth/sign-in-with-github";
 import { SignInWithGoogle } from "@/components/proprietary/auth/sign-in-with-google";
+import { SignInWithRegz } from "@/components/proprietary/auth/sign-in-with-regz";
 import { AlertBlock } from "@/components/shared/alert-block";
 import { Logo } from "@/components/shared/logo";
 import { Button } from "@/components/ui/button";
@@ -120,178 +121,160 @@ const Register = ({ isCloud }: Props) => {
 			}
 		}
 	};
+
 	return (
-		<div className="">
-			<div className="flex  w-full items-center justify-center ">
-				<div className="flex flex-col items-center gap-6 w-full">
-					<CardTitle className="text-3xl font-bold flex  items-center gap-3 text-amber-900">
-						<Link href="/" className="flex flex-row items-center gap-3">
-							<div className="relative">
-								<Logo
-									className="size-14"
-									logoUrl={
-										whitelabeling?.loginLogoUrl ||
-										whitelabeling?.logoUrl ||
-										undefined
-									}
-								/>
-								<div className="absolute inset-0 bg-amber-400 blur-2xl opacity-30 rounded-full" />
-							</div>
-						</Link>
-						<span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-							{isCloud ? "Welcome aboard!" : "Let's get started"}
-						</span>
-					</CardTitle>
-					<CardDescription className="text-amber-700 text-base">
-						{isCloud ? "Join us today and start building" : "Configure your server in just a few moments"}
-					</CardDescription>
-					<div className="mx-auto w-full max-w-lg bg-transparent">
-						{isError && (
-							<div className="my-2 flex flex-row items-center gap-2 rounded-lg bg-rose-100 border border-rose-200 p-3">
-								<AlertTriangle className="text-rose-600" />
-								<span className="text-sm text-rose-700 font-medium">
-									{error}
-								</span>
-							</div>
-						)}
-						{isCloud && data && (
-							<AlertBlock type="success" className="my-2 border-emerald-200 bg-emerald-50 text-emerald-800">
-								<span className="font-medium">
-									✨ Almost there! Check your inbox to confirm your account
-								</span>
-							</AlertBlock>
-						)}
-						<CardContent className="p-0">
-							{isCloud && (
-								<div className="flex flex-col gap-3 mb-6">
-									<SignInWithGithub />
-									<SignInWithGoogle />
-								</div>
-							)}
-							{isCloud && (
-								<div className="relative mb-6">
-									<div className="absolute inset-0 flex items-center">
-										<span className="w-full border-t border-amber-200" />
-									</div>
-									<div className="relative flex justify-center text-xs uppercase">
-										<span className="bg-white px-2 text-amber-600 font-semibold">or continue with email</span>
-									</div>
-								</div>
-							)}
-							<Form {...form}>
-								<form
-									onSubmit={form.handleSubmit(onSubmit)}
-									className="grid gap-4"
-								>
-									<div className="space-y-4">
-										<FormField
-											control={form.control}
-											name="name"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>First Name</FormLabel>
-													<FormControl>
-														<Input placeholder="John" {...field} />
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-										<FormField
-											control={form.control}
-											name="lastName"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Last Name</FormLabel>
-													<FormControl>
-														<Input placeholder="Doe" {...field} />
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-										<FormField
-											control={form.control}
-											name="email"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Email</FormLabel>
-													<FormControl>
-														<Input placeholder="email@dash.regz.lk" {...field} />
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-										<FormField
-											control={form.control}
-											name="password"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Password</FormLabel>
-													<FormControl>
-														<Input
-															type="password"
-															placeholder="Password"
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+		<div className="w-full">
+			<div className="flex flex-col items-center mb-2">
+				<div className="w-16 h-16 rounded-[16px] bg-[#111] border border-zinc-800/80 shadow-lg flex items-center justify-center mb-6 overflow-hidden p-3">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img 
+						src={
+							whitelabeling?.loginLogoUrl || 
+							whitelabeling?.logoUrl || 
+							"https://www.regz.lk/favicon.ico"
+						} 
+						alt="Logo" 
+						className="w-full h-full object-contain"
+					/>
+				</div>
+				<h1 className="text-[22px] font-semibold text-white tracking-tight mb-1">
+					{isCloud ? "Create an account" : "Initial setup"}
+				</h1>
+				<p className="text-xs text-zinc-400 font-medium text-center">
+					{isCloud ? "Join us today and start building" : "Configure your server in just a few moments"}
+				</p>
+			</div>
 
-										<FormField
-											control={form.control}
-											name="confirmPassword"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Confirm Password</FormLabel>
-													<FormControl>
-														<Input
-															type="password"
-															placeholder="Password"
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-
-										<Button
-											type="submit"
-											isLoading={form.formState.isSubmitting}
-											className="w-full"
-										>
-											Register
-										</Button>
-									</div>
-								</form>
-							</Form>
-							<div className="flex flex-row justify-between flex-wrap">
-								{isCloud && (
-									<div className="mt-4 text-center text-sm flex gap-2 text-muted-foreground">
-										Already have account?
-										<Link className="underline" href="/">
-											Sign in
-										</Link>
-									</div>
-								)}
-
-								<div className="mt-4 text-center text-sm flex flex-row justify-center gap-2  text-muted-foreground">
-									Need help?
-									<Link
-										className="underline"
-										href="https://dash.regz.lk"
-										target="_blank"
-									>
-										Contact us
-									</Link>
-								</div>
-							</div>
-						</CardContent>
+			<div className="w-full mt-6">
+				{isError && (
+					<AlertBlock type="error" className="mb-4 bg-red-950/30 border-red-900/50 text-red-400 text-sm">
+						{error}
+					</AlertBlock>
+				)}
+				{isCloud && data && (
+					<AlertBlock type="success" className="mb-4 bg-emerald-950/30 border-emerald-900/50 text-emerald-400 text-sm">
+						✨ Almost there! Check your inbox to confirm your account
+					</AlertBlock>
+				)}
+				
+				<div className="flex flex-col gap-3 mb-6">
+					{isCloud && (
+						<div className="grid grid-cols-2 gap-3">
+							<SignInWithGoogle />
+							<SignInWithGithub />
+						</div>
+					)}
+					<SignInWithRegz />
+				</div>
+				
+				<div className="relative mb-6">
+					<div className="absolute inset-0 flex items-center">
+						<span className="w-full border-t border-zinc-800" />
 					</div>
+					<div className="relative flex justify-center text-[10px] uppercase tracking-widest font-medium">
+						<span className="bg-[#0c0c0c] px-3 text-zinc-500">Or continue with</span>
+					</div>
+				</div>
+				
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<div className="grid grid-cols-2 gap-4">
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field }) => (
+									<FormItem className="space-y-2">
+										<FormLabel className="text-zinc-300 text-xs font-normal">First Name</FormLabel>
+										<FormControl>
+											<Input placeholder="John" className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="lastName"
+								render={({ field }) => (
+									<FormItem className="space-y-2">
+										<FormLabel className="text-zinc-300 text-xs font-normal">Last Name</FormLabel>
+										<FormControl>
+											<Input placeholder="Doe" className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<FormField
+							control={form.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem className="space-y-2">
+									<FormLabel className="text-zinc-300 text-xs font-normal">Email</FormLabel>
+									<FormControl>
+										<Input placeholder="name@example.com" className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="password"
+							render={({ field }) => (
+								<FormItem className="space-y-2">
+									<FormLabel className="text-zinc-300 text-xs font-normal">Password</FormLabel>
+									<FormControl>
+										<Input
+											type="password"
+											placeholder="••••••••"
+											className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="confirmPassword"
+							render={({ field }) => (
+								<FormItem className="space-y-2">
+									<FormLabel className="text-zinc-300 text-xs font-normal">Confirm Password</FormLabel>
+									<FormControl>
+										<Input
+											type="password"
+											placeholder="••••••••"
+											className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<Button
+							type="submit"
+							isLoading={form.formState.isSubmitting}
+							className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 rounded-xl font-medium shadow-[0_0_15px_rgba(37,99,235,0.2)] transition-all mt-2"
+						>
+							{isCloud ? "Register" : "Complete Setup"}
+						</Button>
+					</form>
+				</Form>
+				
+				<div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+					{isCloud && (
+						<div className="text-xs text-zinc-400">
+							Already have an account?{" "}
+							<Link className="text-blue-500 hover:text-blue-400 font-medium transition-colors" href="/">
+								Sign in
+							</Link>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
@@ -303,15 +286,16 @@ export default Register;
 Register.getLayout = (page: ReactElement) => {
 	return <OnboardingLayout>{page}</OnboardingLayout>;
 };
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
 	if (IS_CLOUD) {
 		const { user } = await validateRequest(context.req);
 
-		if (user) {
+if (user) {
 			return {
 				redirect: {
 					permanent: false,
-					destination: "/dashboard/home",
+					destination: "/dashboard/projects",
 				},
 			};
 		}

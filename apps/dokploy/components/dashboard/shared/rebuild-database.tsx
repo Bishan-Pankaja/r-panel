@@ -54,7 +54,7 @@ export const RebuildDatabase = ({ id, type }: Props) => {
 	};
 
 	return (
-		<Card className="bg-background border-destructive/50">
+		<Card className=" border-destructive/50">
 			<CardHeader>
 				<CardTitle className="text-xl flex items-center gap-2">
 					<AlertTriangle className="h-5 w-5 text-destructive" />

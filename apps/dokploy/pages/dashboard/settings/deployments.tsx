@@ -7,7 +7,6 @@ import { BuildsConcurrency } from "@/components/dashboard/settings/servers/actio
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 import { AlertBlock } from "@/components/shared/alert-block";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -20,11 +19,11 @@ const Page = () => {
 	const { data: servers } = api.server.all.useQuery();
 
 	return (
-		<div className="w-full">
-			<div className="h-full rounded-xl max-w-5xl mx-auto flex flex-col gap-4">
-				<Card className="h-full bg-sidebar p-2.5 rounded-xl mx-auto w-full">
-					<div className="rounded-xl bg-background shadow-md">
-						<CardHeader>
+		<div className="w-full p-4 md:p-6">
+			<div className="h-full rounded-xl w-full flex flex-col gap-4">
+				<div className="w-full">
+					<div className="overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+						<CardHeader className="p-4 border-b border-zinc-800/40">
 							<CardTitle className="text-xl">Concurrent Builds</CardTitle>
 							<CardDescription>
 								Configure how many deployments can build at the same time on
@@ -33,7 +32,7 @@ const Page = () => {
 								license unlocks more.
 							</CardDescription>
 						</CardHeader>
-						<CardContent className="flex flex-col gap-6">
+						<CardContent className="flex flex-col gap-6 p-4">
 							<AlertBlock type="warning">
 								Running multiple builds at once increases CPU, memory and disk
 								usage on each server. Each concurrent build runs its own builder
@@ -43,7 +42,7 @@ const Page = () => {
 							</AlertBlock>
 							<div className="flex flex-col gap-2">
 								<p className="text-sm font-medium text-muted-foreground">
-									Dokploy Server
+									Regz Server
 								</p>
 								<BuildsConcurrency />
 							</div>
@@ -70,7 +69,7 @@ const Page = () => {
 							</div>
 						</CardContent>
 					</div>
-				</Card>
+				</div>
 			</div>
 		</div>
 	);

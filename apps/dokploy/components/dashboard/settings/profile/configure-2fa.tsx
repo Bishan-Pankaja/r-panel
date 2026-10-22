@@ -357,7 +357,7 @@ export const Configure2FA = () => {
 									{backupCodes.map((code, index) => (
 										<code
 											key={`${code}-${index}`}
-											className="bg-background p-2 rounded text-sm font-mono text-center"
+											className="bg-transparent p-2 rounded text-sm font-mono text-center"
 										>
 											{code}
 										</code>

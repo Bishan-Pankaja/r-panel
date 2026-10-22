@@ -24,7 +24,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Input, NumberInput } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -45,6 +45,10 @@ const addInvitation = z
 		notificationId: z.string().optional(),
 		password: z.string().optional(),
 		confirmPassword: z.string().optional(),
+		// Limits (Quotas)
+		limitRam: z.number().min(0).optional(),
+		limitCpu: z.number().min(0).optional(),
+		limitDisk: z.number().min(0).optional(),
 	})
 	.superRefine((value, ctx) => {
 		if (value.mode !== "credentials") {
@@ -116,6 +120,9 @@ export const AddInvitation = () => {
 			notificationId: "",
 			password: "",
 			confirmPassword: "",
+			limitRam: 0,
+			limitCpu: 0,
+			limitDisk: 0,
 		},
 		resolver: zodResolver(addInvitation),
 	});
@@ -141,6 +148,9 @@ export const AddInvitation = () => {
 					email: data.email.toLowerCase(),
 					password: data.password!,
 					role: data.role,
+					limitRam: data.limitRam || 0,
+					limitCpu: data.limitCpu || 0,
+					limitDisk: data.limitDisk || 0,
 				});
 				toast.success("User created with initial credentials");
 				setOpen(false);
@@ -294,6 +304,51 @@ export const AddInvitation = () => {
 								);
 							}}
 						/>
+						
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<FormField
+								control={form.control}
+								name="limitRam"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>RAM Limit (MB)</FormLabel>
+										<FormControl>
+											                        <NumberInput placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>Max Memory</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="limitCpu"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>CPU Cores Limit</FormLabel>
+										<FormControl>
+											<NumberInput step="0.1" placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>Max CPUs</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="limitDisk"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Disk Limit (GB)</FormLabel>
+										<FormControl>
+											<NumberInput placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>Max Storage</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
 
 						{!isCloud && mode === "invitation" && (
 							<FormField

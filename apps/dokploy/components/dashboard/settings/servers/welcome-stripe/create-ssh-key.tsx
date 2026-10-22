@@ -52,7 +52,7 @@ export const CreateSSHKey = () => {
 	}, [data]);
 
 	return (
-		<Card className="h-full bg-transparent">
+		<Card className="h-full ">
 			<CardContent>
 				<div className="grid w-full gap-4 pt-4">
 					{isPending || !cloudSSHKey ? (

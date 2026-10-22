@@ -106,6 +106,11 @@ export async function deleteCloudflareAccount(userId: string, accountId: string)
 export async function refreshCloudflareToken(userId: string, accountId: string) {
 	const account = await getCloudflareAccount(userId, accountId);
 	if (!account) throw new Error("Cloudflare account not found");
+	if (!account.refreshToken) {
+		throw new Error(
+			"Cloudflare access expired. Reconnect your Cloudflare account to continue.",
+		);
+	}
 
 	const CLIENT_ID = "94dc2289f2f5abcbce765d027fdb601c";
 	const CLIENT_SECRET = "cfoc_lS6SrWc3051k7JY805ARswUqSDobIcJKo9SCooejb87c8848";

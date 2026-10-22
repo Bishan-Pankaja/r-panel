@@ -17,7 +17,7 @@ const Page = () => {
 	const canCreateMembers = permissions?.member.create ?? false;
 
 	return (
-		<div className="flex flex-col gap-4 w-full">
+		<div className="w-full p-4 md:p-6 flex flex-col gap-4">
 			<ShowUsers />
 			{canCreateMembers && <ShowInvitations />}
 			{isOwnerOrAdmin && <ManageCustomRoles />}

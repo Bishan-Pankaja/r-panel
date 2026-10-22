@@ -13,14 +13,14 @@ import { DiskChart } from "./disk-chart";
 import { MemoryChart } from "./memory-chart";
 import { NetworkChart } from "./network-chart";
 
-const REFRESH_INTERVALS = {
+export const REFRESH_INTERVALS = {
 	"5000": "5 Seconds",
 	"10000": "10 Seconds",
 	"20000": "20 Seconds",
 	"30000": "30 Seconds",
 } as const;
 
-const DATA_POINTS_OPTIONS = {
+export const DATA_POINTS_OPTIONS = {
 	"50": "50 points",
 	"200": "200 points",
 	"500": "500 points",
@@ -30,6 +30,9 @@ const DATA_POINTS_OPTIONS = {
 	"2000": "2000 points",
 	all: "All points",
 } as const;
+
+export type MonitoringDataPoints = keyof typeof DATA_POINTS_OPTIONS;
+export type MonitoringRefreshInterval = keyof typeof REFRESH_INTERVALS;
 
 interface SystemMetrics {
 	cpu: string;
@@ -55,18 +58,34 @@ interface SystemMetrics {
 interface Props {
 	BASE_URL?: string;
 	token?: string;
+	dataPoints?: MonitoringDataPoints;
+	onDataPointsChange?: (value: MonitoringDataPoints) => void;
+	refreshInterval?: MonitoringRefreshInterval;
+	onRefreshIntervalChange?: (value: MonitoringRefreshInterval) => void;
 }
 
 export const ShowPaidMonitoring = ({
 	BASE_URL = process.env.NEXT_PUBLIC_METRICS_URL ||
 		"http://localhost:3001/metrics",
 	token = process.env.NEXT_PUBLIC_METRICS_TOKEN || "my-token",
+	dataPoints: controlledDataPoints,
+	onDataPointsChange,
+	refreshInterval: controlledRefreshInterval,
+	onRefreshIntervalChange,
 }: Props) => {
 	const [historicalData, setHistoricalData] = useState<SystemMetrics[]>([]);
 	const [metrics, setMetrics] = useState<SystemMetrics>({} as SystemMetrics);
-	const [dataPoints, setDataPoints] =
-		useState<keyof typeof DATA_POINTS_OPTIONS>("50");
-	const [refreshInterval, setRefreshInterval] = useState<string>("5000");
+	const [localDataPoints, setLocalDataPoints] =
+		useState<MonitoringDataPoints>("50");
+	const [localRefreshInterval, setLocalRefreshInterval] =
+		useState<MonitoringRefreshInterval>("5000");
+	const dataPoints = controlledDataPoints ?? localDataPoints;
+	const refreshInterval = controlledRefreshInterval ?? localRefreshInterval;
+	const setDataPoints = onDataPointsChange ?? setLocalDataPoints;
+	const setRefreshInterval = onRefreshIntervalChange ?? setLocalRefreshInterval;
+	const hasExternalControls =
+		controlledDataPoints !== undefined &&
+		controlledRefreshInterval !== undefined;
 
 	const {
 		data,
@@ -151,54 +170,60 @@ export const ShowPaidMonitoring = ({
 
 	return (
 		<div className="space-y-4 pt-5 pb-10 w-full md:px-4">
-			<div className="flex items-center justify-between flex-wrap	 gap-2">
-				<h2 className="text-2xl font-bold tracking-tight">System Monitoring</h2>
-				<div className="flex items-center gap-4 flex-wrap">
-					<div>
-						<span className="text-sm text-muted-foreground">Data points:</span>
-						<Select
-							value={dataPoints}
-							onValueChange={(value: keyof typeof DATA_POINTS_OPTIONS) =>
-								setDataPoints(value)
-							}
-						>
-							<SelectTrigger className="w-[180px]">
-								<SelectValue placeholder="Select points" />
-							</SelectTrigger>
-							<SelectContent>
-								{Object.entries(DATA_POINTS_OPTIONS).map(([value, label]) => (
-									<SelectItem key={value} value={value}>
-										{label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
+			{!hasExternalControls && (
+				<div className="flex items-center justify-between flex-wrap	 gap-2">
+					<h2 className="text-2xl font-bold tracking-tight">
+						System Monitoring
+					</h2>
+					<div className="flex items-center gap-4 flex-wrap">
+						<div>
+							<span className="text-sm text-muted-foreground">
+								Data points:
+							</span>
+							<Select
+								value={dataPoints}
+								onValueChange={(value: keyof typeof DATA_POINTS_OPTIONS) =>
+									setDataPoints(value)
+								}
+							>
+								<SelectTrigger className="w-[180px]">
+									<SelectValue placeholder="Select points" />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.entries(DATA_POINTS_OPTIONS).map(([value, label]) => (
+										<SelectItem key={value} value={value}>
+											{label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 
-					<div>
-						<span className="text-sm text-muted-foreground">
-							Refresh interval:
-						</span>
-						<Select
-							value={refreshInterval}
-							onValueChange={(value: keyof typeof REFRESH_INTERVALS) =>
-								setRefreshInterval(value)
-							}
-						>
-							<SelectTrigger className="w-[180px]">
-								<SelectValue placeholder="Select interval" />
-							</SelectTrigger>
-							<SelectContent>
-								{Object.entries(REFRESH_INTERVALS).map(([value, label]) => (
-									<SelectItem key={value} value={value}>
-										{label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<div>
+							<span className="text-sm text-muted-foreground">
+								Refresh interval:
+							</span>
+							<Select
+								value={refreshInterval}
+								onValueChange={(value: keyof typeof REFRESH_INTERVALS) =>
+									setRefreshInterval(value)
+								}
+							>
+								<SelectTrigger className="w-[180px]">
+									<SelectValue placeholder="Select interval" />
+								</SelectTrigger>
+								<SelectContent>
+									{Object.entries(REFRESH_INTERVALS).map(([value, label]) => (
+										<SelectItem key={value} value={value}>
+											{label}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 					</div>
 				</div>
-			</div>
+			)}
 
 			{/* Stats Cards */}
 			<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">

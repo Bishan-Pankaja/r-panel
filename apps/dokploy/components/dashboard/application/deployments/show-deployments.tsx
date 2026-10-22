@@ -147,11 +147,11 @@ export const ShowDeployments = ({
 	}, []);
 
 	return (
-		<Card className="bg-background border-none">
-			<CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
-				<div className="flex flex-col gap-2">
-					<CardTitle className="text-xl">Deployments</CardTitle>
-					<CardDescription>
+		<Card className="rounded-[20px] border border-zinc-800/80 bg-[#161616] shadow-xl w-full overflow-hidden">
+			<CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2 p-6 border-b border-zinc-800/40">
+				<div className="flex flex-col gap-1">
+					<CardTitle className="text-xl text-white">Deployments</CardTitle>
+					<CardDescription className="text-zinc-400 mt-1">
 						See the last 10 deployments for this {type}
 					</CardDescription>
 				</div>
@@ -232,19 +232,10 @@ export const ShowDeployments = ({
 						<div className="flex flex-row items-center gap-2 flex-wrap">
 							<span>Webhook URL: </span>
 							<div className="flex flex-row items-center gap-2">
-								<Badge
-									role="button"
-									tabIndex={0}
+								<button
+									type="button"
 									aria-label="Copy webhook URL to clipboard"
-									className="p-2 rounded-md ml-1 mr-1 hover:border-primary hover:text-primary-foreground hover:bg-primary hover:cursor-pointer whitespace-normal break-all"
-									variant="outline"
-									onKeyDown={(event) => {
-										if (event.key === "Enter" || event.key === " ") {
-											event.preventDefault();
-											copy(webhookUrl);
-											toast.success("Copied to clipboard.");
-										}
-									}}
+									className="inline-flex items-center p-2 rounded-md ml-1 mr-1 border border-zinc-800 bg-[#161616] text-xs font-mono text-zinc-300 hover:border-zinc-700 hover:text-white hover:bg-zinc-800 hover:cursor-pointer whitespace-normal break-all transition-colors"
 									onClick={() => {
 										copy(webhookUrl);
 										toast.success("Copied to clipboard.");
@@ -252,7 +243,7 @@ export const ShowDeployments = ({
 								>
 									{webhookUrl}
 									<Copy className="h-4 w-4 ml-2" />
-								</Badge>
+								</button>
 								{(type === "application" || type === "compose") && (
 									<RefreshToken id={id} type={type} />
 								)}
@@ -276,7 +267,7 @@ export const ShowDeployments = ({
 						</span>
 					</div>
 				) : (
-					<div className="flex flex-col gap-4">
+					<div className="flex flex-col gap-3">
 						{deployments?.map((deployment, index) => {
 							const titleText = deployment?.title?.trim() || "";
 							const needsTruncation = titleText.length > MAX_DESCRIPTION_LENGTH;
@@ -289,7 +280,7 @@ export const ShowDeployments = ({
 							return (
 								<div
 									key={deployment.deploymentId}
-									className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+									className="flex flex-col gap-4 rounded-xl border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] transition-all p-4 sm:flex-row sm:items-center sm:justify-between"
 								>
 									<div className="flex flex-1 flex-col min-w-0">
 										<span className="flex items-center gap-4 font-medium capitalize text-foreground">

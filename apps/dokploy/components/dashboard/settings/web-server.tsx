@@ -2,7 +2,6 @@ import copy from "copy-to-clipboard";
 import { CopyIcon, ServerIcon } from "lucide-react";
 import { toast } from "sonner";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -22,18 +21,20 @@ export const WebServer = () => {
 	const { data: dokployVersion } = api.settings.getDokployVersion.useQuery();
 
 	return (
-		<div className="w-full">
-			{/* <Card className={cn("rounded-lg w-full bg-transparent p-0", className)}></Card> */}
-			<Card className="h-full bg-sidebar  p-2.5 rounded-xl  max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader className="">
-						<CardTitle className="text-xl flex flex-row gap-2">
+		<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+					<div>
+						<CardTitle className="text-xl flex flex-row gap-2 text-white">
 							<ServerIcon className="size-6 text-muted-foreground self-center" />
 							Web Server
 						</CardTitle>
-						<CardDescription>Reload or clean the web server.</CardDescription>
-					</CardHeader>
-					{/* <CardHeader>
+						<CardDescription className="text-zinc-400 mt-1">
+							Reload or clean the web server.
+						</CardDescription>
+					</div>
+				</CardHeader>
+				{/* <CardHeader>
 						<CardTitle className="text-xl">
 							Web Server
 						</CardTitle>
@@ -41,37 +42,36 @@ export const WebServer = () => {
 							Reload or clean the web server.
 						</CardDescription>
 					</CardHeader> */}
-					<CardContent className="space-y-6 py-6 border-t">
-						<div className="grid md:grid-cols-2 gap-4">
-							<ShowDokployActions />
-							<ShowTraefikActions />
-							<ShowStorageActions />
+				<CardContent className="p-4">
+					<div className="grid md:grid-cols-2 gap-4">
+						<ShowDokployActions />
+						<ShowTraefikActions />
+						<ShowStorageActions />
 
-							<UpdateServer />
-						</div>
+						<UpdateServer />
+					</div>
 
-						<div className="flex items-center flex-wrap justify-between gap-4">
-							<span className="text-sm text-muted-foreground flex items-center gap-1.5">
-								Server IP: {webServerSettings?.serverIp}
-								{webServerSettings?.serverIp && (
-									<CopyIcon
-										className="size-3.5 cursor-pointer hover:text-foreground transition-colors"
-										onClick={() => {
-											copy(webServerSettings.serverIp ?? "");
-											toast.success("Copied to clipboard");
-										}}
-									/>
-								)}
-							</span>
-							<span className="text-sm text-muted-foreground">
-								Version: {dokployVersion}
-							</span>
+					<div className="flex items-center flex-wrap justify-between gap-4">
+						<span className="text-sm text-muted-foreground flex items-center gap-1.5">
+							Server IP: {webServerSettings?.serverIp}
+							{webServerSettings?.serverIp && (
+								<CopyIcon
+									className="size-3.5 cursor-pointer hover:text-foreground transition-colors"
+									onClick={() => {
+										copy(webServerSettings.serverIp ?? "");
+										toast.success("Copied to clipboard");
+									}}
+								/>
+							)}
+						</span>
+						<span className="text-sm text-muted-foreground">
+							Version: {dokployVersion}
+						</span>
 
-							<ToggleDockerCleanup />
-						</div>
-					</CardContent>
-				</div>
-			</Card>
+						<ToggleDockerCleanup />
+					</div>
+				</CardContent>
+			</div>
 		</div>
 	);
 };

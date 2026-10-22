@@ -3,11 +3,23 @@ import { validateRequest } from "@dokploy/server/lib/auth";
 import { hasPermission } from "@dokploy/server/services/permission";
 import { Loader2 } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { ContainerFreeMonitoring } from "@/components/dashboard/monitoring/free/container/show-free-container-monitoring";
-import { ShowPaidMonitoring } from "@/components/dashboard/monitoring/paid/servers/show-paid-monitoring";
+import {
+	DATA_POINTS_OPTIONS,
+	type MonitoringDataPoints,
+	type MonitoringRefreshInterval,
+	REFRESH_INTERVALS,
+	ShowPaidMonitoring,
+} from "@/components/dashboard/monitoring/paid/servers/show-paid-monitoring";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { Card } from "@/components/ui/card";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { api } from "@/utils/api";
 
@@ -20,66 +32,101 @@ const Dashboard = () => {
 		"monitoring-enabled",
 		false,
 	);
+	const [dataPoints, setDataPoints] = useState<MonitoringDataPoints>("50");
+	const [refreshInterval, setRefreshInterval] =
+		useState<MonitoringRefreshInterval>("5000");
 
 	const { data: monitoring, isPending } = api.user.getMetricsToken.useQuery();
 	return (
-		<div className="space-y-4 pb-10">
-			{/* <AlertBlock>
-				You are watching the <strong>Free</strong> plan.{" "}
-				<a
-					href="https://dash.regz.lk#pricing"
-					target="_blank"
-					className="underline"
-					rel="noreferrer"
-				>
-					Upgrade
-				</a>{" "}
-				to get more features.
-			</AlertBlock> */}
-			{isPending ? (
-				<Card className="bg-sidebar  p-2.5 rounded-xl  mx-auto  items-center">
-					<div className="rounded-xl bg-background flex shadow-md px-4 min-h-[50vh] justify-center items-center text-muted-foreground">
-						Loading...
-						<Loader2 className="h-4 w-4 animate-spin" />
+		<div className="w-full bg-transparent min-h-full text-zinc-200">
+			<div className="w-full p-4 md:p-6 flex flex-col gap-4">
+				<div className="flex flex-col gap-3 rounded-md border border-zinc-800/80 bg-[#161616] p-4 shadow-lg">
+					<div className="flex items-center">
+						<h1 className="text-lg font-bold tracking-tight text-white">
+							Monitoring
+						</h1>
 					</div>
-				</Card>
-			) : (
-				<>
-					{/* {monitoring?.enabledFeatures && (
-						<div className="flex flex-row border w-fit p-4 rounded-lg items-center gap-2">
-							<Label className="text-muted-foreground">Change Monitoring</Label>
-							<Switch
-								checked={toggleMonitoring}
-								onCheckedChange={setToggleMonitoring}
-							/>
+					{toggleMonitoring && (
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+							<div className="flex items-center gap-2 bg-[#1a1a1a] border border-zinc-800/80 rounded-md px-3 py-1.5">
+								<span className="text-xs text-zinc-400 whitespace-nowrap">
+									Data points
+								</span>
+								<Select
+									value={dataPoints}
+									onValueChange={(value: MonitoringDataPoints) =>
+										setDataPoints(value)
+									}
+								>
+									<SelectTrigger className="h-7 w-[140px] border-none bg-transparent p-0 text-xs text-zinc-200 focus:ring-0">
+										<SelectValue placeholder="Select points" />
+									</SelectTrigger>
+									<SelectContent>
+										{Object.entries(DATA_POINTS_OPTIONS).map(
+											([value, label]) => (
+												<SelectItem key={value} value={value}>
+													{label}
+												</SelectItem>
+											),
+										)}
+									</SelectContent>
+								</Select>
+							</div>
+							<div className="flex items-center gap-2 bg-[#1a1a1a] border border-zinc-800/80 rounded-md px-3 py-1.5">
+								<span className="text-xs text-zinc-400 whitespace-nowrap">
+									Refresh interval
+								</span>
+								<Select
+									value={refreshInterval}
+									onValueChange={(value: MonitoringRefreshInterval) =>
+										setRefreshInterval(value)
+									}
+								>
+									<SelectTrigger className="h-7 w-[120px] border-none bg-transparent p-0 text-xs text-zinc-200 focus:ring-0">
+										<SelectValue placeholder="Select interval" />
+									</SelectTrigger>
+									<SelectContent>
+										{Object.entries(REFRESH_INTERVALS).map(([value, label]) => (
+											<SelectItem key={value} value={value}>
+												{label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
 						</div>
-					)} */}
-					{toggleMonitoring ? (
-						<Card className="bg-sidebar  p-2.5 rounded-xl  mx-auto">
-							<div className="rounded-xl bg-background shadow-md">
-								<ShowPaidMonitoring
-									BASE_URL={
-										process.env.NODE_ENV === "production"
-											? `http://${monitoring?.serverIp}:${monitoring?.metricsConfig?.server?.port}/metrics`
-											: BASE_URL
-									}
-									token={
-										process.env.NODE_ENV === "production"
-											? monitoring?.metricsConfig?.server?.token
-											: DEFAULT_TOKEN
-									}
-								/>
-							</div>
-						</Card>
-					) : (
-						<Card className="h-full bg-sidebar  p-2.5 rounded-xl">
-							<div className="rounded-xl bg-background shadow-md p-6">
-								<ContainerFreeMonitoring appName="dokploy" />
-							</div>
-						</Card>
 					)}
-				</>
-			)}
+				</div>
+				{isPending ? (
+					<div className="min-h-[400px] rounded-md border border-zinc-800/80 bg-[#161616] flex items-center justify-center gap-2 text-sm text-zinc-400 font-medium">
+						<Loader2 className="animate-spin size-5 text-blue-500" />
+						<span>Loading metrics...</span>
+					</div>
+				) : (
+					<>
+						{toggleMonitoring ? (
+							<ShowPaidMonitoring
+								BASE_URL={
+									process.env.NODE_ENV === "production"
+										? `http://${monitoring?.serverIp}:${monitoring?.metricsConfig?.server?.port}/metrics`
+										: BASE_URL
+								}
+								token={
+									process.env.NODE_ENV === "production"
+										? monitoring?.metricsConfig?.server?.token
+										: DEFAULT_TOKEN
+								}
+								dataPoints={dataPoints}
+								onDataPointsChange={setDataPoints}
+								refreshInterval={refreshInterval}
+								onRefreshIntervalChange={setRefreshInterval}
+							/>
+						) : (
+							<ContainerFreeMonitoring appName="dokploy" />
+						)}
+					</>
+				)}
+			</div>
 		</div>
 	);
 };
@@ -96,7 +143,7 @@ export async function getServerSideProps(
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/dashboard/home",
+				destination: "/dashboard/projects",
 			},
 		};
 	}
@@ -122,7 +169,7 @@ export async function getServerSideProps(
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/dashboard/home",
+				destination: "/dashboard/projects",
 			},
 		};
 	}

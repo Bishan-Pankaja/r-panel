@@ -45,6 +45,21 @@ export const findEnvironmentById = async (environmentId: string) => {
 		with: {
 			applications: {
 				with: {
+					domains: {
+						columns: { host: true, https: true },
+						orderBy: (domain, { asc }) => [asc(domain.createdAt)],
+						limit: 1,
+					},
+					deployments: {
+						columns: {
+							title: true,
+							createdAt: true,
+							startedAt: true,
+							finishedAt: true,
+						},
+						orderBy: (deployment, { desc }) => [desc(deployment.createdAt)],
+						limit: 1,
+					},
 					server: {
 						columns: {
 							name: true,
@@ -60,6 +75,17 @@ export const findEnvironmentById = async (environmentId: string) => {
 					description: true,
 					serverId: true,
 					icon: true,
+					sourceType: true,
+					owner: true,
+					repository: true,
+					gitlabOwner: true,
+					gitlabRepository: true,
+					giteaOwner: true,
+					giteaRepository: true,
+					bitbucketOwner: true,
+					bitbucketRepository: true,
+					bitbucketRepositorySlug: true,
+					customGitUrl: true,
 				},
 			},
 			mariadb: {

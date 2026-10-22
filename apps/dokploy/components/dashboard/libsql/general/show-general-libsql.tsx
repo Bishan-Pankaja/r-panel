@@ -67,7 +67,7 @@ export const ShowGeneralLibsql = ({ libsqlId }: Props) => {
 	return (
 		<>
 			<div className="flex w-full flex-col gap-5 ">
-				<Card className="bg-background">
+				<Card className="">
 					<CardHeader>
 						<CardTitle className="text-xl">Deploy Settings</CardTitle>
 					</CardHeader>

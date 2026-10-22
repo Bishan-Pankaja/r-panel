@@ -87,7 +87,7 @@ export const ShowNodeApplications = ({ serverId }: Props) => {
 					Services
 				</Button>
 			</DialogTrigger>
-			<DialogContent className={"sm:max-w-10xl"}>
+			<DialogContent className={"sm:w-full"}>
 				<DialogHeader>
 					<DialogTitle>Node Applications</DialogTitle>
 					<DialogDescription>

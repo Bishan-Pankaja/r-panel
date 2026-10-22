@@ -49,7 +49,7 @@ export const ShowDeploymentsModal = ({
 					</Button>
 				)}
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-5xl p-0">
+			<DialogContent className="sm:w-full p-0">
 				<ShowDeployments
 					id={id}
 					type={type}

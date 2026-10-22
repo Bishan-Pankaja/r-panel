@@ -29,7 +29,7 @@ export const ShowPorts = ({ applicationId }: Props) => {
 		api.port.delete.useMutation();
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row justify-between flex-wrap gap-4">
 				<div>
 					<CardTitle className="text-xl">Ports</CardTitle>

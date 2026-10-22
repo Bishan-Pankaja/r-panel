@@ -32,7 +32,7 @@ export const ShowSecurity = ({ applicationId }: Props) => {
 
 	const utils = api.useUtils();
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row justify-between flex-wrap gap-4">
 				<div>
 					<CardTitle className="text-xl">Security</CardTitle>

@@ -5,7 +5,7 @@ import * as bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
-import { admin, organization, twoFactor } from "better-auth/plugins";
+import { admin, organization, twoFactor, genericOAuth } from "better-auth/plugins";
 import { and, desc, eq } from "drizzle-orm";
 import { IS_CLOUD } from "../constants";
 import { db } from "../db";
@@ -61,7 +61,7 @@ const { handler, api } = betterAuth({
 			enabled: true,
 			async trustedProviders() {
 				const fromDb = await getTrustedProviders();
-				return ["github", "google", ...fromDb];
+				return ["github", "google", "regz", ...fromDb];
 			},
 			allowDifferentEmails: true,
 		},
@@ -399,6 +399,20 @@ const { handler, api } = betterAuth({
 		},
 	},
 	plugins: [
+		genericOAuth({
+			config: [
+				{
+					providerId: "regz",
+					clientId: "regz_client_pma4c3eyUe8Zjs2xEKdbUiyDsyPclSjvqABvuaTAo9w",
+					clientSecret: "whCe3ODyh8Ix-uwWvaJo04jsyv6UvWSwu2C_RfCspK7-Eqs1hmej-w8K37BACTU_MElbxWZe7zvg7PasQq6D_A",
+					authorizationUrl: "https://api.regz.lk/oauth/authorize",
+					tokenUrl: "https://api.regz.lk/oauth/token",
+					userInfoUrl: "https://api.regz.lk/oauth/userinfo",
+					scopes: ["profile", "email"],
+					pkce: true,
+				},
+			],
+		}),
 		apiKey({
 			enableMetadata: true,
 			references: "user",

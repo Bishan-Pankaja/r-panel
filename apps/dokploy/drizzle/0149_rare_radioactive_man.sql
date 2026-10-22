@@ -29,3 +29,9 @@ CREATE INDEX "organizationRole_role_idx" ON "organization_role" USING btree ("ro
 CREATE INDEX "auditLog_organizationId_idx" ON "audit_log" USING btree ("organization_id");--> statement-breakpoint
 CREATE INDEX "auditLog_userId_idx" ON "audit_log" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "auditLog_createdAt_idx" ON "audit_log" USING btree ("created_at");
+--> statement-breakpoint
+-- Seed "customers" custom role
+INSERT INTO "organization_role" ("id", "organization_id", "role", "permission", "created_at", "updated_at")
+SELECT 'c_role_customers', id, 'customers', '{"project":["create","delete"],"service":["create","read","delete"],"environment":["create","read","delete"],"server":["read","create","delete"],"gitProviders":["read","create","delete"],"sshKeys":["read","create","delete"],"docker":["read"],"deployment":["read","create","cancel"],"envVars":["read","write"],"projectEnvVars":["read","write"],"environmentEnvVars":["read","write"],"domain":["read","create","delete"],"certificate":["read","create","update","delete"],"logs":["read"],"monitoring":["read"]}', now(), now()
+FROM "organization"
+ON CONFLICT ("id") DO UPDATE SET "permission" = EXCLUDED."permission";

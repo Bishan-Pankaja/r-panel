@@ -1,8 +1,12 @@
-import { getCloudflareAuthUrl } from "@dokploy/server/services/cloudflare-oauth";
+import { randomBytes } from "node:crypto";
 import { validateRequest } from "@dokploy/server/lib/auth";
+import { getCloudflareAuthUrl } from "@dokploy/server/services/cloudflare-oauth";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+	req: NextApiRequest,
+	res: NextApiResponse,
+) {
 	if (req.method !== "POST") {
 		return res.status(405).json({ error: "Method not allowed" });
 	}
@@ -13,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 			return res.status(401).json({ error: "Unauthorized" });
 		}
 
-		const state = Math.random().toString(36).substring(2, 15);
+		const state = randomBytes(32).toString("hex");
 		const url = getCloudflareAuthUrl(state);
 
 		return res.status(200).json({ url });

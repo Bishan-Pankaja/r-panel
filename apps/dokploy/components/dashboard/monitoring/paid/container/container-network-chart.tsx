@@ -65,7 +65,7 @@ export const ContainerNetworkChart = ({ data }: Props) => {
 	};
 
 	return (
-		<Card className="bg-transparent">
+		<Card className="">
 			<CardHeader className="border-b py-5">
 				<CardTitle>Network I/O</CardTitle>
 				<CardDescription>
@@ -122,7 +122,7 @@ export const ContainerNetworkChart = ({ data }: Props) => {
 								if (active && payload && payload.length) {
 									const data = payload?.[0]?.payload;
 									return (
-										<div className="rounded-lg border bg-background p-2 shadow-sm">
+										<div className="rounded-lg border bg-transparent p-2 shadow-sm">
 											<div className="grid grid-cols-2 gap-2">
 												<div className="flex flex-col">
 													<span className="text-[0.70rem] uppercase text-muted-foreground">

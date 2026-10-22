@@ -401,11 +401,17 @@ export const createOrganizationUserWithCredentials = async ({
 	email,
 	password,
 	role,
+	limitRam,
+	limitCpu,
+	limitDisk,
 }: {
 	organizationId: string;
 	email: string;
 	password: string;
 	role: string;
+	limitRam?: number;
+	limitCpu?: number;
+	limitDisk?: number;
 }) => {
 	const normalizedEmail = email.trim().toLowerCase();
 	const now = new Date();
@@ -458,6 +464,9 @@ export const createOrganizationUserWithCredentials = async ({
 			organizationId,
 			userId: createdUser.id,
 			role,
+			limitRam: limitRam || 0,
+			limitCpu: limitCpu || 0,
+			limitDisk: limitDisk || 0,
 			createdAt: now,
 			isDefault: true,
 		});

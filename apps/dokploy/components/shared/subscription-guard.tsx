@@ -53,7 +53,7 @@ export const SubscriptionGuard = ({ children, fallback }: SubscriptionGuardProps
 						</Link>
 					</Button>
 					<Button variant="outline" asChild className="w-full">
-						<Link href="/dashboard/home">
+						<Link href="/dashboard/projects">
 							Back to Home
 						</Link>
 					</Button>

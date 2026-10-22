@@ -167,7 +167,7 @@ export const ManageTraefikPorts = ({ children, serverId }: Props) => {
 									<ScrollArea className="pr-4">
 										<div className="grid gap-4">
 											{fields.map((field, index) => (
-												<Card key={field.id} className="bg-transparent">
+												<Card key={field.id} className="">
 													<CardContent className="grid grid-cols-4  gap-4 p-4 transparent">
 														<FormField
 															control={form.control}

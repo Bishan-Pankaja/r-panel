@@ -106,7 +106,7 @@ export const CreateServer = ({ stepper }: Props) => {
 			});
 	};
 	return (
-		<Card className="bg-background flex flex-col gap-4">
+		<Card className=" flex flex-col gap-4">
 			<div className="flex flex-col gap-2 pt-5 px-4">
 				{!canCreateMoreServers && (
 					<AlertBlock type="warning" className="mt-2">

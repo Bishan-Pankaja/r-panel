@@ -76,8 +76,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 					<input
 						type={inputType}
 						className={cn(
-							// bg-gray
-							"flex h-10 w-full rounded-md bg-input px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border disabled:cursor-not-allowed disabled:opacity-50",
+							"flex h-10 w-full rounded-xl bg-[#1a1a1a] border border-zinc-800/80 px-3.5 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-600 focus-visible:border-zinc-600 disabled:cursor-not-allowed disabled:opacity-50 transition-colors",
 							isPassword && (shouldShowGenerator ? "pr-16" : "pr-10"),
 							className,
 						)}
@@ -128,23 +127,25 @@ const NumberInput = React.forwardRef<HTMLInputElement, InputProps>(
 	({ className, errorMessage, ...props }, ref) => {
 		return (
 			<Input
-				type="text"
+				type="number"
 				className={cn("text-left", className)}
 				ref={ref}
 				{...props}
+				// Convert string to number (or undefined) before sending to form controller
 				value={props.value === undefined ? undefined : String(props.value)}
 				onChange={(e) => {
-					const value = e.target.value;
-					if (value === "") {
+					const raw = e.target.value;
+					if (raw === "") {
+						// Empty field – let Zod use the default (0)
 						props.onChange?.(e);
 					} else {
-						const number = Number.parseInt(value, 10);
-						if (!Number.isNaN(number)) {
+						const num = Number.parseInt(raw, 10);
+						if (!Number.isNaN(num)) {
 							const syntheticEvent = {
 								...e,
 								target: {
 									...e.target,
-									value: number,
+									value: num,
 								},
 							};
 							props.onChange?.(

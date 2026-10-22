@@ -5,7 +5,6 @@ import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -44,9 +43,9 @@ export const ShowUsers = () => {
 
 	return (
 		<div className="w-full">
-			<Card className="h-full bg-sidebar  p-2.5 rounded-xl  max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader className="">
+			<div className="w-full">
+				<div className="overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+					<CardHeader className="p-4 border-b border-zinc-800/40">
 						<CardTitle className="text-xl flex flex-row gap-2">
 							<Users className="size-6 text-muted-foreground self-center" />
 							Users
@@ -55,7 +54,7 @@ export const ShowUsers = () => {
 							Add your users to your Dokploy account.
 						</CardDescription>
 					</CardHeader>
-					<CardContent className="space-y-2 py-8 border-t">
+					<CardContent className="space-y-2 p-4">
 						{isPending ? (
 							<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[25vh]">
 								<span>Loading...</span>
@@ -96,7 +95,7 @@ export const ShowUsers = () => {
 													const isStaticAdminOrOwner =
 														member.role === "owner" || member.role === "admin";
 													const canEditPermissions =
-														!isStaticAdminOrOwner &&
+														member.role !== "owner" &&
 														member.user.id !== session?.user?.id;
 
 													// Can change role based on hierarchy:
@@ -316,7 +315,7 @@ export const ShowUsers = () => {
 						)}
 					</CardContent>
 				</div>
-			</Card>
+			</div>
 		</div>
 	);
 };

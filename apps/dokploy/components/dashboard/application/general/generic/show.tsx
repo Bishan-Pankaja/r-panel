@@ -72,7 +72,7 @@ export const ShowProviderForm = ({ applicationId }: Props) => {
 
 	if (isLoading) {
 		return (
-			<Card className="group relative w-full bg-transparent">
+			<Card className="group relative w-full ">
 				<CardHeader>
 					<CardTitle className="flex items-start justify-between">
 						<div className="flex flex-col gap-2">
@@ -106,7 +106,7 @@ export const ShowProviderForm = ({ applicationId }: Props) => {
 		application.sourceType !== "drop"
 	) {
 		return (
-			<Card className="group relative w-full bg-transparent">
+			<Card className="group relative w-full ">
 				<CardHeader>
 					<CardTitle className="flex items-start justify-between">
 						<div className="flex flex-col gap-2">
@@ -131,7 +131,7 @@ export const ShowProviderForm = ({ applicationId }: Props) => {
 	}
 
 	return (
-		<Card className="group relative w-full bg-transparent">
+		<Card className="group relative w-full ">
 			<CardHeader>
 				<CardTitle className="flex items-start justify-between">
 					<div className="flex flex-col gap-2">
@@ -153,56 +153,56 @@ export const ShowProviderForm = ({ applicationId }: Props) => {
 						setSab(e as TabState);
 					}}
 				>
-					<div className="flex flex-row items-center justify-between w-full overflow-auto">
-						<TabsList className="flex gap-4 justify-start bg-transparent">
+					<div className="w-full">
+						<TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-7 gap-2 bg-transparent h-auto p-0 mb-6">
 							<TabsTrigger
 								value="github"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-zinc-400 data-[state=active]:bg-white/5 transition-all h-10 data-[state=active]:shadow-md"
 							>
 								<GithubIcon className="size-4 text-current fill-current" />
-								Github
+								<span className="font-medium text-sm">GitHub</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="gitlab"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-orange-500/50 data-[state=active]:bg-orange-500/10 transition-all h-10 data-[state=active]:shadow-md"
 							>
 								<GitlabIcon className="size-4 text-current fill-current" />
-								Gitlab
+								<span className="font-medium text-sm">GitLab</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="bitbucket"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-blue-500/50 data-[state=active]:bg-blue-500/10 transition-all h-10 data-[state=active]:shadow-md"
 							>
 								<BitbucketIcon className="size-4 text-current fill-current" />
-								Bitbucket
+								<span className="font-medium text-sm">Bitbucket</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="gitea"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-green-500/50 data-[state=active]:bg-green-500/10 transition-all h-10 data-[state=active]:shadow-md"
 							>
 								<GiteaIcon className="size-4 text-current fill-current" />
-								Gitea
+								<span className="font-medium text-sm">Gitea</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="docker"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-cyan-500/50 data-[state=active]:bg-cyan-500/10 transition-all h-10 data-[state=active]:shadow-md"
 							>
-								<DockerIcon className="size-5 text-current" />
-								Docker
+								<DockerIcon className="size-4 text-current" />
+								<span className="font-medium text-sm">Docker</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="git"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-red-500/50 data-[state=active]:bg-red-500/10 transition-all h-10 data-[state=active]:shadow-md"
 							>
-								<GitIcon />
-								Git
+								<GitIcon className="size-4 text-current" />
+								<span className="font-medium text-sm">Git</span>
 							</TabsTrigger>
 							<TabsTrigger
 								value="drop"
-								className="rounded-none border-b-2 gap-2 border-b-transparent data-[state=active]:border-b-2 data-[state=active]:border-b-border"
+								className="flex flex-row items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-zinc-800/80 bg-[#161616]/70 hover:bg-[#1a1a1a] hover:border-zinc-700 data-[state=active]:border-purple-500/50 data-[state=active]:bg-purple-500/10 transition-all h-10 data-[state=active]:shadow-md"
 							>
-								<UploadCloud className="size-5 text-current" />
-								Drop
+								<UploadCloud className="size-4 text-current" />
+								<span className="font-medium text-sm">Drop</span>
 							</TabsTrigger>
 						</TabsList>
 					</div>

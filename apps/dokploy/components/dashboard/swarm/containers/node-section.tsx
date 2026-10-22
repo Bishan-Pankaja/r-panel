@@ -43,7 +43,7 @@ export const NodeSection = ({
 			open={isExpanded}
 			onOpenChange={() => onToggleNode(group.nodeName)}
 		>
-			<Card className="bg-background">
+			<Card className="">
 				<CollapsibleTrigger asChild>
 					<CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors rounded-t-lg">
 						<div className="flex items-center justify-between">

@@ -59,6 +59,62 @@ export const setupDockerStatsMonitoringSocketServer = (
 			try {
 				// Special case: when monitoring "dokploy", get host system stats instead of container stats
 				if (appName === "dokploy") {
+					const { db, member } = await import("@dokploy/server/db");
+					const { and, eq } = await import("drizzle-orm");
+					
+					let isRestricted = false;
+					let quotaStats: any = null;
+					const orgId = session.activeOrganizationId;
+
+					if (orgId) {
+						const memberRecord = await db.query.member.findFirst({
+							where: and(
+								eq(member.organizationId, orgId),
+								eq(member.userId, user.id)
+							),
+						});
+						if (memberRecord && memberRecord.role !== "owner" && memberRecord.role !== "admin") {
+							const { limitRam, limitCpu, limitDisk } = memberRecord;
+							if ((limitRam && limitRam > 0) || (limitCpu && limitCpu > 0) || (limitDisk && limitDisk > 0)) {
+								isRestricted = true;
+								const { checkResourceQuotas } = await import("@dokploy/server/services/quotas");
+								const quotas = await checkResourceQuotas(user.id, orgId, 0, 0);
+								if (typeof quotas === "object") {
+									quotaStats = {
+										limitRam: quotas.limitRam || 0,
+										limitCpu: quotas.limitCpu || 0,
+										limitDisk: limitDisk || 0,
+										totalRamMB: quotas.totalRamMB || 0,
+										totalCpuCores: quotas.totalCpuCores || 0,
+										// Disk usage logic can be added later, default to 0 for now
+										totalDiskGB: 0
+									};
+								}
+							}
+						}
+					}
+
+					if (isRestricted && quotaStats) {
+						const { limitRam, limitCpu, limitDisk, totalRamMB, totalCpuCores, totalDiskGB } = quotaStats;
+						const cpuUsedPercent = limitCpu > 0 ? (totalCpuCores / limitCpu) * 100 : 0;
+						
+						const now = new Date().toISOString();
+						const data = {
+							cpu: { value: `${cpuUsedPercent.toFixed(2)}%`, time: now },
+							memory: { value: { used: totalRamMB * 1024 * 1024, total: limitRam * 1024 * 1024 }, time: now },
+							block: { value: { readMb: 0, writeMb: 0 }, time: now },
+							network: { value: { inputMb: 0, outputMb: 0 }, time: now },
+							disk: { value: { diskTotal: limitDisk, diskUsage: totalDiskGB, diskUsedPercentage: limitDisk > 0 ? (totalDiskGB / limitDisk) * 100 : 0, diskFree: limitDisk - totalDiskGB }, time: now }
+						};
+
+						ws.send(
+							JSON.stringify({
+								data,
+							}),
+						);
+						return;
+					}
+
 					const stat = await getHostSystemStats();
 
 					await recordAdvancedStats(stat, appName);

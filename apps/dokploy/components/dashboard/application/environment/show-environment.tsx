@@ -130,7 +130,7 @@ export const ShowEnvironment = ({ id, type }: Props) => {
 
 	return (
 		<div className="flex w-full flex-col gap-5 ">
-			<Card className="bg-background">
+			<Card className="">
 				<CardHeader className="flex flex-row w-full items-center justify-between">
 					<div>
 						<CardTitle className="text-xl">Environment Settings</CardTitle>

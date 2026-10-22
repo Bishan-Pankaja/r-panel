@@ -110,9 +110,9 @@ export function LinkingAccount() {
 	const canUnlink = accounts.length > 1;
 
 	return (
-		<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-6xl mx-auto w-full">
-			<div className="rounded-xl bg-background shadow-md">
-				<CardHeader>
+		<Card className="h-full rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg w-full overflow-hidden">
+			<div>
+				<CardHeader className="p-4 border-b border-zinc-800/40">
 					<div className="flex flex-row gap-2 flex-wrap justify-between items-center">
 						<div>
 							<CardTitle className="text-xl flex flex-row gap-2">
@@ -125,7 +125,7 @@ export function LinkingAccount() {
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent className="space-y-6 py-8 border-t">
+				<CardContent className="space-y-6 p-4">
 					{/* Linked accounts */}
 					<div className="space-y-2">
 						<p className="text-sm font-medium">Linked accounts</p>

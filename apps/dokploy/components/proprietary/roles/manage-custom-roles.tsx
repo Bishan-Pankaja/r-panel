@@ -549,22 +549,24 @@ type CreateRoleSchema = z.infer<typeof createRoleSchema>;
 
 export const ManageCustomRoles = () => {
 	return (
-		<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-5xl mx-auto w-full">
-			<div className="rounded-xl bg-background shadow-md">
-				<CardHeader>
-					<CardTitle className="text-xl flex flex-row gap-2">
-						<ShieldCheck className="size-6 text-muted-foreground self-center" />
-						Custom Roles
-					</CardTitle>
-					<CardDescription>
-						Create and manage custom roles with fine-grained permissions
-					</CardDescription>
+		<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+			<Card className="rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg w-full overflow-hidden">
+				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+					<div>
+						<CardTitle className="text-xl flex flex-row gap-2 text-white">
+							<ShieldCheck className="size-6 text-muted-foreground self-center" />
+							Custom Roles
+						</CardTitle>
+						<CardDescription className="text-zinc-400 mt-1">
+							Create and manage custom roles with fine-grained permissions
+						</CardDescription>
+					</div>
 				</CardHeader>
-				<CardContent className="border-t pt-6">
-						<CustomRolesContent />
+				<CardContent className="p-4">
+					<CustomRolesContent />
 				</CardContent>
-			</div>
-		</Card>
+			</Card>
+		</div>
 	);
 };
 
@@ -888,7 +890,7 @@ const CustomRolesContent = () => {
 										{enabledResources.map(([resource, actions]) => (
 											<div
 												key={resource}
-												className="flex items-center gap-1 rounded-md bg-background border px-2 py-1"
+												className="flex items-center gap-1 rounded-md bg-transparent border px-2 py-1"
 											>
 												<span className="text-xs font-medium text-foreground">
 													{RESOURCE_META[resource]?.label || resource}

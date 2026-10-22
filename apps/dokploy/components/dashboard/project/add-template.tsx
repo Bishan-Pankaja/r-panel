@@ -206,21 +206,21 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 					<span>Template</span>
 				</DropdownMenuItem>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[90vw] p-0">
-				<DialogHeader className="sticky top-0 z-10 bg-background p-6 border-b">
-					<div className="flex flex-col space-y-6">
-						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+			<DialogContent className="w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-[90vw] p-0">
+				<DialogHeader className="sticky top-0 z-10 bg-[#121212]/95 backdrop-blur-md p-4 sm:p-6 lg:pr-16 border-b border-zinc-800/80">
+					<div className="flex flex-col space-y-4 sm:space-y-6">
+						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
 							<div>
-								<DialogTitle>Create from Template</DialogTitle>
-								<DialogDescription>
+								<DialogTitle className="pr-8 lg:pr-0">Create from Template</DialogTitle>
+								<DialogDescription className="pr-8 lg:pr-0 text-xs sm:text-sm">
 									Create an open source application from a template
 								</DialogDescription>
 							</div>
-							<div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+							<div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full lg:w-auto">
 								<Input
 									placeholder="Search Template"
 									onChange={(e) => setQuery(e.target.value)}
-									className="w-full"
+									className="w-full sm:w-[200px] lg:w-[250px]"
 									value={query}
 								/>
 								<Input
@@ -228,97 +228,99 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 									onChange={(e) =>
 										setCustomBaseUrl(e.target.value || undefined)
 									}
-									className="w-full sm:w-[300px]"
+									className="w-full sm:w-[220px] lg:w-[280px]"
 									value={customBaseUrl || ""}
 								/>
-								<Popover modal={true}>
-									<PopoverTrigger asChild>
-										<Button
-											variant="outline"
-											className={cn(
-												"w-full sm:w-[200px] justify-between !bg-input",
-											)}
-										>
-											{isLoadingTags
-												? "Loading...."
-												: selectedTags.length > 0
-													? `Selected ${selectedTags.length} tags`
-													: "Select tag"}
+								<div className="flex items-center gap-2 w-full sm:w-auto">
+									<Popover modal={true}>
+										<PopoverTrigger asChild>
+											<Button
+												variant="outline"
+												className={cn(
+													"flex-1 sm:w-[180px] lg:w-[200px] justify-between !bg-input",
+												)}
+											>
+												{isLoadingTags
+													? "Loading...."
+													: selectedTags.length > 0
+														? `Selected ${selectedTags.length} tags`
+														: "Select tag"}
 
-											<ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="p-0" align="start">
-										<Command>
-											<CommandInput
-												placeholder="Search tag..."
-												className="h-9"
-											/>
-											{isLoadingTags && (
-												<span className="py-6 text-center text-sm">
-													Loading Tags....
-												</span>
+												<ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+											</Button>
+										</PopoverTrigger>
+										<PopoverContent className="p-0" align="start">
+											<Command>
+												<CommandInput
+													placeholder="Search tag..."
+													className="h-9"
+												/>
+												{isLoadingTags && (
+													<span className="py-6 text-center text-sm">
+														Loading Tags....
+													</span>
+												)}
+												<CommandEmpty>No tags found.</CommandEmpty>
+												<ScrollArea className="h-96">
+													<CommandGroup>
+														{tags?.map((tag) => (
+															<CommandItem
+																value={tag}
+																key={tag}
+																onSelect={() => {
+																	if (selectedTags.includes(tag)) {
+																		setSelectedTags(
+																			selectedTags.filter((t) => t !== tag),
+																		);
+																		return;
+																	}
+																	setSelectedTags([...selectedTags, tag]);
+																}}
+															>
+																{tag}
+																<CheckIcon
+																	className={cn(
+																		"ml-auto h-4 w-4",
+																		selectedTags.includes(tag)
+																			? "opacity-100"
+																			: "opacity-0",
+																	)}
+																/>
+															</CommandItem>
+														))}
+													</CommandGroup>
+												</ScrollArea>
+											</Command>
+										</PopoverContent>
+									</Popover>
+									<Button
+										variant={showBookmarksOnly ? "default" : "outline"}
+										size="icon"
+										onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
+										className="h-9 w-9 flex-shrink-0"
+										disabled={isLoadingBookmarks}
+									>
+										<Bookmark
+											className={cn(
+												"size-4",
+												showBookmarksOnly && "fill-current",
 											)}
-											<CommandEmpty>No tags found.</CommandEmpty>
-											<ScrollArea className="h-96">
-												<CommandGroup>
-													{tags?.map((tag) => (
-														<CommandItem
-															value={tag}
-															key={tag}
-															onSelect={() => {
-																if (selectedTags.includes(tag)) {
-																	setSelectedTags(
-																		selectedTags.filter((t) => t !== tag),
-																	);
-																	return;
-																}
-																setSelectedTags([...selectedTags, tag]);
-															}}
-														>
-															{tag}
-															<CheckIcon
-																className={cn(
-																	"ml-auto h-4 w-4",
-																	selectedTags.includes(tag)
-																		? "opacity-100"
-																		: "opacity-0",
-																)}
-															/>
-														</CommandItem>
-													))}
-												</CommandGroup>
-											</ScrollArea>
-										</Command>
-									</PopoverContent>
-								</Popover>
-								<Button
-									variant={showBookmarksOnly ? "default" : "outline"}
-									size="icon"
-									onClick={() => setShowBookmarksOnly(!showBookmarksOnly)}
-									className="h-9 w-9 flex-shrink-0"
-									disabled={isLoadingBookmarks}
-								>
-									<Bookmark
-										className={cn(
-											"size-4",
-											showBookmarksOnly && "fill-current",
+										/>
+									</Button>
+									<Button
+										size="icon"
+										onClick={() =>
+											setViewMode(viewMode === "detailed" ? "icon" : "detailed")
+										}
+										className="h-9 w-9 flex-shrink-0"
+										>
+										{viewMode === "detailed" ? (
+											<LayoutGrid className="size-4" />
+										) : (
+											<List className="size-4" />
 										)}
-									/>
-								</Button>
-								<Button
-									size="icon"
-									onClick={() =>
-										setViewMode(viewMode === "detailed" ? "icon" : "detailed")
-									}
-									className="h-9 w-9 flex-shrink-0"
-								>
-									{viewMode === "detailed" ? (
-										<LayoutGrid className="size-4" />
-									) : (
-										<List className="size-4" />
-									)}
-								</Button>
+									</Button>
+								</div>
 							</div>
 						</div>
 						{selectedTags.length > 0 && (
@@ -398,7 +400,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+												className="h-8 w-8 bg-transparent/80 backdrop-blur-sm hover:bg-transparent"
 												onClick={(e) => handleToggleBookmark(e, template.id)}
 											>
 												<Bookmark
@@ -421,12 +423,19 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 										>
 											{/** biome-ignore lint/performance/noImgElement: this is a valid use for img tag */}
 											<img
-												src={`${customBaseUrl || "https://dash.regz.lk/templates/"}/blueprints/${template?.id}/${template?.logo}`}
+												src={`${(customBaseUrl || "https://templates.dokploy.com").replace(/\/$/, "")}/blueprints/${template?.id}/${template?.logo}`}
 												className={cn(
 													"object-contain",
 													viewMode === "detailed" ? "size-24" : "size-16",
 												)}
 												alt={template?.name}
+												onError={(e) => {
+													const target = e.currentTarget;
+													const fallbackUrl = `https://templates.dokploy.com/blueprints/${template?.id}/${template?.logo}`;
+													if (target.src !== fallbackUrl) {
+														target.src = fallbackUrl;
+													}
+												}}
 											/>
 											<div className="flex flex-col items-center gap-2">
 												<span className="text-sm font-medium line-clamp-1">

@@ -20,11 +20,11 @@ Page.getLayout = (page: ReactElement) => {
 export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
-	if (!IS_CLOUD) {
+if (!IS_CLOUD) {
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/dashboard/home",
+				destination: "/dashboard/projects",
 			},
 		};
 	}

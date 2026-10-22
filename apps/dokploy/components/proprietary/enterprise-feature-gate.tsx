@@ -36,7 +36,7 @@ export function EnterpriseFeatureLocked({
 	compact = false,
 }: EnterpriseFeatureLockedProps) {
 	return (
-		<Card className="border-dashed bg-transparent">
+		<Card className="border-dashed ">
 			<CardHeader className={compact ? "pb-2" : undefined}>
 				<div className="flex flex-col items-center gap-3 text-center">
 					<div

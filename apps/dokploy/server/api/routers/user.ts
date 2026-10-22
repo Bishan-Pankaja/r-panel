@@ -589,6 +589,9 @@ export const userRouter = createTRPCRouter({
 				email: z.string().email(),
 				password: z.string().min(8),
 				role: z.string().min(1),
+				limitRam: z.number().optional(),
+				limitCpu: z.number().optional(),
+				limitDisk: z.number().optional(),
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -619,6 +622,9 @@ export const userRouter = createTRPCRouter({
 				email: input.email,
 				password: input.password,
 				role: input.role,
+				limitRam: input.limitRam,
+				limitCpu: input.limitCpu,
+				limitDisk: input.limitDisk,
 			});
 		}),
 	sendInvitation: withPermission("member", "create")

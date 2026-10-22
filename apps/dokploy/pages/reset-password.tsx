@@ -24,7 +24,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
-import { cn } from "@/lib/utils";
 
 const loginSchema = z
 	.object({
@@ -55,6 +54,7 @@ type Login = z.infer<typeof loginSchema>;
 interface Props {
 	tokenResetPassword: string;
 }
+
 export default function Home({ tokenResetPassword }: Props) {
 	const { config: whitelabeling } = useWhitelabelingPublic();
 	const [token, setToken] = useState<string | null>(tokenResetPassword);
@@ -98,90 +98,115 @@ export default function Home({ tokenResetPassword }: Props) {
 		}
 		setIsLoading(false);
 	};
+
 	return (
-		<div className="glass rounded-2xl p-8">
-			<div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
-				<Logo
-					className="size-6"
-					logoUrl={
-						whitelabeling?.loginLogoUrl ||
-						whitelabeling?.logoUrl ||
-						undefined
-					}
-				/>
-			</div>
-			<h1 className="text-2xl font-display font-bold text-center mb-1">Reset Password</h1>
-			<p className="text-xs text-muted-foreground text-center mb-6">
-				Enter your new password
-			</p>
-
-			{error && (
-				<AlertBlock type="error" className="mb-4">
-					{error}
-				</AlertBlock>
-			)}
-			
-			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="space-y-4"
-				>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Password</label>
-						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input
-								type={showPassword ? "text" : "password"}
-								placeholder="••••••••"
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-10 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("password")}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowPassword(!showPassword)}
-								className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							>
-								{showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-							</button>
-						</div>
-					</div>
-					<div className="space-y-1.5">
-						<label className="text-xs text-muted-foreground">Confirm Password</label>
-						<div className="relative">
-							<Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={14} />
-							<Input
-								type={showConfirmPassword ? "text" : "password"}
-								placeholder="••••••••"
-								className="w-full bg-secondary/50 rounded-xl pl-9 pr-10 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:ring-1 focus:ring-primary/50 transition-all"
-								{...form.register("confirmPassword")}
-							/>
-							<button
-								type="button"
-								onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-								className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-							>
-								{showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
-							</button>
-						</div>
-					</div>
-
-					<Button
-						type="submit"
-						isLoading={isLoading}
-						className="w-full inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-medium text-sm hover:shadow-[0_0_30px_hsl(var(--glow-primary))] hover:scale-[1.02] transition-all"
-					>
-						Confirm
-					</Button>
-				</form>
-			</Form>
-
-			<div className="flex flex-row justify-center mt-5">
-				<Link
-					className="text-xs text-muted-foreground hover:text-primary transition-colors"
-					href="/"
-				>
-					Back to login
+		<div className="w-full">
+			<div className="flex flex-col items-center mb-2">
+				<Link href="/" className="w-16 h-16 rounded-[16px] bg-[#111] border border-zinc-800/80 shadow-lg flex items-center justify-center mb-6 overflow-hidden p-3 transition-transform hover:scale-105">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img 
+						src={
+							whitelabeling?.loginLogoUrl || 
+							whitelabeling?.logoUrl || 
+							"https://www.regz.lk/favicon.ico"
+						} 
+						alt="Logo" 
+						className="w-full h-full object-contain"
+					/>
 				</Link>
+				<h1 className="text-[22px] font-semibold text-white tracking-tight mb-1">
+					Set new password
+				</h1>
+				<p className="text-xs text-zinc-400 font-medium text-center">
+					Please enter your new password below
+				</p>
+			</div>
+
+			<div className="w-full mt-6">
+				{error && (
+					<AlertBlock type="error" className="mb-4 bg-red-950/30 border-red-900/50 text-red-400 text-sm">
+						{error}
+					</AlertBlock>
+				)}
+				
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+						<FormField
+							control={form.control}
+							name="password"
+							render={({ field }) => (
+								<FormItem className="space-y-2">
+									<FormLabel className="text-zinc-300 text-xs font-normal">New Password</FormLabel>
+									<FormControl>
+										<div className="relative">
+											<Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-[18px] text-zinc-500" />
+											<Input
+												type={showPassword ? "text" : "password"}
+												placeholder="••••••••"
+												className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 pl-10 pr-10 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner"
+												{...field}
+											/>
+											<button
+												type="button"
+												onClick={() => setShowPassword(!showPassword)}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+											>
+												{showPassword ? <EyeOff className="size-[18px]" /> : <Eye className="size-[18px]" />}
+											</button>
+										</div>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="confirmPassword"
+							render={({ field }) => (
+								<FormItem className="space-y-2">
+									<FormLabel className="text-zinc-300 text-xs font-normal">Confirm Password</FormLabel>
+									<FormControl>
+										<div className="relative">
+											<Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-[18px] text-zinc-500" />
+											<Input
+												type={showConfirmPassword ? "text" : "password"}
+												placeholder="••••••••"
+												className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 pl-10 pr-10 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner"
+												{...field}
+											/>
+											<button
+												type="button"
+												onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+												className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors focus:outline-none"
+											>
+												{showConfirmPassword ? <EyeOff className="size-[18px]" /> : <Eye className="size-[18px]" />}
+											</button>
+										</div>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<Button
+							type="submit"
+							isLoading={isLoading}
+							className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 rounded-xl font-medium shadow-[0_0_15px_rgba(37,99,235,0.2)] transition-all mt-2"
+						>
+							Reset Password
+						</Button>
+					</form>
+				</Form>
+
+				<div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+					<Link
+						className="text-xs text-blue-500 hover:text-blue-400 font-medium transition-colors"
+						href="/"
+					>
+						Back to login
+					</Link>
+				</div>
 			</div>
 		</div>
 	);
@@ -190,15 +215,8 @@ export default function Home({ tokenResetPassword }: Props) {
 Home.getLayout = (page: ReactElement) => {
 	return <OnboardingLayout>{page}</OnboardingLayout>;
 };
+
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-	if (!IS_CLOUD) {
-		return {
-			redirect: {
-				permanent: false,
-				destination: "/",
-			},
-		};
-	}
 	const { token } = context.query;
 
 	if (typeof token !== "string") {

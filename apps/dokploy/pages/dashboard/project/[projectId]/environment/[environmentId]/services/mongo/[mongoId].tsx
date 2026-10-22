@@ -25,7 +25,6 @@ import { ContainerPaidMonitoring } from "@/components/dashboard/monitoring/paid/
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { MongodbIcon } from "@/components/icons/data-tools-icons";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { AdvanceBreadcrumb } from "@/components/shared/advance-breadcrumb";
 import { StatusTooltip } from "@/components/shared/status-tooltip";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -80,7 +79,6 @@ const Mongo = (
 	return (
 		<div className="pb-10">
 			<UseKeyboardNav forPage="mongodb" />
-			<AdvanceBreadcrumb />
 			<Head>
 				<title>
 					Database: {data?.name} - {data?.environment?.project?.name} |{" "}
@@ -88,8 +86,8 @@ const Mongo = (
 				</title>
 			</Head>
 			<div className="w-full">
-				<Card className="h-full bg-sidebar  p-2.5 rounded-xl w-full">
-					<div className="rounded-xl bg-background shadow-md ">
+				<Card className="h-full bg-sidebar rounded-xl w-full">
+					<div className="rounded-xl bg-transparent shadow-md ">
 						<CardHeader className="flex flex-row justify-between items-center">
 							<div className="flex flex-col">
 								<CardTitle className="text-xl flex flex-row gap-2">
@@ -129,7 +127,7 @@ const Mongo = (
 													: "destructive"
 										}
 									>
-										{data?.server?.name || "Dokploy Server"}
+										{data?.server?.name || "Regz Server"}
 									</Badge>
 									{data?.server?.serverStatus === "inactive" && (
 										<TooltipProvider delayDuration={0}>
@@ -383,11 +381,11 @@ export async function getServerSideProps(
 					environmentId: params?.environmentId,
 				},
 			};
-		} catch {
+} catch {
 			return {
 				redirect: {
 					permanent: false,
-					destination: "/dashboard/home",
+					destination: "/dashboard/projects",
 				},
 			};
 		}

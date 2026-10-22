@@ -2,7 +2,6 @@ import { ClipboardList } from "lucide-react";
 import React from "react";
 
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -83,21 +82,23 @@ function AuditLogsContent() {
 
 export function ShowAuditLogs() {
 	return (
-		<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-6xl w-full mx-auto">
-			<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader>
-						<CardTitle className="text-xl flex flex-row gap-2">
-							<ClipboardList className="h-5 w-5 text-muted-foreground self-center" />
+		<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+					<div>
+						<CardTitle className="text-xl flex flex-row gap-2 text-white">
+							<ClipboardList className="size-6 text-muted-foreground self-center" />
 							Audit Logs
 						</CardTitle>
-						<CardDescription>
+						<CardDescription className="text-zinc-400 mt-1">
 							Track all actions performed by members in your organization.
 						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-2 py-8 border-t">
-						<AuditLogsContent />
-					</CardContent>
+					</div>
+				</CardHeader>
+				<CardContent className="p-4">
+					<AuditLogsContent />
+				</CardContent>
 			</div>
-		</Card>
+		</div>
 	);
 }

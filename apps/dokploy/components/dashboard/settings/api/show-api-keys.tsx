@@ -6,7 +6,6 @@ import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -22,9 +21,9 @@ export const ShowApiKeys = () => {
 
 	return (
 		<div className="w-full">
-			<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md">
-					<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center">
+			<div className="w-full">
+				<div className="overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+					<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
 						<div>
 							<CardTitle className="text-xl flex items-center gap-2">
 								<KeyIcon className="size-5" />
@@ -48,7 +47,7 @@ export const ShowApiKeys = () => {
 							</Link>
 						</div>
 					</CardHeader>
-					<CardContent className="space-y-6">
+					<CardContent className="space-y-6 p-4">
 						<div className="flex flex-col gap-4">
 							{data?.user.apiKeys && data.user.apiKeys.length > 0 ? (
 								data.user.apiKeys.map((apiKey) => (
@@ -136,7 +135,7 @@ export const ShowApiKeys = () => {
 						</div>
 					</CardContent>
 				</div>
-			</Card>
+			</div>
 		</div>
 	);
 };

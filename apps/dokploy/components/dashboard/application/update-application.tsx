@@ -107,57 +107,64 @@ export const UpdateApplication = ({ applicationId }: Props) => {
 				{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
 
 				<div className="grid gap-4">
-					<div className="grid items-center gap-4">
-						<Form {...form}>
-							<form
-								onSubmit={form.handleSubmit(onSubmit)}
-								id="hook-form-update-application"
-								className="grid w-full gap-4 "
-							>
-								<FormField
-									control={form.control}
-									name="name"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Name</FormLabel>
-											<FormControl>
-												<Input placeholder="Vandelay Industries" {...field} />
-											</FormControl>
-
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="description"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Description</FormLabel>
-											<FormControl>
-												<Textarea
-													placeholder="Description about your project..."
-													className="resize-none"
-													{...field}
-												/>
-											</FormControl>
-
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<DialogFooter>
-									<Button
-										isLoading={isPending}
-										form="hook-form-update-application"
-										type="submit"
-									>
-										Update
-									</Button>
-								</DialogFooter>
-							</form>
-						</Form>
-					</div>
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							id="hook-form-update-application"
+							className="grid w-full gap-4"
+						>
+							<FormField
+								control={form.control}
+								name="name"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-xs font-semibold text-zinc-300">
+											Name
+										</FormLabel>
+										<FormControl>
+											<Input placeholder="Application name" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel className="text-xs font-semibold text-zinc-300">
+											Description
+										</FormLabel>
+										<FormControl>
+											<Textarea
+												placeholder="Description about your project..."
+												className="resize-none min-h-[90px]"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<DialogFooter>
+								<Button
+									variant="outline"
+									type="button"
+									onClick={() => setIsOpen(false)}
+								>
+									Cancel
+								</Button>
+								<Button
+									isLoading={isPending}
+									form="hook-form-update-application"
+									type="submit"
+								>
+									Update
+								</Button>
+							</DialogFooter>
+						</form>
+					</Form>
 				</div>
 			</DialogContent>
 		</Dialog>

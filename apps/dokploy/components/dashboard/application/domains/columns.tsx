@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import {
 	ArrowUpDown,
 	CheckCircle2,
+	Cloud,
 	ExternalLink,
 	Loader2,
 	PenBoxIcon,
@@ -40,6 +41,9 @@ interface ColumnsProps {
 	canCreateDomain: boolean;
 	canDeleteDomain: boolean;
 	appName?: string;
+	hasCloudflareAccount: boolean;
+	handleAutoConfigureDns: (domainId: string, host: string) => Promise<void>;
+	isAutoConfiguringDns: boolean;
 }
 
 export const createColumns = ({
@@ -53,6 +57,9 @@ export const createColumns = ({
 	canCreateDomain,
 	canDeleteDomain,
 	appName,
+	hasCloudflareAccount,
+	handleAutoConfigureDns,
+	isAutoConfiguringDns,
 }: ColumnsProps): ColumnDef<Domain>[] => [
 	...(type === "compose"
 		? [
@@ -99,24 +106,7 @@ export const createColumns = ({
 			);
 		},
 	},
-	{
-		accessorKey: "path",
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-				>
-					Path
-					<ArrowUpDown className="ml-2 h-4 w-4" />
-				</Button>
-			);
-		},
-		cell: ({ row }) => {
-			const path = row.getValue("path") as string;
-			return <div className="font-mono text-sm">{path || "/"}</div>;
-		},
-	},
+
 	{
 		accessorKey: "port",
 		header: ({ column }) => {
@@ -261,6 +251,30 @@ export const createColumns = ({
 
 			return (
 				<div className="flex items-center gap-2">
+					{validationStates[domain.host]?.error && canCreateDomain && (
+						<Button
+							variant="outline"
+							size="sm"
+							className="h-8 gap-1.5 px-2 text-xs"
+							disabled={isAutoConfiguringDns}
+							onClick={() => {
+								if (hasCloudflareAccount) {
+									void handleAutoConfigureDns(domain.domainId, domain.host);
+								} else {
+									window.location.assign("/dashboard/settings/cloudflare");
+								}
+							}}
+						>
+							{isAutoConfiguringDns ? (
+								<Loader2 className="size-3.5 animate-spin" />
+							) : (
+								<Cloud className="size-3.5" />
+							)}
+							{hasCloudflareAccount
+								? "Auto-configure DNS"
+								: "Connect Cloudflare"}
+						</Button>
+					)}
 					<DnsHelperModal
 						domain={{
 							host: domain.host,

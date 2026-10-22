@@ -250,7 +250,7 @@ export const PatchEditor = ({ id, type, repoPath, onClose }: Props) => {
 	);
 
 	return (
-		<Card className="bg-background overflow-hidden">
+		<Card className=" overflow-hidden">
 			<CardHeader className="flex flex-row items-center justify-between pb-4">
 				<div className="flex items-center gap-4">
 					<Button variant="ghost" size="icon" onClick={onClose}>

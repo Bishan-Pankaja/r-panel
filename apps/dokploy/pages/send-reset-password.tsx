@@ -82,79 +82,77 @@ export default function Home() {
 		}
 		setIsLoading(false);
 	};
+
 	return (
-		<div className="flex w-full items-center justify-center ">
-			<div className="flex flex-col items-center gap-4 w-full">
-				<Link href="/" className="flex flex-row items-center gap-2">
-					<Logo
-						logoUrl={
-							whitelabeling?.loginLogoUrl || whitelabeling?.logoUrl || undefined
-						}
+		<div className="w-full">
+			<div className="flex flex-col items-center mb-2">
+				<Link href="/" className="w-16 h-16 rounded-[16px] bg-[#111] border border-zinc-800/80 shadow-lg flex items-center justify-center mb-6 overflow-hidden p-3 transition-transform hover:scale-105">
+					{/* eslint-disable-next-line @next/next/no-img-element */}
+					<img 
+						src={
+							whitelabeling?.loginLogoUrl || 
+							whitelabeling?.logoUrl || 
+							"https://www.regz.lk/favicon.ico"
+						} 
+						alt="Logo" 
+						className="w-full h-full object-contain"
 					/>
-					<span className="font-medium text-sm">
-						{whitelabeling?.appName || "Dokploy"}
-					</span>
 				</Link>
-				<CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
-				<CardDescription>
-					Enter your email to reset your password
-				</CardDescription>
+				<h1 className="text-[22px] font-semibold text-white tracking-tight mb-1">
+					Reset Password
+				</h1>
+				<p className="text-xs text-zinc-400 font-medium text-center">
+					Enter your email to receive a password reset link
+				</p>
+			</div>
 
-				<div className="mx-auto w-full max-w-lg bg-transparent ">
-					<CardContent className="p-0">
-						{error && (
-							<AlertBlock type="error" className="my-2">
-								{error}
-							</AlertBlock>
-						)}
-						{!temp.is2FAEnabled ? (
-							<Form {...form}>
-								<form
-									onSubmit={form.handleSubmit(onSubmit)}
-									className="grid gap-4"
-								>
-									<div className="space-y-4">
-										<FormField
-											control={form.control}
-											name="email"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Email</FormLabel>
-													<FormControl>
-														<Input
-															placeholder="Email"
-															maxLength={255}
-															{...field}
-														/>
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
+			<div className="w-full mt-6">
+				{error && (
+					<AlertBlock type="error" className="mb-4 bg-red-950/30 border-red-900/50 text-red-400 text-sm">
+						{error}
+					</AlertBlock>
+				)}
+				
+				{!temp.is2FAEnabled ? (
+					<Form {...form}>
+						<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+							<FormField
+								control={form.control}
+								name="email"
+								render={({ field }) => (
+									<FormItem className="space-y-2">
+										<FormLabel className="text-zinc-300 text-xs font-normal">Email</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="your@email.com"
+												maxLength={255}
+												className="bg-[#1a1a1a] border-zinc-800/80 text-zinc-100 h-11 rounded-xl focus-visible:ring-1 focus-visible:ring-blue-500 placeholder:text-zinc-600 shadow-inner"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-										<Button
-											type="submit"
-											isLoading={isLoading}
-											className="w-full"
-										>
-											Send Reset Link
-										</Button>
-									</div>
-								</form>
-							</Form>
-						) : null}
+							<Button
+								type="submit"
+								isLoading={isLoading}
+								className="w-full bg-blue-600 hover:bg-blue-500 text-white h-11 rounded-xl font-medium shadow-[0_0_15px_rgba(37,99,235,0.2)] transition-all mt-2"
+							>
+								Send Reset Link
+							</Button>
+						</form>
+					</Form>
+				) : null}
 
-						<div className="flex flex-row justify-between flex-wrap">
-							<div className="mt-4 text-center text-sm flex flex-row justify-center gap-2">
-								<Link
-									className="hover:underline text-muted-foreground"
-									href="/"
-								>
-									Login
-								</Link>
-							</div>
-						</div>
-					</CardContent>
+				<div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-6">
+					<Link
+						className="text-xs text-blue-500 hover:text-blue-400 font-medium transition-colors"
+						href="/"
+					>
+						Back to login
+					</Link>
 				</div>
 			</div>
 		</div>
@@ -164,16 +162,8 @@ export default function Home() {
 Home.getLayout = (page: ReactElement) => {
 	return <OnboardingLayout>{page}</OnboardingLayout>;
 };
-export async function getServerSideProps(_context: GetServerSidePropsContext) {
-	if (!IS_CLOUD) {
-		return {
-			redirect: {
-				permanent: false,
-				destination: "/",
-			},
-		};
-	}
 
+export async function getServerSideProps(_context: GetServerSidePropsContext) {
 	return {
 		props: {},
 	};

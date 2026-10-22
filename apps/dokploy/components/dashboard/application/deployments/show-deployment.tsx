@@ -142,7 +142,7 @@ export const ShowDeployment = ({
 				}
 			}}
 		>
-			<DialogContent className={"sm:max-w-5xl"}>
+			<DialogContent className={"sm:w-full"}>
 				<DialogHeader>
 					<DialogTitle>Deployment</DialogTitle>
 					<DialogDescription className="flex items-center gap-2">

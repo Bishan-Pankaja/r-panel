@@ -45,7 +45,7 @@ const InputOTP = React.forwardRef<
 				key={i}
 				onClick={() => handleBoxClick(i)}
 				className={cn(
-					"relative flex h-11 w-11 items-center justify-center rounded-lg border-2 border-input bg-background text-base font-semibold transition-all cursor-text hover:border-ring/50",
+					"relative flex h-11 w-11 items-center justify-center rounded-lg border-2 border-input bg-transparent text-base font-semibold transition-all cursor-text hover:border-ring/50",
 					isActive && "border-ring ring-2 ring-ring/20 ring-offset-1",
 					isFilled && "border-primary/50 bg-primary/5",
 					className,

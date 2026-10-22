@@ -161,7 +161,7 @@ export const ShowPreviewSettings = ({ applicationId }: Props) => {
 						Configure
 					</Button>
 				</DialogTrigger>
-				<DialogContent className="sm:max-w-5xl w-full">
+				<DialogContent className="sm:w-full w-full">
 					<DialogHeader>
 						<DialogTitle>Preview Deployment Settings</DialogTitle>
 						<DialogDescription>

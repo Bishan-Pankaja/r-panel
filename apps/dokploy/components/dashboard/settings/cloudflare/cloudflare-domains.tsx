@@ -1,11 +1,31 @@
+import {
+	AlertCircle,
+	CheckCircle,
+	Globe,
+	Loader2,
+	Plus,
+	RefreshCw,
+	Shield,
+	Trash2,
+} from "lucide-react";
 import { useState } from "react";
-import { api } from "@/utils/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2, Plus, Trash2, CheckCircle, AlertCircle, RefreshCw, Shield, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { api } from "@/utils/api";
 
 interface CloudflareDomainsProps {
 	accountId: string;
@@ -16,13 +36,22 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 	const [subdomain, setSubdomain] = useState<string>("");
 	const [isAdding, setIsAdding] = useState<boolean>(false);
 
-	const { data: zones, isLoading: isLoadingZones } = api.cloudflare.getZones.useQuery({ accountId });
-	const { data: domains, isLoading: isLoadingDomains, refetch: refetchDomains } = api.cloudflare.getDomains.useQuery();
-	
-	const { mutateAsync: createDomain, isPending: isCreating } = api.cloudflare.createDomain.useMutation();
-	const { mutateAsync: deleteDomain, isPending: isDeleting } = api.cloudflare.deleteDomain.useMutation();
-	const { mutateAsync: verifyDomain, isPending: isVerifying } = api.cloudflare.verifyDomain.useMutation();
-	const { mutateAsync: syncDomain, isPending: isSyncing } = api.cloudflare.syncDomain.useMutation();
+	const { data: zones, isLoading: isLoadingZones } =
+		api.cloudflare.getZones.useQuery({ accountId });
+	const {
+		data: domains,
+		isLoading: isLoadingDomains,
+		refetch: refetchDomains,
+	} = api.cloudflare.getDomains.useQuery();
+
+	const { mutateAsync: createDomain, isPending: isCreating } =
+		api.cloudflare.createDomain.useMutation();
+	const { mutateAsync: deleteDomain, isPending: isDeleting } =
+		api.cloudflare.deleteDomain.useMutation();
+	const { mutateAsync: verifyDomain, isPending: isVerifying } =
+		api.cloudflare.verifyDomain.useMutation();
+	const { mutateAsync: syncDomain, isPending: isSyncing } =
+		api.cloudflare.syncDomain.useMutation();
 
 	const handleAddDomain = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -31,7 +60,7 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 			return;
 		}
 
-		const zone = zones?.find(z => z.id === selectedZoneId);
+		const zone = zones?.find((z: any) => z.id === selectedZoneId);
 		if (!zone) return;
 
 		try {
@@ -67,7 +96,9 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 			if (result.verified) {
 				toast.success("Domain verified successfully!");
 			} else {
-				toast.error(result.error || "Verification failed. Please check DNS propagation.");
+				toast.error(
+					result.error || "Verification failed. Please check DNS propagation.",
+				);
 			}
 			refetchDomains();
 		} catch (err) {
@@ -87,8 +118,8 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 
 	return (
 		<div className="flex flex-col gap-6">
-			<Card className="border-border bg-card">
-				<CardHeader className="flex flex-row items-center justify-between">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="flex flex-row items-center justify-between p-4 border-b border-zinc-800/40">
 					<div>
 						<CardTitle className="text-lg font-bold flex items-center gap-2">
 							<Globe className="h-5 w-5 text-blue-500" />
@@ -105,25 +136,36 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 						</Button>
 					)}
 				</CardHeader>
-				<CardContent className="flex flex-col gap-4">
+				<CardContent className="flex flex-col gap-4 p-4">
 					{isAdding && (
-						<form onSubmit={handleAddDomain} className="border border-border rounded-lg p-4 bg-muted/30 flex flex-col gap-4">
+						<form
+							onSubmit={handleAddDomain}
+							className="border border-border rounded-lg p-4 bg-muted/30 flex flex-col gap-4"
+						>
 							<h3 className="font-medium text-sm">Add Custom Domain</h3>
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 								<div className="flex flex-col gap-1.5">
-									<label className="text-xs font-medium text-muted-foreground">Select Zone</label>
+									<label
+										htmlFor="cloudflare-zone"
+										className="text-xs font-medium text-muted-foreground"
+									>
+										Select Zone
+									</label>
 									{isLoadingZones ? (
-										<div className="flex items-center h-10 px-3 border border-border rounded-md bg-background">
+										<div className="flex items-center h-10 px-3 border border-border rounded-md bg-transparent">
 											<Loader2 className="h-4 w-4 animate-spin text-muted-foreground mr-2" />
 											Loading zones...
 										</div>
 									) : (
-										<Select value={selectedZoneId} onValueChange={setSelectedZoneId}>
-											<SelectTrigger>
+										<Select
+											value={selectedZoneId}
+											onValueChange={setSelectedZoneId}
+										>
+											<SelectTrigger id="cloudflare-zone">
 												<SelectValue placeholder="Select a Cloudflare Zone" />
 											</SelectTrigger>
 											<SelectContent>
-												{zones?.map(zone => (
+												{zones?.map((zone: any) => (
 													<SelectItem key={zone.id} value={zone.id}>
 														{zone.name}
 													</SelectItem>
@@ -133,20 +175,37 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 									)}
 								</div>
 								<div className="flex flex-col gap-1.5">
-									<label className="text-xs font-medium text-muted-foreground">Subdomain (Optional)</label>
+									<label
+										htmlFor="cloudflare-subdomain"
+										className="text-xs font-medium text-muted-foreground"
+									>
+										Subdomain (Optional)
+									</label>
 									<Input
+										id="cloudflare-subdomain"
 										placeholder="e.g. api, app, blog"
 										value={subdomain}
-										onChange={e => setSubdomain(e.target.value)}
+										onChange={(e) => setSubdomain(e.target.value)}
 									/>
 								</div>
 							</div>
 							<div className="flex items-center justify-end gap-2">
-								<Button type="button" variant="ghost" size="sm" onClick={() => setIsAdding(false)}>
+								<Button
+									type="button"
+									variant="ghost"
+									size="sm"
+									onClick={() => setIsAdding(false)}
+								>
 									Cancel
 								</Button>
-								<Button type="submit" size="sm" disabled={isCreating || !selectedZoneId}>
-									{isCreating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+								<Button
+									type="submit"
+									size="sm"
+									disabled={isCreating || !selectedZoneId}
+								>
+									{isCreating && (
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									)}
 									Add Domain
 								</Button>
 							</div>
@@ -159,13 +218,19 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 						</div>
 					) : domains && domains.length > 0 ? (
 						<div className="flex flex-col gap-3">
-							{domains.map(domain => {
-								const isVerified = domain.verifications?.[0]?.status === "verified";
+							{domains.map((domain) => {
+								const isVerified =
+									domain.verifications?.[0]?.status === "verified";
 								return (
-									<div key={domain.id} className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 border border-border rounded-lg bg-card hover:bg-muted/10 transition-colors gap-4">
+									<div
+										key={domain.id}
+										className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 border border-border rounded-lg bg-transparent hover:bg-muted/10 transition-colors gap-4"
+									>
 										<div className="flex flex-col gap-1">
 											<div className="flex items-center gap-2">
-												<span className="font-semibold text-sm">{domain.domainName}</span>
+												<span className="font-semibold text-sm">
+													{domain.domainName}
+												</span>
 												{isVerified ? (
 													<span className="flex items-center gap-1 text-xs text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
 														<CheckCircle className="h-3 w-3" />
@@ -224,11 +289,13 @@ export function CloudflareDomains({ accountId }: CloudflareDomainsProps) {
 						<div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
 							<Globe className="h-8 w-8 mb-2 text-muted-foreground/60" />
 							<p className="text-sm">No custom domains added yet.</p>
-							<p className="text-xs mt-1">Add a domain to automatically configure DNS and SSL.</p>
+							<p className="text-xs mt-1">
+								Add a domain to automatically configure DNS and SSL.
+							</p>
 						</div>
 					)}
 				</CardContent>
-			</Card>
+			</div>
 		</div>
 	);
 }

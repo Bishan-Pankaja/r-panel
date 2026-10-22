@@ -6,7 +6,13 @@ import { ShowRequests } from "@/components/dashboard/requests/show-requests";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
 
 export default function Requests() {
-	return <ShowRequests />;
+	return (
+		<div className="w-full">
+			<div className="h-full rounded-xl w-full flex flex-col">
+				<ShowRequests />
+			</div>
+		</div>
+	);
 }
 Requests.getLayout = (page: ReactElement) => {
 	return <DashboardLayout>{page}</DashboardLayout>;
@@ -14,11 +20,11 @@ Requests.getLayout = (page: ReactElement) => {
 export async function getServerSideProps(
 	ctx: GetServerSidePropsContext<{ serviceId: string }>,
 ) {
-	if (IS_CLOUD) {
+if (IS_CLOUD) {
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/dashboard/home",
+				destination: "/dashboard/projects",
 			},
 		};
 	}

@@ -277,7 +277,7 @@ export const SetupServer = ({ serverId, asButton = false }: Props) => {
 							<TabsContent value="deployments">
 								<CardContent className="p-0">
 									<div className="flex flex-col gap-4">
-										<Card className="bg-background">
+										<Card className="">
 											<CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
 												<div className="flex flex-row gap-2 justify-between w-full max-sm:flex-col">
 													<div className="flex flex-col gap-1">
@@ -346,7 +346,7 @@ export const SetupServer = ({ serverId, asButton = false }: Props) => {
 										className="outline-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
 									>
 										<div className="flex flex-col gap-2 text-sm pt-3">
-											<div className="rounded-xl bg-background shadow-md border">
+											<div className="rounded-xl bg-transparent shadow-md border">
 												<SetupMonitoring serverId={serverId} />
 											</div>
 										</div>

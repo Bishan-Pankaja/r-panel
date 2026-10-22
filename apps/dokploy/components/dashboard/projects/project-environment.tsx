@@ -121,7 +121,7 @@ export const ProjectEnvironment = ({ projectId, children }: Props) => {
 					</DropdownMenuItem>
 				)}
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-6xl">
+			<DialogContent className="sm:w-full">
 				<DialogHeader>
 					<DialogTitle>Project Environment</DialogTitle>
 					<DialogDescription>

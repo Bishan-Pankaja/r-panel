@@ -61,7 +61,7 @@ export const ShowDockerLogsCompose = ({
 	}, [data]);
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader>
 				<CardTitle className="text-xl">Logs</CardTitle>
 				<CardDescription>

@@ -1,7 +1,7 @@
 "use client";
 
 import { standardSchemaResolver as zodResolver } from "@hookform/resolvers/standard-schema";
-import { Loader2, RotateCcw } from "lucide-react";
+import { Loader2, Palette, RotateCcw, Save, Undo2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,7 +10,6 @@ import { CodeEditor } from "@/components/shared/code-editor";
 import { DialogAction } from "@/components/shared/dialog-action";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -265,322 +264,371 @@ export function WhitelabelingSettings() {
 	};
 
 	return (
-		<div className="flex flex-col gap-6">
-			<Form {...form}>
-				<form
-					onSubmit={form.handleSubmit(onSubmit)}
-					className="flex flex-col gap-6"
-				>
-					{/* Branding Section */}
-					<Card className="bg-transparent">
-						<CardHeader>
-							<CardTitle>Branding</CardTitle>
-							<CardDescription>
-								Customize the application name, logos, and favicon to match your
-								brand identity.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col gap-4">
-							<FormField
-								control={form.control}
-								name="appName"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Application Name</FormLabel>
-										<FormControl>
-											<Input placeholder="Dokploy" {...field} />
-										</FormControl>
-										<FormDescription>
-											Replaces "Dokploy" across the entire interface.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="appDescription"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Application Description</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="The Open Source alternative to Netlify, Vercel, Heroku."
-												{...field}
-											/>
-										</FormControl>
-										<FormDescription>
-											Tagline shown on the login/onboarding pages. Defaults to
-											the standard Dokploy description if empty.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="logoUrl"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Logo URL</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="https://example.com/logo.svg"
-												{...field}
-											/>
-										</FormControl>
-										<FormDescription>
-											Main logo shown in the sidebar and header. Recommended
-											size: 128x128px.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="loginLogoUrl"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Login Page Logo URL</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="https://example.com/login-logo.svg"
-												{...field}
-											/>
-										</FormControl>
-										<FormDescription>
-											Logo displayed on the login page. If empty, the main logo
-											is used.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="faviconUrl"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Favicon URL</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="https://example.com/favicon.ico"
-												{...field}
-											/>
-										</FormControl>
-										<FormDescription>
-											Browser tab icon. Supports .ico, .png, and .svg formats.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Appearance Section */}
-					<Card className="bg-transparent">
-						<CardHeader>
-							<CardTitle>Appearance</CardTitle>
-							<CardDescription>
-								Customize the look and feel of the application with custom CSS.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col gap-4">
-							<FormField
-								control={form.control}
-								name="customCss"
-								render={({ field }) => (
-									<FormItem>
-										<div className="flex items-center justify-between">
-											<FormLabel>Custom CSS</FormLabel>
-											<Button
-												type="button"
-												variant="outline"
-												size="sm"
-												onClick={() => {
-													form.setValue("customCss", DEFAULT_CSS_TEMPLATE);
-												}}
-											>
-												Load Default Styles
-											</Button>
-										</div>
-										<FormControl>
-											<div className="max-h-[350px] overflow-auto">
-												<CodeEditor
-													language="css"
-													value={field.value}
-													onChange={field.onChange}
-													placeholder="/* Click 'Load Default Styles' to start with the base theme variables */"
-													lineWrapping
-												/>
-											</div>
-										</FormControl>
-										<FormDescription>
-											Inject custom CSS styles globally. Click "Load Default
-											Styles" to get the base theme CSS variables as a starting
-											point.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Metadata & Links Section */}
-					<Card className="bg-transparent">
-						<CardHeader>
-							<CardTitle>Metadata & Links</CardTitle>
-							<CardDescription>
-								Customize the page title, footer text, and sidebar links.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col gap-4">
-							<FormField
-								control={form.control}
-								name="metaTitle"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Page Title</FormLabel>
-										<FormControl>
-											<Input placeholder="Dokploy" {...field} />
-										</FormControl>
-										<FormDescription>
-											Browser tab title. Defaults to "Dokploy" if empty.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="footerText"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Footer Text</FormLabel>
-										<FormControl>
-											<Input placeholder="Powered by Your Company" {...field} />
-										</FormControl>
-										<FormDescription>
-											Custom text displayed in the footer area.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="supportUrl"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Support URL</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="https://support.example.com"
-												{...field}
-											/>
-										</FormControl>
-										<FormDescription>
-											Custom URL for the "Support" link in the sidebar.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="docsUrl"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Documentation URL</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="https://docs.example.com"
-												{...field}
-											/>
-										</FormControl>
-										<FormDescription>
-											Custom URL for the "Documentation" link in the sidebar.
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Error Pages Section */}
-					<Card className="bg-transparent">
-						<CardHeader>
-							<CardTitle>Error Pages</CardTitle>
-							<CardDescription>
-								Customize the error page messages shown to users.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col gap-4">
-							<FormField
-								control={form.control}
-								name="errorPageTitle"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Error Page Title</FormLabel>
-										<FormControl>
-											<Input placeholder="Something went wrong" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="errorPageDescription"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Error Page Description</FormLabel>
-										<FormControl>
-											<Textarea
-												placeholder="We're sorry, but an unexpected error occurred. Please try again later."
-												className="min-h-[80px]"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</CardContent>
-					</Card>
-
-					{/* Actions */}
-					<div className="flex items-center justify-between">
-						<DialogAction
-							title="Reset Whitelabeling"
-							description="Are you sure you want to reset all whitelabeling settings to their defaults? This action cannot be undone."
-							type="destructive"
+		<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+					<div>
+						<CardTitle className="text-xl flex flex-row gap-2 text-white">
+							<Palette className="size-6 text-muted-foreground self-center" />
+							Whitelabeling
+						</CardTitle>
+						<CardDescription className="text-zinc-400 mt-1">
+							Customize the appearance and branding of your instance
+						</CardDescription>
+					</div>
+					<div className="flex items-center gap-2">
+						<Button
+							variant="outline"
 							onClick={handleReset}
+							disabled={isUpdating}
 						>
-							<Button variant="outline" type="button" isLoading={isResetting}>
-								<RotateCcw className="size-4 mr-2" />
-								Reset to Defaults
-							</Button>
-						</DialogAction>
-
-						<Button type="submit" isLoading={isUpdating} disabled={isUpdating}>
+							<Undo2 className="mr-2 h-4 w-4" />
+							Reset to defaults
+						</Button>
+						<Button
+							onClick={form.handleSubmit(onSubmit)}
+							isLoading={isUpdating}
+						>
+							<Save className="mr-2 h-4 w-4" />
 							Save Changes
 						</Button>
 					</div>
-				</form>
-			</Form>
+				</CardHeader>
+				<CardContent className="p-4">
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="flex flex-col gap-6"
+						>
+							{/* Branding Section */}
+							<div className="flex flex-col gap-4 border-t border-zinc-800/40 pt-6 mt-2 first:border-0 first:pt-0 first:mt-0">
+								<div>
+									<h3 className="text-lg font-semibold text-white">Branding</h3>
+									<p className="text-sm text-zinc-400 mt-1" />
+								</div>
+								<div className="flex flex-col gap-4">
+									<FormField
+										control={form.control}
+										name="appName"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Application Name</FormLabel>
+												<FormControl>
+													<Input placeholder="Dokploy" {...field} />
+												</FormControl>
+												<FormDescription>
+													Replaces "Dokploy" across the entire interface.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="appDescription"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Application Description</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="The Open Source alternative to Netlify, Vercel, Heroku."
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Tagline shown on the login/onboarding pages. Defaults
+													to the standard Dokploy description if empty.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="logoUrl"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Logo URL</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="https://example.com/logo.svg"
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Main logo shown in the sidebar and header. Recommended
+													size: 128x128px.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="loginLogoUrl"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Login Page Logo URL</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="https://example.com/login-logo.svg"
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Logo displayed on the login page. If empty, the main
+													logo is used.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="faviconUrl"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Favicon URL</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="https://example.com/favicon.ico"
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Browser tab icon. Supports .ico, .png, and .svg
+													formats.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+
+							{/* Appearance Section */}
+							<div className="flex flex-col gap-4 border-t border-zinc-800/40 pt-6 mt-2 first:border-0 first:pt-0 first:mt-0">
+								<div>
+									<h3 className="text-lg font-semibold text-white">
+										Appearance
+									</h3>
+									<p className="text-sm text-zinc-400 mt-1" />
+								</div>
+								<div className="flex flex-col gap-4">
+									<FormField
+										control={form.control}
+										name="customCss"
+										render={({ field }) => (
+											<FormItem>
+												<div className="flex items-center justify-between">
+													<FormLabel>Custom CSS</FormLabel>
+													<Button
+														type="button"
+														variant="outline"
+														size="sm"
+														onClick={() => {
+															form.setValue("customCss", DEFAULT_CSS_TEMPLATE);
+														}}
+													>
+														Load Default Styles
+													</Button>
+												</div>
+												<FormControl>
+													<div className="max-h-[350px] overflow-auto">
+														<CodeEditor
+															language="css"
+															value={field.value}
+															onChange={field.onChange}
+															placeholder="/* Click 'Load Default Styles' to start with the base theme variables */"
+															lineWrapping
+														/>
+													</div>
+												</FormControl>
+												<FormDescription>
+													Inject custom CSS styles globally. Click "Load Default
+													Styles" to get the base theme CSS variables as a
+													starting point.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+
+							{/* Metadata & Links Section */}
+							<div className="flex flex-col gap-4 border-t border-zinc-800/40 pt-6 mt-2 first:border-0 first:pt-0 first:mt-0">
+								<div>
+									<h3 className="text-lg font-semibold text-white">
+										Metadata & Links
+									</h3>
+									<p className="text-sm text-zinc-400 mt-1">
+										Customize the page title, footer text, and sidebar links.
+									</p>
+								</div>
+								<div className="flex flex-col gap-4">
+									<FormField
+										control={form.control}
+										name="metaTitle"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Page Title</FormLabel>
+												<FormControl>
+													<Input placeholder="Dokploy" {...field} />
+												</FormControl>
+												<FormDescription>
+													Browser tab title. Defaults to "Dokploy" if empty.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="footerText"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Footer Text</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="Powered by Your Company"
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Custom text displayed in the footer area.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="supportUrl"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Support URL</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="https://support.example.com"
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Custom URL for the "Support" link in the sidebar.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="docsUrl"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Documentation URL</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="https://docs.example.com"
+														{...field}
+													/>
+												</FormControl>
+												<FormDescription>
+													Custom URL for the "Documentation" link in the
+													sidebar.
+												</FormDescription>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+
+							{/* Error Pages Section */}
+							<div className="flex flex-col gap-4 border-t border-zinc-800/40 pt-6 mt-2 first:border-0 first:pt-0 first:mt-0">
+								<div>
+									<h3 className="text-lg font-semibold text-white">
+										Error Pages
+									</h3>
+									<p className="text-sm text-zinc-400 mt-1">
+										Customize the error page messages shown to users.
+									</p>
+								</div>
+								<div className="flex flex-col gap-4">
+									<FormField
+										control={form.control}
+										name="errorPageTitle"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Error Page Title</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="Something went wrong"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<FormField
+										control={form.control}
+										name="errorPageDescription"
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>Error Page Description</FormLabel>
+												<FormControl>
+													<Textarea
+														placeholder="We're sorry, but an unexpected error occurred. Please try again later."
+														className="min-h-[80px]"
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								</div>
+							</div>
+
+							{/* Actions */}
+							<div className="flex items-center justify-between">
+								<DialogAction
+									title="Reset Whitelabeling"
+									description="Are you sure you want to reset all whitelabeling settings to their defaults? This action cannot be undone."
+									type="destructive"
+									onClick={handleReset}
+								>
+									<Button
+										variant="outline"
+										type="button"
+										isLoading={isResetting}
+									>
+										<RotateCcw className="size-4 mr-2" />
+										Reset to Defaults
+									</Button>
+								</DialogAction>
+
+								<Button
+									type="submit"
+									isLoading={isUpdating}
+									disabled={isUpdating}
+								>
+									Save Changes
+								</Button>
+							</div>
+						</form>
+					</Form>
+				</CardContent>
+			</div>
 
 			{/* Live Preview */}
 			<WhitelabelingPreview config={form.watch()} />

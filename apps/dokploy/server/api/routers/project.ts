@@ -58,6 +58,7 @@ import {
 	environments,
 	libsql,
 	mariadb,
+	member,
 	mongo,
 	mysql,
 	postgres,
@@ -378,12 +379,12 @@ export const projectRouter = createTRPCRouter({
 				ctx.user.showOtherUsersProjects === false
 					? or(
 							eq(projects.userId, ctx.user.id),
-							ctx.user.id === ctx.user.ownerId ? sql`${projects.userId} IS NULL` : sql`false`,
+							(ctx.user.role === "owner" || ctx.user.role === "admin" || ctx.user.id === ctx.user.ownerId) ? sql`${projects.userId} IS NULL` : sql`false`,
 							sql`exists (
 								select 1 from "member" 
 								where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
 								and "member"."user_id" = ${ctx.user.id} 
-								and ${projects.projectId} = any("member"."accessed_projects")
+								and "projects"."projectId" = any("member"."accesedProjects")
 							)`
 						)
 					: undefined
@@ -696,12 +697,12 @@ export const projectRouter = createTRPCRouter({
 				baseConditions.push(
 					or(
 						eq(projects.userId, ctx.user.id),
-						ctx.user.id === ctx.user.ownerId ? sql`${projects.userId} IS NULL` : sql`false`,
+						(ctx.user.role === "owner" || ctx.user.role === "admin" || ctx.user.id === ctx.user.ownerId) ? sql`${projects.userId} IS NULL` : sql`false`,
 						sql`exists (
 							select 1 from "member" 
 							where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
 							and "member"."user_id" = ${ctx.user.id} 
-							and ${projects.projectId} = any("member"."accessed_projects")
+							and "projects"."projectId" = any("member"."accesedProjects")
 						)`
 					)!
 				);

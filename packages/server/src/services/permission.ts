@@ -33,12 +33,14 @@ const staticRoles: Record<string, ReturnType<typeof ac.newRole>> = {
 	owner: ownerRole,
 	admin: adminRole,
 	member: memberRole,
+	hobby: memberRole,
+	startup: memberRole,
 };
 
 const resolveRole = async (
 	roleName: string,
 	organizationId: string,
-): Promise<ReturnType<typeof ac.newRole> | null> => {
+): Promise<ReturnType<typeof ac.newRole>> => {
 	if (staticRoles[roleName]) {
 		return staticRoles[roleName];
 	}
@@ -51,7 +53,7 @@ const resolveRole = async (
 	});
 
 	if (customRoles.length === 0) {
-		return null;
+		return memberRole;
 	}
 
 	const merged: Record<string, string[]> = {};

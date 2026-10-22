@@ -40,7 +40,7 @@ export const ShowDockerModalLogs = ({
 					{children}
 				</DropdownMenuItem>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-7xl">
+			<DialogContent className="sm:w-full">
 				<DialogHeader>
 					<DialogTitle>View Logs</DialogTitle>
 					<DialogDescription>View the logs for {containerId}</DialogDescription>

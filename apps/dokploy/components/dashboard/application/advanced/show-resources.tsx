@@ -191,7 +191,7 @@ export const ShowResources = ({ id, type }: Props) => {
 	};
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader>
 				<CardTitle className="text-xl">Resources</CardTitle>
 				<CardDescription>

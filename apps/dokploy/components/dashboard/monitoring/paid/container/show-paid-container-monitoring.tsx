@@ -184,45 +184,47 @@ export const ContainerPaidMonitoring = ({ appName, baseUrl, token }: Props) => {
 
 			{/* Stats Cards */}
 			<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
-				<Card className="p-6 bg-transparent">
+				<Card className="p-5 bg-[#161616]/70 border border-zinc-800/80 rounded-xl">
 					<div className="flex items-center gap-2">
-						<Cpu className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">CPU Usage</h3>
+						<Cpu className="h-4 w-4 text-blue-400" />
+						<h3 className="text-xs font-semibold text-zinc-300">CPU Usage</h3>
 					</div>
-					<p className="mt-2 text-2xl font-bold">{metrics.CPU}%</p>
+					<p className="mt-2 text-2xl font-bold text-white">{metrics.CPU}%</p>
 				</Card>
 
-				<Card className="p-6 bg-transparent">
+				<Card className="p-5 bg-[#161616]/70 border border-zinc-800/80 rounded-xl">
 					<div className="flex items-center gap-2">
-						<MemoryStick className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">Memory Usage</h3>
+						<MemoryStick className="h-4 w-4 text-purple-400" />
+						<h3 className="text-xs font-semibold text-zinc-300">
+							Memory Usage
+						</h3>
 					</div>
-					<p className="mt-2 text-2xl font-bold">
+					<p className="mt-2 text-2xl font-bold text-white">
 						{metrics?.Memory?.percentage}%
 					</p>
-					<p className="mt-1 text-sm text-muted-foreground">
+					<p className="mt-1 text-xs text-zinc-400">
 						{metrics?.Memory?.used} {metrics?.Memory?.unit} /{" "}
 						{metrics?.Memory?.total} {metrics?.Memory?.unit}
 					</p>
 				</Card>
 
-				<Card className="p-6 bg-transparent">
+				<Card className="p-5 bg-[#161616]/70 border border-zinc-800/80 rounded-xl">
 					<div className="flex items-center gap-2">
-						<Network className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">Network I/O</h3>
+						<Network className="h-4 w-4 text-emerald-400" />
+						<h3 className="text-xs font-semibold text-zinc-300">Network I/O</h3>
 					</div>
-					<p className="mt-2 text-2xl font-bold">
+					<p className="mt-2 text-2xl font-bold text-white">
 						{metrics?.Network?.input} {metrics?.Network?.inputUnit} /{" "}
 						{metrics?.Network?.output} {metrics?.Network?.outputUnit}
 					</p>
 				</Card>
 
-				<Card className="p-6 bg-transparent">
+				<Card className="p-5 bg-[#161616]/70 border border-zinc-800/80 rounded-xl">
 					<div className="flex items-center gap-2">
-						<HardDrive className="h-4 w-4 text-muted-foreground" />
-						<h3 className="text-sm font-medium">Block I/O</h3>
+						<HardDrive className="h-4 w-4 text-amber-400" />
+						<h3 className="text-xs font-semibold text-zinc-300">Block I/O</h3>
 					</div>
-					<p className="mt-2 text-2xl font-bold">
+					<p className="mt-2 text-2xl font-bold text-white">
 						{metrics?.BlockIO?.read} {metrics?.BlockIO?.readUnit} /{" "}
 						{metrics?.BlockIO?.write} {metrics?.BlockIO?.writeUnit}
 					</p>
@@ -230,18 +232,20 @@ export const ContainerPaidMonitoring = ({ appName, baseUrl, token }: Props) => {
 			</div>
 
 			{/* Container Information */}
-			<Card className="p-6 bg-transparent">
-				<h3 className="text-lg font-medium mb-4">Container Information</h3>
+			<Card className="p-5 bg-[#161616]/70 border border-zinc-800/80 rounded-xl">
+				<h3 className="text-sm font-semibold text-white mb-3">
+					Container Information
+				</h3>
 				<div className="grid gap-4 md:grid-cols-2">
 					<div>
-						<h4 className="text-sm font-medium text-muted-foreground">
-							Container ID
-						</h4>
-						<p className="mt-1">{metrics.ID}</p>
+						<h4 className="text-xs font-medium text-zinc-400">Container ID</h4>
+						<p className="mt-1 text-xs font-mono text-zinc-200">{metrics.ID}</p>
 					</div>
 					<div>
-						<h4 className="text-sm font-medium text-muted-foreground">Name</h4>
-						<p className="mt-1 truncate">{metrics.Name}</p>
+						<h4 className="text-xs font-medium text-zinc-400">Name</h4>
+						<p className="mt-1 text-xs font-medium text-zinc-200 truncate">
+							{metrics.Name}
+						</p>
 					</div>
 				</div>
 			</Card>

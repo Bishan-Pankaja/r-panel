@@ -99,7 +99,7 @@ export const ShowExternalMongoCredentials = ({ mongoId }: Props) => {
 	return (
 		<>
 			<div className="flex w-full flex-col gap-5 ">
-				<Card className="bg-background">
+				<Card className="">
 					<CardHeader>
 						<CardTitle className="text-xl">External Credentials</CardTitle>
 						<CardDescription>

@@ -76,8 +76,8 @@ export const WildcardDomain = () => {
 
 	return (
 		<div className="w-full">
-			<Card className="h-full bg-sidebar p-2.5 rounded-xl max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md ">
+			<Card className="h-full rounded-xl w-full">
+				<div className="rounded-xl bg-transparent shadow-md ">
 					<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center">
 						<div className="flex flex-col gap-1">
 							<CardTitle className="text-xl flex flex-row gap-2">

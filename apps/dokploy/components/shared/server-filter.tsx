@@ -60,8 +60,8 @@ export const ServerFilter = ({ children }: Props) => {
 
 	if (isLoadingServers || isLoadingCloud) {
 		return (
-			<Card className="bg-sidebar p-2.5 rounded-xl w-full">
-				<div className="rounded-xl bg-background shadow-md flex flex-col gap-2 items-center justify-center min-h-[60vh]">
+			<Card className=" rounded-xl w-full">
+				<div className="rounded-xl bg-transparent shadow-md flex flex-col gap-2 items-center justify-center min-h-[60vh]">
 					<span className="text-muted-foreground text-lg font-medium">
 						Loading...
 					</span>
@@ -73,8 +73,8 @@ export const ServerFilter = ({ children }: Props) => {
 
 	if (isCloud && !servers?.length) {
 		return (
-			<Card className="bg-sidebar p-2.5 rounded-xl w-full">
-				<div className="rounded-xl bg-background shadow-md flex flex-col items-center justify-center gap-5 min-h-[60vh] border border-dashed px-4">
+			<Card className=" rounded-xl w-full">
+				<div className="rounded-xl bg-transparent shadow-md flex flex-col items-center justify-center gap-5 min-h-[60vh] border border-dashed px-4">
 					<div className="flex items-center justify-center size-16 rounded-full bg-muted">
 						<ServerIcon className="size-8 text-muted-foreground" />
 					</div>
@@ -125,7 +125,7 @@ export const ServerFilter = ({ children }: Props) => {
 								{!isCloud && (
 									<SelectItem value={DOKPLOY_SERVER}>
 										<div className="flex items-center gap-2">
-											<span>Dokploy Server</span>
+											<span>Regz Server</span>
 											<Badge
 												variant="secondary"
 												className="text-[10px] px-1.5 py-0"

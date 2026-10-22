@@ -68,7 +68,7 @@ export const ComposePaidMonitoring = ({
 
 	return (
 		<div>
-			<Card className="bg-background border-0">
+			<Card className=" border-0">
 				<CardHeader>
 					<CardTitle className="text-xl">Monitoring</CardTitle>
 					<CardDescription>Watch the usage of your compose</CardDescription>

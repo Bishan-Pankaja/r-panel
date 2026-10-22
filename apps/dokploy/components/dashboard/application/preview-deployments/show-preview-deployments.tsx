@@ -75,7 +75,7 @@ export const ShowPreviewDeployments = ({ applicationId }: Props) => {
 	};
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
 				<div className="flex flex-col gap-2">
 					<CardTitle className="text-xl">Preview Deployments</CardTitle>
@@ -117,7 +117,7 @@ export const ShowPreviewDeployments = ({ applicationId }: Props) => {
 									return (
 										<div
 											key={deployment.previewDeploymentId}
-											className="group relative overflow-hidden border rounded-lg transition-colors"
+											className="group relative overflow-hidden border border-zinc-800/80 rounded-xl bg-[#161616]/70 hover:bg-[#1a1a1a] transition-all"
 										>
 											<div
 												className={`absolute left-0 top-0 w-1 h-full ${

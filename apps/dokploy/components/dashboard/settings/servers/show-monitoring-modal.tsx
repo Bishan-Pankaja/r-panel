@@ -19,7 +19,7 @@ export const ShowMonitoringModal = ({ url, token }: Props) => {
 					<BarChartHorizontalBigIcon className="h-4 w-4" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-7xl  ">
+			<DialogContent className="sm:w-full  ">
 				<div className="flex gap-4 py-4 w-full">
 					<ShowPaidMonitoring BASE_URL={url} token={token} />
 				</div>

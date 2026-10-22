@@ -1,36 +1,51 @@
-import { useState, useEffect } from "react";
-import { api } from "@/utils/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import { Loader2, Cloud, RefreshCw, Trash2, CheckCircle, AlertCircle } from "lucide-react";
-import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import type { ReactElement } from "react";
+import { Cloud, Loader2, RefreshCw, Trash2 } from "lucide-react";
 import { useRouter } from "next/router";
+import type { ReactElement } from "react";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { CloudflareDomains } from "@/components/dashboard/settings/cloudflare/cloudflare-domains";
+import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { Button } from "@/components/ui/button";
+import {
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { api } from "@/utils/api";
 
 export default function CloudflareSettingsPage() {
 	const router = useRouter();
 	const { success, error } = router.query;
 
-	const { data: account, isLoading: isLoadingAccount, refetch: refetchAccount } = api.cloudflare.getConnectedAccount.useQuery();
-	const { mutateAsync: getConnectUrl, isPending: isConnecting } = api.cloudflare.getConnectUrl.useMutation();
-	const { mutateAsync: disconnect, isPending: isDisconnecting } = api.cloudflare.disconnect.useMutation();
+	const {
+		data: account,
+		isLoading: isLoadingAccount,
+		refetch: refetchAccount,
+	} = api.cloudflare.getConnectedAccount.useQuery();
+	const { mutateAsync: getConnectUrl, isPending: isConnecting } =
+		api.cloudflare.getConnectUrl.useMutation();
+	const { mutateAsync: disconnect, isPending: isDisconnecting } =
+		api.cloudflare.disconnect.useMutation();
 
 	useEffect(() => {
 		if (success) {
 			toast.success("Cloudflare account connected successfully!");
-			router.replace("/dashboard/settings/cloudflare", undefined, { shallow: true });
+			router.replace("/dashboard/settings/cloudflare", undefined, {
+				shallow: true,
+			});
 		}
 		if (error) {
 			toast.error(`Failed to connect Cloudflare: ${error}`);
-			router.replace("/dashboard/settings/cloudflare", undefined, { shallow: true });
+			router.replace("/dashboard/settings/cloudflare", undefined, {
+				shallow: true,
+			});
 		}
 	}, [success, error, router]);
 
 	const handleConnect = async () => {
 		try {
-			const state = Math.random().toString(36).substring(7);
+			const state = crypto.randomUUID();
 			const { url } = await getConnectUrl({ state });
 			window.location.href = url;
 		} catch (err) {
@@ -50,18 +65,19 @@ export default function CloudflareSettingsPage() {
 	};
 
 	return (
-		<div className="w-full max-w-5xl mx-auto flex flex-col gap-6">
-			<Card className="border-border bg-card">
-				<CardHeader>
+		<div className="w-full p-4 md:p-6 flex flex-col gap-4">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="p-4 border-b border-zinc-800/40">
 					<CardTitle className="text-xl font-bold flex items-center gap-2">
 						<Cloud className="h-6 w-6 text-blue-500" />
 						Cloudflare Integration
 					</CardTitle>
 					<CardDescription>
-						Connect your Cloudflare account to automatically manage DNS records and SSL certificates for your domains.
+						Connect your Cloudflare account to automatically manage DNS records
+						and SSL certificates for your domains.
 					</CardDescription>
 				</CardHeader>
-				<CardContent className="flex flex-col gap-4">
+				<CardContent className="flex flex-col gap-4 p-4">
 					{isLoadingAccount ? (
 						<div className="flex items-center justify-center py-6">
 							<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -71,13 +87,16 @@ export default function CloudflareSettingsPage() {
 							<div className="flex flex-col gap-1">
 								<div className="flex items-center gap-2">
 									<span className="h-2.5 w-2.5 rounded-full bg-green-500" />
-									<span className="font-medium text-sm">Connected to Cloudflare</span>
+									<span className="font-medium text-sm">
+										Connected to Cloudflare
+									</span>
 								</div>
 								<span className="text-xs text-muted-foreground">
 									User ID: {account.cloudflareUserId}
 								</span>
 								<span className="text-xs text-muted-foreground">
-									Connected on: {new Date(account.createdAt).toLocaleDateString()}
+									Connected on:{" "}
+									{new Date(account.createdAt).toLocaleDateString()}
 								</span>
 							</div>
 							<div className="flex items-center gap-2 w-full md:w-auto">
@@ -107,7 +126,9 @@ export default function CloudflareSettingsPage() {
 						<div className="flex flex-col items-center justify-center py-8 border border-dashed border-border rounded-lg bg-muted/30 gap-4">
 							<Cloud className="h-12 w-12 text-muted-foreground" />
 							<div className="text-center">
-								<h3 className="font-medium text-sm">No Cloudflare account connected</h3>
+								<h3 className="font-medium text-sm">
+									No Cloudflare account connected
+								</h3>
 								<p className="text-xs text-muted-foreground mt-1">
 									Connect your account to start managing custom domains.
 								</p>
@@ -123,7 +144,7 @@ export default function CloudflareSettingsPage() {
 						</div>
 					)}
 				</CardContent>
-			</Card>
+			</div>
 
 			{account && <CloudflareDomains accountId={account.id} />}
 		</div>
@@ -131,5 +152,7 @@ export default function CloudflareSettingsPage() {
 }
 
 CloudflareSettingsPage.getLayout = (page: ReactElement) => {
-	return <DashboardLayout metaName="Cloudflare Settings">{page}</DashboardLayout>;
+	return (
+		<DashboardLayout metaName="Cloudflare Settings">{page}</DashboardLayout>
+	);
 };

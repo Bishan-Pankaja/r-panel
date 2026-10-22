@@ -16,7 +16,6 @@ import { DialogAction } from "@/components/shared/dialog-action";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -227,256 +226,263 @@ export const ForwardAuthServers = () => {
 	};
 
 	return (
-		<Card className="bg-transparent">
-			<CardHeader>
-				<CardTitle className="flex items-center gap-2 text-xl">
-					<ShieldCheck className="size-5" />
-					Application Authentication
-				</CardTitle>
-				<CardDescription>
-					Each server has its own authentication domain and proxy. Set an auth
-					domain (e.g. auth.acme.com) per server, register its callback URL once
-					in your identity provider, then deploy the proxy. Apps on that server
-					under the same base domain are then one click to protect.
-					<span className="mt-2 block font-medium">
-						Only OIDC providers are supported — SAML is not compatible with the
-						forward-auth proxy.
-					</span>
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				{isPending || !enabled ? (
-					<div className="flex items-center gap-2 justify-center py-6 text-muted-foreground">
-						<Loader2 className="size-5 animate-spin" />
-						<span className="text-sm">Checking servers...</span>
+		<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+					<div>
+						<CardTitle className="flex items-center gap-2 text-xl text-white">
+							<ShieldCheck className="size-5 text-muted-foreground" />
+							Application Authentication
+						</CardTitle>
+						<CardDescription className="text-zinc-400 mt-1">
+							Each server has its own authentication domain and proxy. Set an
+							auth domain (e.g. auth.acme.com) per server, register its callback
+							URL once in your identity provider, then deploy the proxy. Apps on
+							that server under the same base domain are then one click to
+							protect.
+							<span className="mt-2 block font-medium">
+								Only OIDC providers are supported — SAML is not compatible with
+								the forward-auth proxy.
+							</span>
+						</CardDescription>
 					</div>
-				) : (
-					<div className="flex flex-col gap-4">
-						{servers?.map((srv) => {
-							const key = keyOf(srv.serverId);
-							const f = forms[key];
-							return (
-								<div
-									key={key}
-									className="flex flex-col gap-3 rounded-lg border p-4"
-								>
-									<div className="flex items-center justify-between">
-										<span className="text-sm font-medium">{srv.name}</span>
-										<div className="flex items-center gap-2">
-											{statusBadge(srv.status)}
-											{srv.status === "running" && (
-												<DialogAction
-													title="Remove authentication proxy"
-													description="Domains on this server protected with SSO will stop requiring authentication until re-enabled. Continue?"
-													type="destructive"
-													onClick={() => handleRemove(srv.serverId)}
-												>
-													<Button
-														variant="ghost"
-														size="sm"
-														isLoading={isRemoving}
+				</CardHeader>
+				<CardContent className="p-4">
+					{isPending || !enabled ? (
+						<div className="flex items-center gap-2 justify-center py-6 text-muted-foreground">
+							<Loader2 className="size-5 animate-spin" />
+							<span className="text-sm">Checking servers...</span>
+						</div>
+					) : (
+						<div className="flex flex-col gap-4">
+							{servers?.map((srv) => {
+								const key = keyOf(srv.serverId);
+								const f = forms[key];
+								return (
+									<div
+										key={key}
+										className="flex flex-col gap-3 rounded-lg border p-4"
+									>
+										<div className="flex items-center justify-between">
+											<span className="text-sm font-medium">{srv.name}</span>
+											<div className="flex items-center gap-2">
+												{statusBadge(srv.status)}
+												{srv.status === "running" && (
+													<DialogAction
+														title="Remove authentication proxy"
+														description="Domains on this server protected with SSO will stop requiring authentication until re-enabled. Continue?"
+														type="destructive"
+														onClick={() => handleRemove(srv.serverId)}
 													>
-														Remove
-													</Button>
-												</DialogAction>
-											)}
-										</div>
-									</div>
-
-									<div className="grid gap-3 sm:grid-cols-2">
-										<div className="flex flex-col gap-1">
-											<span className="text-xs font-medium">Auth domain</span>
-											<div className="flex gap-2">
-												<Input
-													placeholder="auth.acme.com"
-													value={f?.host ?? ""}
-													onChange={(e) =>
-														patchForm(srv.serverId, { host: e.target.value })
-													}
-													className="font-mono text-sm"
-												/>
-												{f?.host && !f.host.includes("preview.regz.lk") && (
-													<DnsHelperModal
-														domain={{
-															host: f.host,
-															https: f.https,
-														}}
-														serverIp={
-															srv.ipAddress ?? hostIp?.toString() ?? undefined
-														}
-													/>
+														<Button
+															variant="ghost"
+															size="sm"
+															isLoading={isRemoving}
+														>
+															Remove
+														</Button>
+													</DialogAction>
 												)}
-												<Button
-													type="button"
-													variant="secondary"
-													size="icon"
-													isLoading={isGenerating}
-													title="Generate preview.regz.lk domain"
-													onClick={() => handleGenerateDomain(srv.serverId)}
-												>
-													<Dices className="size-4 text-muted-foreground" />
-												</Button>
 											</div>
 										</div>
-										<div className="flex flex-col gap-1">
-											<span className="text-xs font-medium">
-												Certificate provider
-											</span>
-											<Select
-												value={f?.https ? f.certificateType : "none"}
-												onValueChange={(v) =>
-													patchForm(srv.serverId, {
-														certificateType: v as CertType,
-														https: v !== "none",
+
+										<div className="grid gap-3 sm:grid-cols-2">
+											<div className="flex flex-col gap-1">
+												<span className="text-xs font-medium">Auth domain</span>
+												<div className="flex gap-2">
+													<Input
+														placeholder="auth.acme.com"
+														value={f?.host ?? ""}
+														onChange={(e) =>
+															patchForm(srv.serverId, { host: e.target.value })
+														}
+														className="font-mono text-sm"
+													/>
+													{f?.host && !f.host.includes("preview.regz.lk") && (
+														<DnsHelperModal
+															domain={{
+																host: f.host,
+																https: f.https,
+															}}
+															serverIp={
+																srv.ipAddress ?? hostIp?.toString() ?? undefined
+															}
+														/>
+													)}
+													<Button
+														type="button"
+														variant="secondary"
+														size="icon"
+														isLoading={isGenerating}
+														title="Generate preview.regz.lk domain"
+														onClick={() => handleGenerateDomain(srv.serverId)}
+													>
+														<Dices className="size-4 text-muted-foreground" />
+													</Button>
+												</div>
+											</div>
+											<div className="flex flex-col gap-1">
+												<span className="text-xs font-medium">
+													Certificate provider
+												</span>
+												<Select
+													value={f?.https ? f.certificateType : "none"}
+													onValueChange={(v) =>
+														patchForm(srv.serverId, {
+															certificateType: v as CertType,
+															https: v !== "none",
+														})
+													}
+												>
+													<SelectTrigger>
+														<SelectValue placeholder="Select a certificate provider" />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem value="none">None (HTTP)</SelectItem>
+														<SelectItem value="letsencrypt">
+															Let's Encrypt
+														</SelectItem>
+														<SelectItem value="custom">Custom</SelectItem>
+													</SelectContent>
+												</Select>
+											</div>
+										</div>
+
+										{f?.certificateType === "custom" && f?.https && (
+											<div className="flex flex-col gap-1">
+												<span className="text-xs font-medium">
+													Custom certificate resolver
+												</span>
+												<Input
+													placeholder="Enter your custom certificate resolver"
+													value={f?.customCertResolver ?? ""}
+													onChange={(e) =>
+														patchForm(srv.serverId, {
+															customCertResolver: e.target.value,
+														})
+													}
+												/>
+											</div>
+										)}
+
+										<div className="flex justify-end">
+											<Button
+												size="sm"
+												disabled={!f?.host?.trim()}
+												onClick={() =>
+													setDeployTarget({
+														serverId: srv.serverId,
+														name: srv.name,
 													})
 												}
 											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select a certificate provider" />
-												</SelectTrigger>
-												<SelectContent>
-													<SelectItem value="none">None (HTTP)</SelectItem>
-													<SelectItem value="letsencrypt">
-														Let's Encrypt
-													</SelectItem>
-													<SelectItem value="custom">Custom</SelectItem>
-												</SelectContent>
-											</Select>
+												Deploy
+											</Button>
 										</div>
-									</div>
 
-									{f?.certificateType === "custom" && f?.https && (
-										<div className="flex flex-col gap-1">
-											<span className="text-xs font-medium">
-												Custom certificate resolver
-											</span>
-											<Input
-												placeholder="Enter your custom certificate resolver"
-												value={f?.customCertResolver ?? ""}
-												onChange={(e) =>
-													patchForm(srv.serverId, {
-														customCertResolver: e.target.value,
-													})
-												}
-											/>
-										</div>
-									)}
-
-									<div className="flex justify-end">
-										<Button
-											size="sm"
-											disabled={!f?.host?.trim()}
-											onClick={() =>
-												setDeployTarget({
-													serverId: srv.serverId,
-													name: srv.name,
-												})
-											}
-										>
-											Deploy
-										</Button>
-									</div>
-
-									{srv.callbackUrl && (
-										<div className="flex flex-col gap-1">
-											<span className="text-xs font-medium">
-												Callback URL (register once in your IdP)
-											</span>
-											<div className="flex gap-2">
-												<Input
-													readOnly
-													value={srv.callbackUrl}
-													className="font-mono text-xs"
-												/>
-												<Button
-													type="button"
-													variant="outline"
-													size="icon"
-													onClick={() => {
-														navigator.clipboard.writeText(
-															srv.callbackUrl as string,
-														);
-														toast.success("Callback URL copied");
-													}}
-												>
-													<Copy className="size-4" />
-												</Button>
+										{srv.callbackUrl && (
+											<div className="flex flex-col gap-1">
+												<span className="text-xs font-medium">
+													Callback URL (register once in your IdP)
+												</span>
+												<div className="flex gap-2">
+													<Input
+														readOnly
+														value={srv.callbackUrl}
+														className="font-mono text-xs"
+													/>
+													<Button
+														type="button"
+														variant="outline"
+														size="icon"
+														onClick={() => {
+															navigator.clipboard.writeText(
+																srv.callbackUrl as string,
+															);
+															toast.success("Callback URL copied");
+														}}
+													>
+														<Copy className="size-4" />
+													</Button>
+												</div>
 											</div>
-										</div>
-									)}
-								</div>
-							);
-						})}
-					</div>
-				)}
-			</CardContent>
-
-			<Dialog
-				open={!!deployTarget}
-				onOpenChange={(open) => {
-					if (!open) {
-						setDeployTarget(null);
-						setSelectedProviderId("");
-					}
-				}}
-			>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Deploy authentication proxy</DialogTitle>
-						<DialogDescription>
-							Deploy the SSO proxy on{" "}
-							<span className="font-medium">{deployTarget?.name}</span> using an
-							OIDC provider.
-						</DialogDescription>
-					</DialogHeader>
-
-					{!hasProviders && (
-						<AlertBlock type="warning">
-							No SSO providers configured. Add an OIDC provider above first.
-						</AlertBlock>
+										)}
+									</div>
+								);
+							})}
+						</div>
 					)}
+				</CardContent>
 
-					<div className="flex flex-col gap-2 py-2">
-						<span className="text-sm font-medium">Identity provider</span>
-						<Select
-							value={selectedProviderId}
-							onValueChange={setSelectedProviderId}
-							disabled={!hasProviders}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Select an SSO provider">
-									{selectedProviderId || ""}
-								</SelectValue>
-							</SelectTrigger>
-							<SelectContent>
-								{providers?.map((provider) => (
-									<SelectItem
-										key={provider.providerId}
-										value={provider.providerId}
-									>
-										<div className="flex flex-col">
-											<span className="font-medium">{provider.providerId}</span>
-											<span className="text-xs text-muted-foreground">
-												{provider.issuer}
-											</span>
-										</div>
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
+				<Dialog
+					open={!!deployTarget}
+					onOpenChange={(open) => {
+						if (!open) {
+							setDeployTarget(null);
+							setSelectedProviderId("");
+						}
+					}}
+				>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>Deploy authentication proxy</DialogTitle>
+							<DialogDescription>
+								Deploy the SSO proxy on{" "}
+								<span className="font-medium">{deployTarget?.name}</span> using
+								an OIDC provider.
+							</DialogDescription>
+						</DialogHeader>
 
-					<DialogFooter>
-						<Button
-							isLoading={isSaving || isDeploying}
-							disabled={!hasProviders || !selectedProviderId}
-							onClick={handleDeploy}
-						>
-							Deploy
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-		</Card>
+						{!hasProviders && (
+							<AlertBlock type="warning">
+								No SSO providers configured. Add an OIDC provider above first.
+							</AlertBlock>
+						)}
+
+						<div className="flex flex-col gap-2 py-2">
+							<span className="text-sm font-medium">Identity provider</span>
+							<Select
+								value={selectedProviderId}
+								onValueChange={setSelectedProviderId}
+								disabled={!hasProviders}
+							>
+								<SelectTrigger>
+									<SelectValue placeholder="Select an SSO provider">
+										{selectedProviderId || ""}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent>
+									{providers?.map((provider) => (
+										<SelectItem
+											key={provider.providerId}
+											value={provider.providerId}
+										>
+											<div className="flex flex-col">
+												<span className="font-medium">
+													{provider.providerId}
+												</span>
+												<span className="text-xs text-muted-foreground">
+													{provider.issuer}
+												</span>
+											</div>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<DialogFooter>
+							<Button
+								isLoading={isSaving || isDeploying}
+								disabled={!hasProviders || !selectedProviderId}
+								onClick={handleDeploy}
+							>
+								Deploy
+							</Button>
+						</DialogFooter>
+					</DialogContent>
+				</Dialog>
+			</div>
+		</div>
 	);
 };

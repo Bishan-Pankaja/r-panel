@@ -83,7 +83,7 @@ export const ShowPatches = ({ id, type }: Props) => {
 	};
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row items-center justify-between">
 				<div>
 					<CardTitle>Patches</CardTitle>

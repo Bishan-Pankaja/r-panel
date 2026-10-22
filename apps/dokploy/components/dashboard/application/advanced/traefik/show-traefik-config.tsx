@@ -27,7 +27,7 @@ export const ShowTraefikConfig = ({ applicationId }: Props) => {
 	if (!canRead) return null;
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row justify-between">
 				<div>
 					<CardTitle className="text-xl">Traefik</CardTitle>

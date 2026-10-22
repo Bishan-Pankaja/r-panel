@@ -29,7 +29,7 @@ export function NodeCard({ node, serverId }: Props) {
 
 	if (isPending) {
 		return (
-			<Card className="w-full bg-background">
+			<Card className="w-full ">
 				<CardHeader>
 					<CardTitle className="flex items-center justify-between text-lg">
 						<span className="flex items-center gap-2">{node.Hostname}</span>
@@ -46,7 +46,7 @@ export function NodeCard({ node, serverId }: Props) {
 	}
 
 	return (
-		<Card className="w-full bg-background">
+		<Card className="w-full ">
 			<CardHeader>
 				<CardTitle className="text-lg">Node Status</CardTitle>
 			</CardHeader>

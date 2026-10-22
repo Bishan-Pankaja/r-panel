@@ -210,8 +210,8 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 			port: undefined,
 			useCustomEntrypoint: false,
 			customEntrypoint: undefined,
-			https: false,
-			certificateType: undefined,
+			https: true,
+			certificateType: "letsencrypt",
 			customCertResolver: undefined,
 			serviceName: undefined,
 			domainType: type,
@@ -255,8 +255,8 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 				port: undefined,
 				useCustomEntrypoint: false,
 				customEntrypoint: undefined,
-				https: false,
-				certificateType: undefined,
+				https: true,
+				certificateType: "letsencrypt",
 				customCertResolver: undefined,
 				domainType: type,
 				middlewares: [],
@@ -579,65 +579,6 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 
 								<FormField
 									control={form.control}
-									name="path"
-									render={({ field }) => {
-										return (
-											<FormItem>
-												<FormLabel>Path</FormLabel>
-												<FormControl>
-													<Input placeholder={"/"} {...field} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										);
-									}}
-								/>
-
-								<FormField
-									control={form.control}
-									name="internalPath"
-									render={({ field }) => {
-										return (
-											<FormItem>
-												<FormLabel>Internal Path</FormLabel>
-												<FormDescription>
-													The path where your application expects to receive
-													requests internally (defaults to "/")
-												</FormDescription>
-												<FormControl>
-													<Input placeholder={"/"} {...field} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										);
-									}}
-								/>
-
-								<FormField
-									control={form.control}
-									name="stripPath"
-									render={({ field }) => (
-										<FormItem className="flex flex-row items-center justify-between p-3 border rounded-lg shadow-sm">
-											<div className="space-y-0.5">
-												<FormLabel>Strip Path</FormLabel>
-												<FormDescription>
-													Remove the external path from the request before
-													forwarding to the application
-												</FormDescription>
-												<FormMessage />
-											</div>
-											<FormControl>
-												<Switch
-													checked={field.value}
-													onCheckedChange={field.onChange}
-												/>
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
 									name="port"
 									render={({ field }) => {
 										return (
@@ -659,62 +600,13 @@ export const AddDomain = ({ id, type, domainId = "", children }: Props) => {
 
 								<FormField
 									control={form.control}
-									name="useCustomEntrypoint"
-									render={({ field }) => (
-										<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
-											<div className="space-y-0.5">
-												<FormLabel>Custom Entrypoint</FormLabel>
-												<FormDescription>
-													Use custom entrypoint for domain
-													<br />
-													"web" and/or "websecure" is used by default.
-												</FormDescription>
-												<FormMessage />
-											</div>
-											<FormControl>
-												<Switch
-													checked={field.value}
-													onCheckedChange={(checked) => {
-														field.onChange(checked);
-														if (!checked) {
-															form.setValue("customEntrypoint", undefined);
-														}
-													}}
-												/>
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-
-								{useCustomEntrypoint && (
-									<FormField
-										control={form.control}
-										name="customEntrypoint"
-										render={({ field }) => (
-											<FormItem className="w-full">
-												<FormLabel>Entrypoint Name</FormLabel>
-												<FormControl>
-													<Input
-														placeholder="Enter entrypoint name manually"
-														{...field}
-														className="w-full"
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-								)}
-
-								<FormField
-									control={form.control}
 									name="https"
 									render={({ field }) => (
 										<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
 											<div className="space-y-0.5">
 												<FormLabel>HTTPS</FormLabel>
 												<FormDescription>
-													Automatically provision SSL Certificate.
+													Automatically provision SSL Certificate (Let's Encrypt).
 												</FormDescription>
 												<FormMessage />
 											</div>

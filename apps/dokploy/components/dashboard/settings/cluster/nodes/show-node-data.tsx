@@ -24,14 +24,14 @@ export const ShowNodeData = ({ data }: Props) => {
 					View Config
 				</DropdownMenuItem>
 			</DialogTrigger>
-			<DialogContent className={"sm:max-w-5xl"}>
+			<DialogContent className={"sm:w-full"}>
 				<DialogHeader>
 					<DialogTitle>Node Config</DialogTitle>
 					<DialogDescription>
 						See in detail the metadata of this node
 					</DialogDescription>
 				</DialogHeader>
-				<div className="text-wrap rounded-lg border p-4 text-sm sm:max-w-[59rem] bg-card">
+				<div className="text-wrap rounded-lg border p-4 text-sm sm:max-w-[59rem] bg-transparent">
 					<code>
 						<pre className="whitespace-pre-wrap break-words">
 							<CodeEditor

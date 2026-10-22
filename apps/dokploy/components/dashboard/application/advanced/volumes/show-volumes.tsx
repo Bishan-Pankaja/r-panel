@@ -49,7 +49,7 @@ export const ShowVolumes = ({ id, type }: Props) => {
 		api.mounts.remove.useMutation();
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row justify-between flex-wrap gap-4">
 				<div>
 					<CardTitle className="text-xl">Volumes</CardTitle>

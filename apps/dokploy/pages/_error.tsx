@@ -1,8 +1,7 @@
 import type { NextPageContext } from "next";
-import Link from "next/link";
-import { Logo } from "@/components/shared/logo";
-import { buttonVariants } from "@/components/ui/button";
-import { useWhitelabelingPublic } from "@/utils/hooks/use-whitelabeling";
+import { useRouter } from "next/router";
+import { ArrowLeft, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Props {
 	statusCode: number;
@@ -11,92 +10,59 @@ interface Props {
 
 export default function Custom404({ statusCode, error }: Props) {
 	const displayStatusCode = statusCode || 400;
-	const { config: whitelabeling } = useWhitelabelingPublic();
-	const appName = whitelabeling?.appName || "Dokploy";
-	const logoUrl = whitelabeling?.logoUrl || undefined;
-	const errorTitle = whitelabeling?.errorPageTitle;
-	const errorDescription = whitelabeling?.errorPageDescription;
+	const router = useRouter();
+	const isGatewayError = displayStatusCode === 502;
+	const title = isGatewayError
+		? "This site is temporarily unavailable"
+		: displayStatusCode === 404
+			? "We couldn’t find that page"
+			: "Something went wrong";
+	const description = isGatewayError
+		? "The service didn’t respond as expected. It may be restarting or temporarily unavailable. Please try again in a moment."
+		: "An unexpected error stopped this page from loading. Please try again.";
 
 	return (
-		<div className="h-screen">
-			<div className="max-w-[50rem] flex flex-col mx-auto size-full">
-				<header className="mb-auto flex justify-center z-50 w-full py-4">
-					<nav className="px-4 sm:px-6 lg:px-8" aria-label="Global">
-						<Link href="/" className="flex flex-row items-center gap-2">
-							<Logo logoUrl={logoUrl} />
-							<span className="font-medium text-sm">{appName}</span>
-						</Link>
-					</nav>
-				</header>
-				<main id="content">
-					<div className="text-center py-10 px-4 sm:px-6 lg:px-8">
-						<h1 className="block text-7xl font-bold text-primary sm:text-9xl">
-							{displayStatusCode}
-						</h1>
-						<p className="mt-3 text-muted-foreground">
-							{errorTitle
-								? errorTitle
-								: statusCode === 404
-									? "Sorry, we couldn't find your page."
-									: "Oops, something went wrong."}
-						</p>
-						{errorDescription && (
-							<p className="mt-2 text-muted-foreground text-sm">
-								{errorDescription}
-							</p>
-						)}
-						{error && (
-							<div className="mt-3 text-red-500">
-								<p>{error.message}</p>
-							</div>
-						)}
-
-						<div className="mt-5 flex flex-col justify-center items-center gap-2 sm:flex-row sm:gap-3">
-							<Link
-								href="/dashboard/home"
-								className={buttonVariants({
-									variant: "secondary",
-									className: "flex flex-row gap-2",
-								})}
-							>
-								<svg
-									className="flex-shrink-0 size-4"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="m15 18-6-6 6-6" />
-								</svg>
-								Go to homepage
-							</Link>
-						</div>
+		<div className="flex min-h-screen items-center justify-center bg-black px-5 py-12 text-white">
+			<main id="content" className="w-full max-w-lg">
+				<div className="mb-7 flex items-center justify-center gap-3">
+					<img
+						src="https://www.regz.lk/favicon.ico"
+						alt=""
+						width={36}
+						height={36}
+						className="size-9 rounded-lg object-contain"
+					/>
+					<span className="text-lg font-semibold tracking-tight">Regz Lk</span>
+				</div>
+				<section className="rounded-2xl border border-zinc-800/80 bg-[#080808] px-6 py-10 text-center shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:px-12 sm:py-12">
+					<p className="font-mono text-xs font-semibold tracking-[0.28em] text-blue-300">
+						ERROR {displayStatusCode}
+					</p>
+					<h1 className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl">
+						{title}
+					</h1>
+					<p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-zinc-400 sm:text-base">
+						{description}
+					</p>
+					<div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+						<Button
+							onClick={() => router.reload()}
+							className="h-11 rounded-xl bg-blue-600 px-5 font-medium text-white hover:bg-blue-500"
+						>
+							<RefreshCw className="mr-2 size-4" />
+							Try again
+						</Button>
+						<Button
+							variant="outline"
+							onClick={() => router.back()}
+							className="h-11 rounded-xl border-zinc-800 bg-zinc-900/70 px-5 text-zinc-200 hover:bg-zinc-800 hover:text-white"
+						>
+							<ArrowLeft className="mr-2 size-4" />
+							Go back
+						</Button>
 					</div>
-				</main>
-
-				<footer className="mt-auto text-center py-5">
-					<div className="max-w-[85rem] mx-auto px-4 sm:px-6 lg:px-8">
-						<p className="text-sm text-gray-500">
-							{whitelabeling?.footerText ? (
-								whitelabeling.footerText
-							) : (
-								<Link
-									href="https://github.com/Dokploy/dokploy/issues"
-									target="_blank"
-									className="underline hover:text-primary transition-colors"
-								>
-									Submit Log in issue on Github
-								</Link>
-							)}
-						</p>
-					</div>
-				</footer>
-			</div>
+				</section>
+			</main>
 		</div>
 	);
 }

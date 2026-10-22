@@ -29,7 +29,7 @@ import {
 	writeConfig,
 	writeConfigRemote,
 } from "@dokploy/server";
-import { db } from "@dokploy/server/db";
+import { db, member } from "@dokploy/server/db";
 import { canEditDeployGitSource } from "@dokploy/server/services/git-provider";
 import {
 	addNewService,
@@ -37,6 +37,7 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@dokploy/server/services/permission";
+import { checkResourceQuotas } from "@dokploy/server/services/quotas";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -639,6 +640,28 @@ export const applicationRouter = createTRPCRouter({
 				service: ["create"],
 			});
 
+			// Enforce resource quotas when memory/CPU limits are being set
+			if ((input.memoryLimit || input.cpuLimit) && ctx.session.activeOrganizationId) {
+				const parseMemoryToMB = (mem?: string | null) => {
+					if (!mem) return 0;
+					const val = parseFloat(mem);
+					if (isNaN(val)) return 0;
+					if (mem.toLowerCase().endsWith('g') || mem.toLowerCase().endsWith('gb')) return val * 1024;
+					if (mem.toLowerCase().endsWith('m') || mem.toLowerCase().endsWith('mb')) return val;
+					if (mem.toLowerCase().endsWith('k') || mem.toLowerCase().endsWith('kb')) return val / 1024;
+					return val / (1024 * 1024);
+				};
+				const requestedRam = parseMemoryToMB(input.memoryLimit);
+				const requestedCpu = input.cpuLimit ? parseFloat(input.cpuLimit) || 0 : 0;
+				// Only run quota check for non-owner/non-admin members
+				await checkResourceQuotas(
+					ctx.user.id,
+					ctx.session.activeOrganizationId,
+					requestedRam,
+					requestedCpu,
+				);
+			}
+
 			if (input.buildServerId) {
 				const accessibleIds = await getAccessibleServerIds(ctx.session);
 				if (!accessibleIds.has(input.buildServerId)) {
@@ -693,6 +716,40 @@ export const applicationRouter = createTRPCRouter({
 				deployment: ["create"],
 			});
 			const application = await findApplicationById(input.applicationId);
+
+			if (ctx.session.activeOrganizationId) {
+				const parseMemoryToMB = (mem?: string | null) => {
+					if (!mem) return 0;
+					const val = parseFloat(mem);
+					if (isNaN(val)) return 0;
+					const unit = mem.replace(/[\d.]/g, "").toLowerCase().trim();
+					if (unit === "g" || unit === "gb") return val * 1024;
+					if (unit === "m" || unit === "mb") return val;
+					if (unit === "k" || unit === "kb") return val / 1024;
+					return val / (1024 * 1024);
+				};
+				const appRam = parseMemoryToMB(application.memoryLimit);
+				const appCpu = application.cpuLimit ? parseFloat(application.cpuLimit) || 0 : 0;
+				// checkResourceQuotas returns true if unlimited org owner, else object
+				const quotas = await checkResourceQuotas(ctx.user.id, ctx.session.activeOrganizationId, 0, 0);
+				
+				if (typeof quotas === "object") {
+					const { limitRam, limitCpu } = quotas;
+					if (limitRam && limitRam > 0 && appRam === 0) {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message: `You must specify a RAM limit in Advanced -> Resources before deploying because you are constrained by a ${limitRam}MB quota.`,
+						});
+					}
+					if (limitCpu && limitCpu > 0 && appCpu === 0) {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message: `You must specify a CPU limit in Advanced -> Resources before deploying because you are constrained by a ${limitCpu} core quota.`,
+						});
+					}
+				}
+			}
+
 			const jobData: DeploymentJob = {
 				applicationId: input.applicationId,
 				titleLog: input.title || "Manual deployment",
@@ -870,13 +927,50 @@ export const applicationRouter = createTRPCRouter({
 		}),
 	readAppMonitoring: withPermission("monitoring", "read")
 		.input(apiFindMonitoringStats)
-		.query(async ({ input }) => {
+		.query(async ({ input, ctx }) => {
 			if (IS_CLOUD) {
 				throw new TRPCError({
 					code: "UNAUTHORIZED",
 					message: "Functionality not available in cloud version",
 				});
 			}
+
+			if (input.appName === "dokploy") {
+				const orgId = ctx.session?.activeOrganizationId;
+				if (orgId) {
+					const memberRecord = await db.query.member.findFirst({
+						where: and(
+							eq(member.organizationId, orgId),
+							eq(member.userId, ctx.user.id)
+						),
+					});
+					
+					if (memberRecord && memberRecord.role !== "owner" && memberRecord.role !== "admin") {
+						const { limitRam, limitCpu, limitDisk } = memberRecord;
+						if ((limitRam && limitRam > 0) || (limitCpu && limitCpu > 0) || (limitDisk && limitDisk > 0)) {
+							const quotaStats = await checkResourceQuotas(ctx.user.id, orgId);
+							
+							if (quotaStats && typeof quotaStats === "object") {
+								const { totalRamMB, totalCpuCores } = quotaStats;
+								const safeLimitCpu = limitCpu || 1;
+								const safeLimitRam = limitRam || 1;
+								const safeLimitDisk = limitDisk || 1;
+								const cpuUsedPercent = (limitCpu && limitCpu > 0) ? (totalCpuCores / safeLimitCpu) * 100 : 0;
+								
+								const now = new Date().toISOString();
+								return {
+									cpu: [{ value: `${cpuUsedPercent.toFixed(2)}%`, time: now }],
+									memory: [{ value: { used: totalRamMB * 1024 * 1024, total: safeLimitRam * 1024 * 1024 }, time: now }],
+									block: [{ value: { readMb: 0, writeMb: 0 }, time: now }],
+									network: [{ value: { inputMb: 0, outputMb: 0 }, time: now }],
+									disk: [{ value: { diskTotal: safeLimitDisk, diskUsage: 0, diskUsedPercentage: 0, diskFree: safeLimitDisk }, time: now }]
+								};
+							}
+						}
+					}
+				}
+			}
+
 			const stats = await getApplicationStats(input.appName);
 
 			return stats;

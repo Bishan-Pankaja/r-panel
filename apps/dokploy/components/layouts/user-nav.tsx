@@ -1,4 +1,4 @@
-import { ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown, User, Folder, Activity, Router, Box, Server, CreditCard, LogOut } from "lucide-react";
 import { useRouter } from "next/router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -29,131 +29,134 @@ export const UserNav = () => {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<SidebarMenuButton
-					size="lg"
-					className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-				>
-					<Avatar className="h-8 w-8 rounded-lg">
-						<AvatarImage
-							className="object-cover"
-							src={data?.user?.image || ""}
-							alt={data?.user?.image || ""}
-						/>
-						<AvatarFallback className="rounded-lg">
+				<div className="relative p-2 w-full">
+					<button className="flex items-center gap-3 w-full p-2 rounded-xl bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 cursor-pointer text-left transition-colors">
+						<div className="w-10 h-10 rounded-full bg-primary/10 text-primary font-bold text-sm flex items-center justify-center shrink-0 border border-primary/20">
 							{getFallbackAvatarInitials(
-								`${data?.user?.firstName} ${data?.user?.lastName}`.trim(),
+								`${data?.user?.firstName || ""} ${data?.user?.lastName || ""}`.trim(),
 							)}
-						</AvatarFallback>
-					</Avatar>
-					<div className="grid flex-1 text-left text-sm leading-tight">
-						<span className="truncate font-semibold">Account</span>
-						<span className="truncate text-xs">{data?.user?.email}</span>
-					</div>
-					<ChevronsUpDown className="ml-auto size-4" />
-				</SidebarMenuButton>
+						</div>
+						<div className="flex-col hidden md:flex flex-1 overflow-hidden">
+							<p className="text-sm font-medium leading-none">
+								{(data?.user?.firstName || data?.user?.lastName) ? `${data?.user?.firstName || ""} ${data?.user?.lastName || ""}`.trim() : "Setup a name"}
+							</p>
+							<p className="text-xs leading-none text-muted-foreground">
+								{data?.user?.email || "No email"}
+							</p>
+						</div>
+						<ChevronsUpDown className="text-muted-foreground hidden md:block shrink-0 size-3.5" />
+					</button>
+				</div>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
-				className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+				className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl bg-[#121212] border border-zinc-800 shadow-2xl p-2 text-zinc-300"
 				side="bottom"
 				align="end"
-				sideOffset={4}
+				sideOffset={8}
 			>
-				<div className="flex items-center justify-between px-2 py-1.5">
-					<DropdownMenuLabel className="flex flex-col">
-						My Account
-						<span className="text-xs font-normal text-muted-foreground">
+				<div className="flex items-center justify-between px-2 py-2 mb-1">
+					<div className="flex flex-col">
+						<span className="text-[13px] font-semibold text-white tracking-wide">
+							My Account
+						</span>
+						<span className="text-[11px] font-medium text-zinc-500">
 							{data?.user?.email}
 						</span>
-					</DropdownMenuLabel>
+					</div>
 					<ModeToggle />
 				</div>
-				<DropdownMenuSeparator />
-				<DropdownMenuGroup>
+				<DropdownMenuSeparator className="bg-zinc-800/50 mb-1.5" />
+				<DropdownMenuGroup className="space-y-1">
 					<DropdownMenuItem
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10"
 						onClick={() => {
 							router.push("/dashboard/settings/profile");
 						}}
 					>
-						Profile
+						<User className="mr-2 size-[15px] text-zinc-400" />
+						<span className="text-[13px] font-medium tracking-wide">Profile</span>
 					</DropdownMenuItem>
-					<DropdownMenuItem
-						className="cursor-pointer"
+<DropdownMenuItem
+						className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10"
 						onClick={() => {
-							router.push("/dashboard/home");
+							router.push("/dashboard/projects");
 						}}
 					>
-						Projects
+						<Folder className="mr-2 size-[15px] text-zinc-400" />
+						<span className="text-[13px] font-medium tracking-wide">Projects</span>
 					</DropdownMenuItem>
 					{!isCloud ? (
 						<>
 							<DropdownMenuItem
-								className="cursor-pointer"
+								className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10"
 								onClick={() => {
 									router.push("/dashboard/monitoring");
 								}}
 							>
-								Monitoring
+								<Activity className="mr-2 size-[15px] text-zinc-400" />
+								<span className="text-[13px] font-medium tracking-wide">Monitoring</span>
 							</DropdownMenuItem>
 							{permissions?.traefikFiles.read && (
 								<DropdownMenuItem
-									className="cursor-pointer"
+									className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10"
 									onClick={() => {
 										router.push("/dashboard/traefik");
 									}}
 								>
-									Traefik
+									<Router className="mr-2 size-[15px] text-zinc-400" />
+									<span className="text-[13px] font-medium tracking-wide">Traefik</span>
 								</DropdownMenuItem>
 							)}
 							{permissions?.docker.read && (
 								<DropdownMenuItem
-									className="cursor-pointer"
+									className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10"
 									onClick={() => {
 										router.push("/dashboard/docker", undefined, {
 											shallow: true,
 										});
 									}}
 								>
-									Docker
+									<Box className="mr-2 size-[15px] text-zinc-400" />
+									<span className="text-[13px] font-medium tracking-wide">Docker</span>
 								</DropdownMenuItem>
 							)}
 						</>
 					) : (
 						permissions?.organization.update && (
 							<DropdownMenuItem
-								className="cursor-pointer"
+								className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10"
 								onClick={() => {
 									router.push("/dashboard/settings/servers");
 								}}
 							>
-								Servers
+								<Server className="mr-2 size-[15px] text-zinc-400" />
+								<span className="text-[13px] font-medium tracking-wide">Servers</span>
 							</DropdownMenuItem>
 						)
 					)}
 				</DropdownMenuGroup>
 				{isCloud && data?.role === "owner" && (
 					<DropdownMenuItem
-						className="cursor-pointer"
+						className="cursor-pointer rounded-lg hover:bg-zinc-800/60 focus:bg-zinc-800/60 transition-colors h-10 mt-1"
 						onClick={() => {
 							router.push("/dashboard/settings/billing");
 						}}
 					>
-						Billing
+						<CreditCard className="mr-2 size-[15px] text-zinc-400" />
+						<span className="text-[13px] font-medium tracking-wide">Billing</span>
 					</DropdownMenuItem>
 				)}
-				<DropdownMenuSeparator />
+				<DropdownMenuSeparator className="bg-zinc-800/50 my-1.5" />
 				<DropdownMenuItem
-					className="cursor-pointer"
+					className="cursor-pointer rounded-lg hover:bg-red-900/30 focus:bg-red-900/30 text-red-400 hover:text-red-300 transition-colors h-10"
 					onClick={async () => {
 						await authClient.signOut().then(() => {
 							router.push("/");
 						});
-						// await mutateAsync().then(() => {
-						// 	router.push("/");
-						// });
 					}}
 				>
-					Log out
+					<LogOut className="mr-2 size-[15px]" />
+					<span className="text-[13px] font-medium tracking-wide">Log out</span>
 				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>

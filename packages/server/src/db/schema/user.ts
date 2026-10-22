@@ -151,6 +151,9 @@ export const apiAssignPermissions = createSchema
 		canAccessToGitProviders: z.boolean().optional(),
 		canDeleteEnvironments: z.boolean().optional(),
 		canCreateEnvironments: z.boolean().optional(),
+		limitRam: z.number().default(0),
+		limitCpu: z.number().default(0),
+		limitDisk: z.number().default(0),
 	})
 	.required();
 

@@ -240,7 +240,7 @@ export const ShowBuildChooseForm = ({ applicationId }: Props) => {
 	};
 
 	return (
-		<Card className="group relative w-full bg-transparent">
+		<Card className="group relative w-full ">
 			<CardHeader>
 				<CardTitle className="flex items-start justify-between">
 					<div className="flex flex-col gap-2">

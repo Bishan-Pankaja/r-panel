@@ -75,7 +75,7 @@ export const ShowComposeContainers = ({
 		);
 
 	return (
-		<Card className="bg-background">
+		<Card className="">
 			<CardHeader className="flex flex-row items-center justify-between">
 				<div>
 					<CardTitle className="text-xl">Containers</CardTitle>
@@ -270,7 +270,7 @@ const ContainerRow = ({
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
-					<DialogContent className="sm:max-w-7xl">
+					<DialogContent className="sm:w-full">
 						<DialogHeader>
 							<DialogTitle>View Logs</DialogTitle>
 							<DialogDescription>Logs for {container.name}</DialogDescription>

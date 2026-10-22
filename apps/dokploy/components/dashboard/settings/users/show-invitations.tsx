@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -40,9 +39,9 @@ export const ShowInvitations = () => {
 
 	return (
 		<div className="w-full">
-			<Card className="h-full bg-sidebar  p-2.5 rounded-xl  max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader className="">
+			<div className="w-full">
+				<div className="overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+					<CardHeader className="p-4 border-b border-zinc-800/40">
 						<CardTitle className="text-xl flex flex-row gap-2">
 							<Mail className="size-6 text-muted-foreground self-center" />
 							Invitations
@@ -51,7 +50,7 @@ export const ShowInvitations = () => {
 							Create invitations to your organization.
 						</CardDescription>
 					</CardHeader>
-					<CardContent className="space-y-2 py-8 border-t">
+					<CardContent className="space-y-2 p-4">
 						{isPending ? (
 							<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[25vh]">
 								<span>Loading...</span>
@@ -217,7 +216,7 @@ export const ShowInvitations = () => {
 						)}
 					</CardContent>
 				</div>
-			</Card>
+			</div>
 		</div>
 	);
 };

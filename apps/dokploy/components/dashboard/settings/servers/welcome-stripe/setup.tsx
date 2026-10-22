@@ -69,7 +69,7 @@ export const Setup = () => {
 
 	return (
 		<div className="flex flex-col gap-4">
-			<Card className="bg-background">
+			<Card className="">
 				<CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
 					<div className="flex flex-col gap-2 w-full">
 						<Label>Select the server and click on setup server</Label>

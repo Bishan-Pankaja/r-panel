@@ -312,154 +312,213 @@ export const AdvanceBreadcrumb = () => {
 
 	// If we're just on the projects page, show simple breadcrumb
 	if (!projectId) {
-		return (
-			<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-				<div className="flex items-center gap-2">
-					<SidebarTrigger className="-ml-1" />
-					<Separator orientation="vertical" className="mr-2 h-4" />
-					<div className="flex items-center gap-2">
-						<FolderInput className="size-4 text-muted-foreground" />
-						<span className="font-medium">Projects</span>
-					</div>
-				</div>
-			</header>
-		);
+		return null;
 	}
 
 	return (
-		<header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-			<div className="flex items-center gap-2">
-				<SidebarTrigger className="-ml-1" />
-				<Separator orientation="vertical" className="mr-2 h-4" />
+		<div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 overflow-x-auto no-scrollbar">
+			<SidebarTrigger className="-ml-1 text-zinc-400 hover:text-white hover:bg-zinc-800/60 size-8 rounded-lg shrink-0" />
+			<Separator orientation="vertical" className="mr-1 h-4 bg-zinc-800 shrink-0" />
 
-				<div className="flex items-center">
-					{/* Project Selector */}
-					<Popover open={projectOpen} onOpenChange={setProjectOpen}>
+			<div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+				{/* Project Selector */}
+				<Popover open={projectOpen} onOpenChange={setProjectOpen}>
+					<PopoverTrigger asChild>
+						<Button
+							variant="ghost"
+							aria-expanded={projectOpen}
+							className="h-9 px-2.5 sm:px-3 rounded-xl bg-[#1a1a1a] hover:bg-[#202020] border border-zinc-800/80 text-xs font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer gap-1.5 sm:gap-2"
+						>
+							<FolderInput className="size-4 text-zinc-400 shrink-0" />
+							<span className="font-semibold max-w-[70px] sm:max-w-[120px] md:max-w-[160px] truncate">
+								{currentProject?.name || "Select Project"}
+							</span>
+							<ChevronDown className="size-3.5 text-zinc-500 shrink-0" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent
+						className="w-[calc(100vw-2rem)] max-w-[380px] sm:w-[380px] p-0 bg-[#121212] border border-zinc-800/80 rounded-xl shadow-2xl text-zinc-200 overflow-hidden z-50"
+						align="start"
+						sideOffset={8}
+					>
+						<Command
+							shouldFilter={false}
+							className="bg-transparent text-zinc-200"
+						>
+							<div className="relative border-b border-zinc-800/80">
+								<CommandInput
+									placeholder="Find Project..."
+									value={projectSearch}
+									onValueChange={setProjectSearch}
+									className="w-full focus-visible:ring-0 text-xs h-10 text-zinc-200 placeholder:text-zinc-500"
+								/>
+								<kbd className="pointer-events-none h-5 absolute right-2.5 top-1/2 -translate-y-1/2 select-none items-center gap-1 rounded border border-zinc-700 bg-zinc-800 px-1.5 font-mono text-[10px] font-medium text-zinc-400 flex">
+									Esc
+								</kbd>
+							</div>
+							<CommandList className="bg-transparent">
+								<CommandEmpty className="text-zinc-500 text-xs py-6 text-center">
+									No projects found.
+								</CommandEmpty>
+								<CommandGroup>
+									<ScrollArea className="h-[300px]">
+										{filteredProjects.map((project) => {
+											const totalServices = project.environments.reduce(
+												(total, env) => total + countEnvironmentServices(env),
+												0,
+											);
+											const isSelected = project.projectId === projectId;
+											const isExpanded =
+												expandedProjectId === project.projectId;
+
+											return (
+												<div key={project.projectId}>
+													<CommandItem
+														value={project.projectId}
+														onSelect={() => {
+															if (project.environments.length > 1) {
+																setExpandedProjectId(
+																	isExpanded ? null : project.projectId,
+																);
+															} else {
+																handleProjectSelect(project.projectId);
+															}
+														}}
+														className="flex items-center justify-between py-2.5 px-3 cursor-pointer rounded-lg hover:bg-zinc-800/60 aria-selected:bg-zinc-800/60"
+													>
+														<div className="flex items-center gap-3">
+															<div className="flex items-center justify-center size-8 rounded-lg bg-zinc-800 border border-zinc-700/60 text-xs font-semibold text-zinc-200 uppercase">
+																{project.name.slice(0, 2)}
+															</div>
+															<div className="flex flex-col">
+																<span className="font-medium text-xs text-zinc-200">
+																	{project.name}
+																</span>
+																<span className="text-[11px] text-zinc-500">
+																	{project.environments.length} env
+																	{project.environments.length !== 1 ? "s" : ""}{" "}
+																	· {totalServices} service
+																	{totalServices !== 1 ? "s" : ""}
+																</span>
+															</div>
+														</div>
+														<div className="flex items-center gap-2">
+															{isSelected && (
+																<Check className="size-4 text-blue-500" />
+															)}
+															{project.environments.length > 1 && (
+																<ChevronRight
+																	className={`size-3.5 text-zinc-500 transition-transform ${isExpanded ? "rotate-90" : ""}`}
+																/>
+															)}
+														</div>
+													</CommandItem>
+
+													{/* Expanded environments */}
+													{isExpanded && (
+														<div className="ml-10 border-l border-zinc-800 pl-3 py-1 space-y-1 my-1">
+															{project.environments.map((env) => {
+																const envServices =
+																	countEnvironmentServices(env);
+																const isEnvSelected =
+																	env.environmentId === environmentId;
+
+																return (
+																	<CommandItem
+																		key={env.environmentId}
+																		value={env.environmentId}
+																		onSelect={() =>
+																			handleProjectSelect(
+																				project.projectId,
+																				env.environmentId,
+																			)
+																		}
+																		className="flex items-center justify-between py-2 px-2.5 cursor-pointer text-xs rounded-lg hover:bg-zinc-800/60 aria-selected:bg-zinc-800/60"
+																	>
+																		<div className="flex items-center gap-2">
+																			<p className="text-xs text-zinc-300">
+																				{env.name}
+																			</p>
+																			<span className="text-[10px] text-zinc-500">
+																				{envServices} service
+																				{envServices !== 1 ? "s" : ""}
+																			</span>
+																		</div>
+																		{isEnvSelected && (
+																			<Check className="size-3 text-blue-500" />
+																		)}
+																	</CommandItem>
+																);
+															})}
+														</div>
+													)}
+												</div>
+											);
+										})}
+									</ScrollArea>
+								</CommandGroup>
+							</CommandList>
+						</Command>
+					</PopoverContent>
+				</Popover>
+
+				{/* Environment Selector */}
+				{projectEnvironments && projectEnvironments.length > 1 && (
+					<Popover open={environmentOpen} onOpenChange={setEnvironmentOpen}>
 						<PopoverTrigger asChild>
 							<Button
 								variant="ghost"
-								aria-expanded={projectOpen}
-								className="h-auto px-2 py-1.5 hover:bg-accent gap-2"
+								aria-expanded={environmentOpen}
+								className="h-9 px-3 rounded-xl bg-[#1a1a1a] hover:bg-[#202020] border border-zinc-800/80 text-xs font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer gap-2"
 							>
-								<FolderInput className="size-4 text-muted-foreground" />
-								<span className="font-medium max-w-[50px] md:max-w-[150px] truncate">
-									{currentProject?.name || "Select Project"}
+								<span className="font-semibold max-w-[80px] md:max-w-[160px] truncate">
+									{currentEnvironment?.name || "production"}
 								</span>
-								<ChevronDown className="size-4 text-muted-foreground" />
+								<ChevronDown className="size-3.5 text-zinc-500" />
 							</Button>
 						</PopoverTrigger>
 						<PopoverContent
-							className="w-[380px] p-0"
+							className="w-[calc(100vw-2rem)] max-w-[350px] sm:w-[350px] p-0 bg-[#121212] border border-zinc-800/80 rounded-xl shadow-2xl text-zinc-200 overflow-hidden z-50"
 							align="start"
 							sideOffset={8}
 						>
-							<Command shouldFilter={false}>
-								<div className="relative">
+							<Command
+								shouldFilter={false}
+								className="bg-transparent text-zinc-200"
+							>
+								<div className="relative border-b border-zinc-800/80">
 									<CommandInput
-										placeholder="Find Project..."
-										value={projectSearch}
-										onValueChange={setProjectSearch}
-										className="w-full focus-visible:ring-0"
+										placeholder="Find Environment..."
+										value={environmentSearch}
+										onValueChange={setEnvironmentSearch}
+										className="w-full focus-visible:ring-0 text-xs h-10 text-zinc-200 placeholder:text-zinc-500"
 									/>
-									<kbd className="pointer-events-none h-5 absolute right-2 top-1/2 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 flex">
+									<kbd className="pointer-events-none h-5 absolute right-2.5 top-1/2 -translate-y-1/2 select-none items-center gap-1 rounded border border-zinc-700 bg-zinc-800 px-1.5 font-mono text-[10px] font-medium text-zinc-400 flex">
 										Esc
 									</kbd>
 								</div>
-								<CommandList>
-									<CommandEmpty>No projects found.</CommandEmpty>
+								<CommandList className="bg-transparent">
+									<CommandEmpty className="text-zinc-500 text-xs py-6 text-center">
+										No environments found.
+									</CommandEmpty>
 									<CommandGroup>
 										<ScrollArea className="h-[300px]">
-											{filteredProjects.map((project) => {
-												const totalServices = project.environments.reduce(
-													(total, env) => total + countEnvironmentServices(env),
-													0,
-												);
-												const isSelected = project.projectId === projectId;
-												const isExpanded =
-													expandedProjectId === project.projectId;
-
+											{filteredEnvironments.map((env) => {
+												const isSelected = env.environmentId === environmentId;
 												return (
-													<div key={project.projectId}>
-														<CommandItem
-															value={project.projectId}
-															onSelect={() => {
-																if (project.environments.length > 1) {
-																	setExpandedProjectId(
-																		isExpanded ? null : project.projectId,
-																	);
-																} else {
-																	handleProjectSelect(project.projectId);
-																}
-															}}
-															className="flex items-center justify-between py-3 px-2 cursor-pointer"
-														>
-															<div className="flex items-center gap-3">
-																<div className="flex items-center justify-center size-8 rounded-md bg-muted text-xs font-semibold uppercase">
-																	{project.name.slice(0, 2)}
-																</div>
-																<div className="flex flex-col">
-																	<span className="font-medium">
-																		{project.name}
-																	</span>
-																	<span className="text-muted-foreground">
-																		{project.environments.length} env
-																		{project.environments.length !== 1
-																			? "s"
-																			: ""}{" "}
-																		· {totalServices} service
-																		{totalServices !== 1 ? "s" : ""}
-																	</span>
-																</div>
-															</div>
-															<div className="flex items-center gap-2">
-																{isSelected && (
-																	<Check className="size-4 text-primary" />
-																)}
-																{project.environments.length > 1 && (
-																	<ChevronRight
-																		className={`size-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`}
-																	/>
-																)}
-															</div>
-														</CommandItem>
-
-														{/* Expanded environments */}
-														{isExpanded && (
-															<div className="ml-11 border-l pl-3 py-1 space-y-1">
-																{project.environments.map((env) => {
-																	const envServices =
-																		countEnvironmentServices(env);
-																	const isEnvSelected =
-																		env.environmentId === environmentId;
-
-																	return (
-																		<CommandItem
-																			key={env.environmentId}
-																			value={env.environmentId}
-																			onSelect={() =>
-																				handleProjectSelect(
-																					project.projectId,
-																					env.environmentId,
-																				)
-																			}
-																			className="flex items-center justify-between py-2 px-2 cursor-pointer text-sm"
-																		>
-																			<div className="flex items-center gap-2">
-																				<p className="text-xs">{env.name}</p>
-																				<span className="text-xs text-muted-foreground">
-																					{envServices} service
-																					{envServices !== 1 ? "s" : ""}
-																				</span>
-																			</div>
-																			{isEnvSelected && (
-																				<Check className="size-3 text-primary" />
-																			)}
-																		</CommandItem>
-																	);
-																})}
-															</div>
+													<CommandItem
+														key={env.environmentId}
+														value={env.environmentId}
+														onSelect={() =>
+															handleEnvironmentSelect(env.environmentId)
+														}
+														className="flex items-center justify-between py-2.5 px-3 cursor-pointer rounded-lg hover:bg-zinc-800/60 aria-selected:bg-zinc-800/60 text-xs text-zinc-200"
+													>
+														<span className="font-medium">{env.name}</span>
+														{isSelected && (
+															<Check className="size-4 text-blue-500" />
 														)}
-													</div>
+													</CommandItem>
 												);
 											})}
 										</ScrollArea>
@@ -468,58 +527,86 @@ export const AdvanceBreadcrumb = () => {
 							</Command>
 						</PopoverContent>
 					</Popover>
+				)}
 
-					{/* Environment Selector */}
-					{projectEnvironments && projectEnvironments.length > 1 && (
-						<Popover open={environmentOpen} onOpenChange={setEnvironmentOpen}>
+				{projectEnvironments && projectEnvironments.length === 1 && (
+					<p className="text-xs font-semibold text-zinc-400 ml-1 max-w-[80px] md:max-w-[160px] truncate">
+						{currentEnvironment?.name || "production"}
+					</p>
+				)}
+
+				{/* Service Selector - only show when viewing a service */}
+				{serviceId && currentService && (
+					<>
+						<Separator
+							orientation="vertical"
+							className="mx-1 h-4 bg-zinc-800"
+						/>
+
+						<Popover open={serviceOpen} onOpenChange={setServiceOpen}>
 							<PopoverTrigger asChild>
 								<Button
 									variant="ghost"
-									aria-expanded={environmentOpen}
-									className="h-auto px-2 py-1.5 hover:bg-accent gap-2"
+									aria-expanded={serviceOpen}
+									className="h-9 px-3 rounded-xl bg-[#1a1a1a] hover:bg-[#202020] border border-zinc-800/80 text-xs font-semibold text-zinc-300 hover:text-white transition-colors cursor-pointer gap-2"
 								>
-									<span className="font-medium max-w-[50px] md:max-w-[150px] truncate">
-										{currentEnvironment?.name || "production"}
+									{getServiceIcon(currentService.type)}
+									<span className="font-semibold max-w-[80px] md:max-w-[160px] truncate">
+										{currentService.name}
 									</span>
-									<ChevronDown className="size-4 text-muted-foreground" />
+									<ChevronDown className="size-3.5 text-zinc-500" />
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent
-								className="w-[350px] p-0"
+								className="w-[calc(100vw-2rem)] max-w-[350px] sm:w-[350px] p-0 bg-[#121212] border border-zinc-800/80 rounded-xl shadow-2xl text-zinc-200 overflow-hidden z-50"
 								align="start"
 								sideOffset={8}
 							>
-								<Command shouldFilter={false}>
-									<div className="relative">
+								<Command
+									shouldFilter={false}
+									className="bg-transparent text-zinc-200"
+								>
+									<div className="relative border-b border-zinc-800/80">
 										<CommandInput
-											placeholder="Find Environment..."
-											value={environmentSearch}
-											onValueChange={setEnvironmentSearch}
-											className="w-full focus-visible:ring-0"
+											placeholder="Find Service..."
+											value={serviceSearch}
+											onValueChange={setServiceSearch}
+											className="w-full focus-visible:ring-0 text-xs h-10 text-zinc-200 placeholder:text-zinc-500"
 										/>
-										<kbd className="pointer-events-none h-5 absolute right-2 top-1/2 -translate-y-1/2 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 flex">
+										<kbd className="pointer-events-none h-5 select-none absolute right-2.5 top-1/2 -translate-y-1/2 items-center gap-1 rounded border border-zinc-700 bg-zinc-800 px-1.5 font-mono text-[10px] font-medium text-zinc-400 flex">
 											Esc
 										</kbd>
 									</div>
-									<CommandList>
-										<CommandEmpty>No environments found.</CommandEmpty>
+									<CommandList className="bg-transparent">
+										<CommandEmpty className="text-zinc-500 text-xs py-6 text-center">
+											No services found.
+										</CommandEmpty>
 										<CommandGroup>
 											<ScrollArea className="h-[300px]">
-												{filteredEnvironments.map((env) => {
-													const isSelected =
-														env.environmentId === environmentId;
+												{filteredServices.map((service) => {
+													const isSelected = service.id === serviceId;
 													return (
 														<CommandItem
-															key={env.environmentId}
-															value={env.environmentId}
-															onSelect={() =>
-																handleEnvironmentSelect(env.environmentId)
-															}
-															className="flex items-center justify-between py-2 cursor-pointer"
+															key={service.id}
+															value={service.id}
+															onSelect={() => handleServiceSelect(service)}
+															className="flex items-center justify-between py-2.5 px-3 cursor-pointer rounded-lg hover:bg-zinc-800/60 aria-selected:bg-zinc-800/60"
 														>
-															<span className="font-medium">{env.name}</span>
+															<div className="flex items-center gap-3">
+																<div className="flex items-center justify-center size-8 rounded-lg bg-zinc-800 border border-zinc-700/60 text-zinc-300">
+																	{getServiceIcon(service.type)}
+																</div>
+																<div className="flex flex-col">
+																	<span className="font-medium text-xs text-zinc-200">
+																		{service.name}
+																	</span>
+																	<span className="text-[10px] text-zinc-500 capitalize">
+																		{service.type}
+																	</span>
+																</div>
+															</div>
 															{isSelected && (
-																<Check className="size-4 text-primary" />
+																<Check className="size-4 text-blue-500" />
 															)}
 														</CommandItem>
 													);
@@ -530,106 +617,23 @@ export const AdvanceBreadcrumb = () => {
 								</Command>
 							</PopoverContent>
 						</Popover>
-					)}
 
-					{projectEnvironments && projectEnvironments.length === 1 && (
-						<p className="text-sm font-normal ml-1 max-w-[50px] md:max-w-[150px] truncate">
-							{currentEnvironment?.name || "production"}
-						</p>
-					)}
-
-					{/* Service Selector - only show when viewing a service */}
-					{serviceId && currentService && (
-						<>
-							<Separator orientation="vertical" className="mx-2 h-6" />
-
-							<Popover open={serviceOpen} onOpenChange={setServiceOpen}>
-								<PopoverTrigger asChild>
-									<Button
-										variant="ghost"
-										aria-expanded={serviceOpen}
-										className="h-auto px-2 py-1.5 hover:bg-accent gap-2"
-									>
-										{getServiceIcon(currentService.type)}
-										<span className="font-medium max-w-[50px] md:max-w-[150px] truncate">
-											{currentService.name}
-										</span>
-										<ChevronDown className="size-4 text-muted-foreground" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent
-									className="w-[350px] p-0"
-									align="start"
-									sideOffset={8}
-								>
-									<Command shouldFilter={false}>
-										<div className="relative">
-											<CommandInput
-												placeholder="Find Service..."
-												value={serviceSearch}
-												onValueChange={setServiceSearch}
-												className="w-full focus-visible:ring-0"
-											/>
-											<kbd className="pointer-events-none h-5 select-none absolute right-2 top-1/2 -translate-y-1/2 items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 flex">
-												Esc
-											</kbd>
-										</div>
-										<CommandList>
-											<CommandEmpty>No services found.</CommandEmpty>
-											<CommandGroup>
-												<ScrollArea className="h-[300px]">
-													{filteredServices.map((service) => {
-														const isSelected = service.id === serviceId;
-														return (
-															<CommandItem
-																key={service.id}
-																value={service.id}
-																onSelect={() => handleServiceSelect(service)}
-																className="flex items-center justify-between py-2 cursor-pointer"
-															>
-																<div className="flex items-center gap-3">
-																	<div className="flex items-center justify-center size-8 rounded-md bg-muted">
-																		{getServiceIcon(service.type)}
-																	</div>
-																	<div className="flex flex-col">
-																		<span className="font-medium">
-																			{service.name}
-																		</span>
-																		<span className="text-xs text-muted-foreground capitalize">
-																			{service.type}
-																		</span>
-																	</div>
-																</div>
-																{isSelected && (
-																	<Check className="size-4 text-primary" />
-																)}
-															</CommandItem>
-														);
-													})}
-												</ScrollArea>
-											</CommandGroup>
-										</CommandList>
-									</Command>
-								</PopoverContent>
-							</Popover>
-
-							{/* Close button to go back to environment */}
-							<Button
-								variant="ghost"
-								size="icon"
-								className="size-7 ml-1 hidden md:flex"
-								onClick={() => {
-									router.push(
-										`/dashboard/project/${projectId}/environment/${environmentId}`,
-									);
-								}}
-							>
-								<X className="size-4 text-muted-foreground" />
-							</Button>
-						</>
-					)}
-				</div>
+						{/* Close button to go back to environment */}
+						<Button
+							variant="ghost"
+							size="icon"
+							className="size-9 rounded-xl bg-[#1a1a1a] hover:bg-[#202020] border border-zinc-800/80 text-zinc-400 hover:text-white transition-colors ml-1 hidden md:flex items-center justify-center cursor-pointer"
+							onClick={() => {
+								router.push(
+									`/dashboard/project/${projectId}/environment/${environmentId}`,
+								);
+							}}
+						>
+							<X className="size-4" />
+						</Button>
+					</>
+				)}
 			</div>
-		</header>
+		</div>
 	);
 };

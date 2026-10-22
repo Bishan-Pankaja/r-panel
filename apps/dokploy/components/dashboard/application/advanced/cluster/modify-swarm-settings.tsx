@@ -140,7 +140,7 @@ export const AddSwarmSettings = ({ id, type }: Props) => {
 					Swarm Settings
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-6xl max-h-[85vh]">
+			<DialogContent className="sm:w-full max-h-[85vh]">
 				<DialogHeader>
 					<DialogTitle>Swarm Settings</DialogTitle>
 					<DialogDescription>

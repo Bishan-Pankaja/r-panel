@@ -181,7 +181,7 @@ export const ShowBuy = () => {
 					</CardHeader>
 					<CardContent className="flex justify-center">
 						<Button asChild>
-							<Link href="/dashboard/home">
+							<Link href="/dashboard/projects">
 								Back to Home
 							</Link>
 						</Button>
@@ -192,7 +192,7 @@ export const ShowBuy = () => {
 	}
 
 	return (
-		<div className="w-full max-w-6xl mx-auto py-8 space-y-8">
+		<div className="w-full w-full py-8 space-y-8">
 			{/* User Info Card */}
 			<Card>
 				<CardHeader>
@@ -608,12 +608,12 @@ export const ShowBuy = () => {
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Price:</span>
 								<span className="font-medium">
-									{currentPrice ? `LKR ${currentPrice.toFixed(2)}/${isAnnualBilling ? "yr" : "mo"}` : 'N/A'}
+									{currentPrice ? `LKR ${currentPrice.toFixed(2)}/${duration === "1year" ? "yr" : "mo"}` : 'N/A'}
 								</span>
 							</div>
 							<div className="flex justify-between">
 								<span className="text-muted-foreground">Billing:</span>
-								<span className="font-medium capitalize">{isAnnualBilling ? "Annual" : "Monthly"}</span>
+								<span className="font-medium capitalize">{duration === "1year" ? "Annual" : "Monthly"}</span>
 							</div>
 						</div>
 					</CardContent>

@@ -4,7 +4,7 @@ export default function Document() {
 	return (
 		<Html lang="en" className="font-sans">
 			<Head>
-				<link rel="icon" href="/icon.svg" />
+				<link rel="icon" href="https://www.regz.lk/favicon.ico" />
 			</Head>
 			<body className="flex h-full w-full flex-col font-sans">
 				<Main />

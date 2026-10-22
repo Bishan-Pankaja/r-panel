@@ -11,7 +11,13 @@ import { appRouter } from "@/server/api/root";
 const Dashboard = () => {
 	return (
 		<ServerFilter>
-			{(serverId) => <ShowTraefikSystem serverId={serverId} />}
+			{(serverId) => (
+				<div className="w-full">
+					<div className="h-full rounded-xl w-full flex flex-col">
+						<ShowTraefikSystem serverId={serverId} />
+					</div>
+				</div>
+			)}
 		</ServerFilter>
 	);
 };

@@ -20,7 +20,7 @@ export function WhitelabelingPreview({ config }: WhitelabelingPreviewProps) {
 	const appName = config.appName || "Dokploy";
 
 	return (
-		<Card className="bg-transparent">
+		<Card className="">
 			<CardHeader>
 				<CardTitle>Live Preview</CardTitle>
 				<CardDescription>
@@ -46,7 +46,7 @@ export function WhitelabelingPreview({ config }: WhitelabelingPreviewProps) {
 					</div>
 
 					{/* Simulated content area */}
-					<div className="p-4 bg-background">
+					<div className="p-4 bg-transparent">
 						<div className="flex items-center gap-2 mb-3">
 							<div className="h-2 w-16 rounded-full bg-primary" />
 							<div className="h-2 w-24 rounded-full bg-muted" />

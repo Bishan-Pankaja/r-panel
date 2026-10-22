@@ -1,3 +1,4 @@
+import React from "react";
 import {
 	autocompletion,
 	type Completion,
@@ -146,8 +147,43 @@ export const CodeEditor = ({
 	...props
 }: Props) => {
 	const { resolvedTheme } = useTheme();
+
+	const customDarkTheme = React.useMemo(() => {
+		if (resolvedTheme !== "dark") return [];
+		return [
+			EditorView.theme({
+				"&": {
+					backgroundColor: "#161616 !important",
+					color: "#f4f4f5 !important",
+				},
+				".cm-gutters": {
+					backgroundColor: "#131315 !important",
+					borderRight: "1px solid rgba(255, 255, 255, 0.08) !important",
+					color: "#71717a !important",
+				},
+				".cm-content": {
+					backgroundColor: "#161616 !important",
+				},
+				".cm-scroller": {
+					backgroundColor: "#161616 !important",
+				},
+				".cm-activeLine": {
+					backgroundColor: "rgba(255, 255, 255, 0.04) !important",
+				},
+				".cm-activeLineGutter": {
+					backgroundColor: "rgba(255, 255, 255, 0.06) !important",
+				},
+			}),
+		];
+	}, [resolvedTheme]);
+
 	return (
-		<div className={cn("overflow-auto", wrapperClassName)}>
+		<div
+			className={cn(
+				"overflow-auto rounded-xl border border-zinc-800/80 bg-[#161616]",
+				wrapperClassName,
+			)}
+		>
 			<CodeMirror
 				basicSetup={{
 					lineNumbers,
@@ -158,6 +194,7 @@ export const CodeEditor = ({
 				}}
 				theme={resolvedTheme === "dark" ? githubDark : githubLight}
 				extensions={[
+					...customDarkTheme,
 					search(),
 					keymap.of(searchKeymap),
 					language === "yaml"
@@ -189,11 +226,7 @@ export const CodeEditor = ({
 					`cm-theme-${resolvedTheme}`,
 					className,
 				)}
-			>
-				{props.disabled && (
-					<div className="absolute top-0 rounded-md left-0 w-full h-full  flex items-center justify-center z-[10] [background:var(--overlay)] h-full" />
-				)}
-			</CodeMirror>
+			/>
 		</div>
 	);
 };

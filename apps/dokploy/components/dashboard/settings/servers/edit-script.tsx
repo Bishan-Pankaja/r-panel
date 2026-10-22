@@ -99,7 +99,7 @@ export const EditScript = ({ serverId }: Props) => {
 					<FileTerminal className="size-4 text-muted-foreground" />
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-5xl overflow-x-hidden">
+			<DialogContent className="sm:w-full overflow-x-hidden">
 				<DialogHeader>
 					<DialogTitle>Modify Script</DialogTitle>
 					<DialogDescription>

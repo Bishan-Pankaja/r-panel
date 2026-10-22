@@ -1,18 +1,19 @@
 import { validateRequest } from "@dokploy/server/lib/auth";
 import { hasPermission } from "@dokploy/server/services/permission";
-import { Rocket } from "lucide-react";
 import type { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
-import type { ReactElement } from "react";
+import { type ReactElement, useState } from "react";
 import { ShowDeploymentsTable } from "@/components/dashboard/deployments/show-deployments-table";
 import { ShowQueueTable } from "@/components/dashboard/deployments/show-queue-table";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
+import { Input } from "@/components/ui/input";
 import {
-	Card,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const TAB_VALUES = ["deployments", "queue"] as const;
@@ -24,6 +25,9 @@ function isValidTab(t: string): t is TabValue {
 
 function DeploymentsPage() {
 	const router = useRouter();
+	const [globalFilter, setGlobalFilter] = useState("");
+	const [statusFilter, setStatusFilter] = useState("all");
+	const [typeFilter, setTypeFilter] = useState("all");
 	const tab =
 		router.query.tab && isValidTab(router.query.tab as string)
 			? (router.query.tab as TabValue)
@@ -39,36 +43,78 @@ function DeploymentsPage() {
 	};
 
 	return (
-		<div className="w-full">
-			<Card className="h-full bg-sidebar p-2.5 rounded-xl min-h-[45vh]">
-				<div className="rounded-xl bg-background shadow-md h-full">
-					<CardHeader>
-						<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-							<div>
-								<CardTitle className="text-xl font-bold flex items-center gap-2">
-									<Rocket className="size-5" />
-									Deployments
-								</CardTitle>
-								<CardDescription>
-									All application and compose deployments in one place.
-								</CardDescription>
-							</div>
+		<div className="w-full bg-transparent min-h-full text-zinc-200">
+			<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+				<Tabs value={tab} onValueChange={setTab} className="w-full">
+					<div className="flex flex-col gap-3 rounded-md border border-zinc-800/80 bg-[#161616] p-4 shadow-lg">
+						<div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+							<h1 className="translate-x-[3px] text-lg font-bold tracking-tight text-white">
+								Deployments
+							</h1>
+							{tab === "deployments" && (
+								<Input
+									placeholder="Search by name, project, environment, server..."
+									value={globalFilter}
+									onChange={(event) => setGlobalFilter(event.target.value)}
+									className="w-full sm:w-[320px] sm:justify-self-end"
+								/>
+							)}
 						</div>
-						<Tabs value={tab} onValueChange={setTab} className="w-full">
-							<TabsList className="mt-2">
-								<TabsTrigger value="deployments">Deployments</TabsTrigger>
-								<TabsTrigger value="queue">Queue</TabsTrigger>
+						<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+							<TabsList className="bg-[#1a1a1a] border border-zinc-800/80 rounded-xl p-1 h-auto inline-flex gap-1 self-start">
+								<TabsTrigger
+									value="deployments"
+									className="rounded-lg text-xs font-medium px-4 py-2 text-zinc-400 data-[state=active]:bg-zinc-800 data-[state=active]:font-semibold data-[state=active]:text-white transition-colors"
+								>
+									Deployments
+								</TabsTrigger>
+								<TabsTrigger
+									value="queue"
+									className="rounded-lg text-xs font-medium px-4 py-2 text-zinc-400 data-[state=active]:bg-zinc-800 data-[state=active]:text-white transition-colors"
+								>
+									Queue
+								</TabsTrigger>
 							</TabsList>
-							<TabsContent value="deployments" className="mt-0 pt-4">
-								<ShowDeploymentsTable />
-							</TabsContent>
-							<TabsContent value="queue" className="mt-0 pt-4">
-								<ShowQueueTable />
-							</TabsContent>
-						</Tabs>
-					</CardHeader>
-				</div>
-			</Card>
+							{tab === "deployments" && (
+								<div className="flex flex-wrap items-center gap-2">
+									<Select value={statusFilter} onValueChange={setStatusFilter}>
+										<SelectTrigger className="w-[140px]">
+											<SelectValue placeholder="Status" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">All statuses</SelectItem>
+											<SelectItem value="running">Running</SelectItem>
+											<SelectItem value="done">Done</SelectItem>
+											<SelectItem value="error">Error</SelectItem>
+											<SelectItem value="cancelled">Cancelled</SelectItem>
+										</SelectContent>
+									</Select>
+									<Select value={typeFilter} onValueChange={setTypeFilter}>
+										<SelectTrigger className="w-[140px]">
+											<SelectValue placeholder="Type" />
+										</SelectTrigger>
+										<SelectContent>
+											<SelectItem value="all">All types</SelectItem>
+											<SelectItem value="application">Application</SelectItem>
+											<SelectItem value="compose">Compose</SelectItem>
+										</SelectContent>
+									</Select>
+								</div>
+							)}
+						</div>
+					</div>
+					<TabsContent value="deployments" className="mt-4">
+						<ShowDeploymentsTable
+							globalFilter={globalFilter}
+							statusFilter={statusFilter}
+							typeFilter={typeFilter}
+						/>
+					</TabsContent>
+					<TabsContent value="queue" className="mt-4">
+						<ShowQueueTable />
+					</TabsContent>
+				</Tabs>
+			</div>
 		</div>
 	);
 }
@@ -102,7 +148,7 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
 		return {
 			redirect: {
 				permanent: false,
-				destination: "/dashboard/home",
+				destination: "/dashboard/projects",
 			},
 		};
 	}

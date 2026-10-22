@@ -29,14 +29,14 @@ export const ShowNodeConfig = ({ nodeId, serverId }: Props) => {
 					Config
 				</Button>
 			</DialogTrigger>
-			<DialogContent className={"sm:max-w-5xl"}>
+			<DialogContent className={"sm:w-full"}>
 				<DialogHeader>
 					<DialogTitle>Node Config</DialogTitle>
 					<DialogDescription>
 						See in detail the metadata of this node
 					</DialogDescription>
 				</DialogHeader>
-				<div className="text-wrap rounded-lg border p-4 text-sm sm:max-w-[59rem] bg-card max-h-[70vh] overflow-auto ">
+				<div className="text-wrap rounded-lg border p-4 text-sm sm:max-w-[59rem] bg-transparent max-h-[70vh] overflow-auto ">
 					<code>
 						<pre className="whitespace-pre-wrap break-words items-center justify-center">
 							{/* {JSON.stringify(data, null, 2)} */}

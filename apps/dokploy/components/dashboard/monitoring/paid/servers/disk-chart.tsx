@@ -43,7 +43,7 @@ export function DiskChart({ data }: RadialChartProps) {
 	const endAngle = (diskUsed * 360) / 100;
 
 	return (
-		<Card className="flex flex-col bg-transparent">
+		<Card className="flex flex-col ">
 			<CardHeader className="items-center border-b pb-5">
 				<CardTitle>Disk</CardTitle>
 				<CardDescription>Storage Space</CardDescription>

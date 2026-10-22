@@ -88,7 +88,7 @@ export const UnauthorizedGitProvider = ({ service, onDisconnect }: Props) => {
 				</AlertDescription>
 			</Alert>
 
-			<Card className="border-dashed border-2 border-muted-foreground/20 bg-transparent">
+			<Card className="border-dashed border-2 border-muted-foreground/20 ">
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
 						{getProviderIcon(service.sourceType)}

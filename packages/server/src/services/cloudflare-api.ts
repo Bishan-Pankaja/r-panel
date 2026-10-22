@@ -1,10 +1,13 @@
-import { getCloudflareAccount, refreshCloudflareToken } from "./cloudflare-account";
+import {
+	getCloudflareAccount,
+	refreshCloudflareToken,
+} from "./cloudflare-account";
 
 async function fetchCloudflare(
 	userId: string,
 	accountId: string,
 	endpoint: string,
-	options: RequestInit = {}
+	options: RequestInit = {},
 ) {
 	let account = await getCloudflareAccount(userId, accountId);
 	if (!account) throw new Error("Cloudflare account not found");
@@ -15,7 +18,8 @@ async function fetchCloudflare(
 		if (!refreshed) throw new Error("Failed to refresh Cloudflare token");
 		// Fetch again to get decrypted tokens
 		const decryptedAccount = await getCloudflareAccount(userId, accountId);
-		if (!decryptedAccount) throw new Error("Cloudflare account not found after refresh");
+		if (!decryptedAccount)
+			throw new Error("Cloudflare account not found after refresh");
 		account = decryptedAccount;
 	}
 
@@ -25,10 +29,13 @@ async function fetchCloudflare(
 		"Content-Type": "application/json",
 	};
 
-	const response = await fetch(`https://api.cloudflare.com/client/v4${endpoint}`, {
-		...options,
-		headers,
-	});
+	const response = await fetch(
+		`https://api.cloudflare.com/client/v4${endpoint}`,
+		{
+			...options,
+			headers,
+		},
+	);
 
 	if (!response.ok) {
 		const errText = await response.text();
@@ -57,18 +64,23 @@ export async function createCloudflareDnsRecord(
 		content: string;
 		proxied?: boolean;
 		ttl?: number;
-	}
+	},
 ) {
-	const data = await fetchCloudflare(userId, accountId, `/zones/${zoneId}/dns_records`, {
-		method: "POST",
-		body: JSON.stringify({
-			type: record.type,
-			name: record.name,
-			content: record.content,
-			proxied: record.proxied ?? true,
-			ttl: record.ttl ?? 1,
-		}),
-	});
+	const data = await fetchCloudflare(
+		userId,
+		accountId,
+		`/zones/${zoneId}/dns_records`,
+		{
+			method: "POST",
+			body: JSON.stringify({
+				type: record.type,
+				name: record.name,
+				content: record.content,
+				proxied: record.proxied ?? true,
+				ttl: record.ttl ?? 1,
+			}),
+		},
+	);
 
 	return data.result;
 }
@@ -84,18 +96,23 @@ export async function updateCloudflareDnsRecord(
 		content: string;
 		proxied?: boolean;
 		ttl?: number;
-	}
+	},
 ) {
-	const data = await fetchCloudflare(userId, accountId, `/zones/${zoneId}/dns_records/${recordId}`, {
-		method: "PUT",
-		body: JSON.stringify({
-			type: record.type,
-			name: record.name,
-			content: record.content,
-			proxied: record.proxied ?? true,
-			ttl: record.ttl ?? 1,
-		}),
-	});
+	const data = await fetchCloudflare(
+		userId,
+		accountId,
+		`/zones/${zoneId}/dns_records/${recordId}`,
+		{
+			method: "PUT",
+			body: JSON.stringify({
+				type: record.type,
+				name: record.name,
+				content: record.content,
+				proxied: record.proxied ?? true,
+				ttl: record.ttl ?? 1,
+			}),
+		},
+	);
 
 	return data.result;
 }
@@ -104,11 +121,16 @@ export async function deleteCloudflareDnsRecord(
 	userId: string,
 	accountId: string,
 	zoneId: string,
-	recordId: string
+	recordId: string,
 ) {
-	const data = await fetchCloudflare(userId, accountId, `/zones/${zoneId}/dns_records/${recordId}`, {
-		method: "DELETE",
-	});
+	const data = await fetchCloudflare(
+		userId,
+		accountId,
+		`/zones/${zoneId}/dns_records/${recordId}`,
+		{
+			method: "DELETE",
+		},
+	);
 
 	return data.result;
 }
@@ -116,8 +138,54 @@ export async function deleteCloudflareDnsRecord(
 export async function getCloudflareDnsRecords(
 	userId: string,
 	accountId: string,
-	zoneId: string
+	zoneId: string,
 ) {
-	const data = await fetchCloudflare(userId, accountId, `/zones/${zoneId}/dns_records?per_page=100`);
+	const data = await fetchCloudflare(
+		userId,
+		accountId,
+		`/zones/${zoneId}/dns_records?per_page=100`,
+	);
 	return data.result;
+}
+
+export async function upsertCloudflareARecord(
+	userId: string,
+	accountId: string,
+	zoneId: string,
+	name: string,
+	content: string,
+) {
+	const records = await getCloudflareDnsRecords(userId, accountId, zoneId);
+	const matchingARecord = records.find(
+		(record: { name: string; type: string }) =>
+			record.name.toLowerCase() === name.toLowerCase() && record.type === "A",
+	);
+	const conflictingRecord = records.find(
+		(record: { name: string; type: string }) =>
+			record.name.toLowerCase() === name.toLowerCase() && record.type !== "A",
+	);
+
+	if (conflictingRecord) {
+		throw new Error(
+			`Cloudflare already has a ${conflictingRecord.type} record for ${name}. Remove or change it before configuring an A record.`,
+		);
+	}
+
+	if (matchingARecord) {
+		return await updateCloudflareDnsRecord(
+			userId,
+			accountId,
+			zoneId,
+			matchingARecord.id,
+			{ type: "A", name, content, proxied: false, ttl: 1 },
+		);
+	}
+
+	return await createCloudflareDnsRecord(userId, accountId, zoneId, {
+		type: "A",
+		name,
+		content,
+		proxied: false,
+		ttl: 1,
+	});
 }

@@ -8,7 +8,6 @@ import { AlertBlock } from "@/components/shared/alert-block";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
@@ -115,7 +114,10 @@ export const ProfileForm = () => {
 				},
 			);
 			form.setValue("allowImpersonation", data?.user?.allowImpersonation);
-			form.setValue("showOtherUsersProjects", data?.user?.showOtherUsersProjects !== false);
+			form.setValue(
+				"showOtherUsersProjects",
+				data?.user?.showOtherUsersProjects !== false,
+			);
 
 			if (data.user.email) {
 				generateSHA256Hash(data.user.email).then((hash) => {
@@ -154,336 +156,336 @@ export const ProfileForm = () => {
 	};
 
 	return (
-		<div className="w-full">
-			<Card className="h-full bg-sidebar  p-2.5 rounded-xl  max-w-5xl mx-auto">
-				<div className="rounded-xl bg-background shadow-md ">
-					<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center">
-						<div>
-							<CardTitle className="text-xl flex flex-row gap-2">
-								<User className="size-6 text-muted-foreground self-center" />
-								Account
-							</CardTitle>
-							<CardDescription>
-								Change the details of your profile here.
-							</CardDescription>
+		<div className="w-full p-4 md:p-6 flex flex-col gap-6">
+			<div className="w-full overflow-hidden rounded-md border border-zinc-800/80 bg-[#161616] shadow-lg">
+				<CardHeader className="flex flex-row gap-2 flex-wrap justify-between items-center p-4 border-b border-zinc-800/40">
+					<div>
+						<CardTitle className="text-xl flex flex-row gap-2 text-white">
+							<User className="size-6 text-muted-foreground self-center" />
+							Account
+						</CardTitle>
+						<CardDescription className="text-zinc-400 mt-1">
+							Change the details of your profile here.
+						</CardDescription>
+					</div>
+
+					{!data?.user.twoFactorEnabled ? <Enable2FA /> : <Configure2FA />}
+				</CardHeader>
+
+				<CardContent className="p-4">
+					{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
+					{isPending ? (
+						<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[35vh]">
+							<span>Loading...</span>
+							<Loader2 className="animate-spin size-4" />
 						</div>
+					) : (
+						<>
+							<Form {...form}>
+								<form
+									onSubmit={form.handleSubmit(onSubmit)}
+									className="grid gap-4"
+								>
+									<div className="space-y-4">
+										<FormField
+											control={form.control}
+											name="firstName"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>First Name</FormLabel>
+													<FormControl>
+														<Input placeholder="John" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="lastName"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Last Name</FormLabel>
+													<FormControl>
+														<Input placeholder="Doe" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="email"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Email</FormLabel>
+													<FormControl>
+														<Input placeholder="Email" {...field} />
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="currentPassword"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Current Password</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="Current Password"
+															{...field}
+															value={field.value || ""}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										<FormField
+											control={form.control}
+											name="password"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Password</FormLabel>
+													<FormControl>
+														<Input
+															type="password"
+															placeholder="Password"
+															{...field}
+															value={field.value || ""}
+														/>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
 
-						{!data?.user.twoFactorEnabled ? <Enable2FA /> : <Configure2FA />}
-					</CardHeader>
-
-					<CardContent className="space-y-2 py-8 border-t">
-						{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
-						{isPending ? (
-							<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[35vh]">
-								<span>Loading...</span>
-								<Loader2 className="animate-spin size-4" />
-							</div>
-						) : (
-							<>
-								<Form {...form}>
-									<form
-										onSubmit={form.handleSubmit(onSubmit)}
-										className="grid gap-4"
-									>
-										<div className="space-y-4">
-											<FormField
-												control={form.control}
-												name="firstName"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>First Name</FormLabel>
-														<FormControl>
-															<Input placeholder="John" {...field} />
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-											<FormField
-												control={form.control}
-												name="lastName"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Last Name</FormLabel>
-														<FormControl>
-															<Input placeholder="Doe" {...field} />
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-											<FormField
-												control={form.control}
-												name="email"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Email</FormLabel>
-														<FormControl>
-															<Input placeholder="Email" {...field} />
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-											<FormField
-												control={form.control}
-												name="currentPassword"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Current Password</FormLabel>
-														<FormControl>
-															<Input
-																type="password"
-																placeholder="Current Password"
-																{...field}
-																value={field.value || ""}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-											<FormField
-												control={form.control}
-												name="password"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Password</FormLabel>
-														<FormControl>
-															<Input
-																type="password"
-																placeholder="Password"
-																{...field}
-																value={field.value || ""}
-															/>
-														</FormControl>
-														<FormMessage />
-													</FormItem>
-												)}
-											/>
-
-											<FormField
-												control={form.control}
-												name="image"
-												render={({ field }) => (
-													<FormItem>
-														<FormLabel>Avatar</FormLabel>
-														<FormControl>
-															<RadioGroup
-																onValueChange={(e) => {
-																	field.onChange(e);
-																}}
-																defaultValue={getAvatarType(field.value)}
-																value={getAvatarType(field.value)}
-																className="flex flex-row flex-wrap gap-2 max-xl:justify-center"
-															>
-																<FormItem key="no-avatar">
-																	<FormLabel className="[&:has([data-state=checked])>.default-avatar]:border-primary [&:has([data-state=checked])>.default-avatar]:border-1 [&:has([data-state=checked])>.default-avatar]:p-px cursor-pointer">
-																		<FormControl>
-																			<RadioGroupItem
-																				value=""
-																				className="sr-only"
-																			/>
-																		</FormControl>
-
-																		<Avatar className="default-avatar h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-transform">
-																			<AvatarFallback className="rounded-lg">
-																				{getFallbackAvatarInitials(
-																					`${data?.user?.firstName} ${data?.user?.lastName}`.trim(),
-																				)}
-																			</AvatarFallback>
-																		</Avatar>
-																	</FormLabel>
-																</FormItem>
-																<FormItem key="custom-upload">
-																	<FormLabel className="[&:has([data-state=checked])>.upload-avatar]:border-primary [&:has([data-state=checked])>.upload-avatar]:border-1 [&:has([data-state=checked])>.upload-avatar]:p-px cursor-pointer">
-																		<FormControl>
-																			<RadioGroupItem
-																				value="upload"
-																				className="sr-only"
-																			/>
-																		</FormControl>
-																		<div
-																			className="upload-avatar h-12 w-12 rounded-full border border-dashed border-muted-foreground hover:border-primary transition-colors flex items-center justify-center bg-muted/50 hover:bg-muted overflow-hidden"
-																			onClick={() =>
-																				document
-																					.getElementById("avatar-upload")
-																					?.click()
-																			}
-																		>
-																			{field.value?.startsWith("data:") ? (
-																				// biome-ignore lint/performance/noImgElement: this is an justified use of img element
-																				<img
-																					src={field.value}
-																					alt="Custom avatar"
-																					className="h-full w-full object-cover rounded-full"
-																				/>
-																			) : (
-																				<svg
-																					className="h-5 w-5 text-muted-foreground"
-																					fill="none"
-																					stroke="currentColor"
-																					viewBox="0 0 24 24"
-																				>
-																					<path
-																						strokeLinecap="round"
-																						strokeLinejoin="round"
-																						strokeWidth={2}
-																						d="M12 4v16m8-8H4"
-																					/>
-																				</svg>
-																			)}
-																		</div>
-																		<input
-																			id="avatar-upload"
-																			type="file"
-																			accept="image/*"
-																			className="hidden"
-																			onChange={async (e) => {
-																				const file = e.target.files?.[0];
-																				if (file) {
-																					// max file size 2mb
-																					if (file.size > 2 * 1024 * 1024) {
-																						toast.error(
-																							"Image size must be less than 2MB",
-																						);
-																						return;
-																					}
-																					const reader = new FileReader();
-																					reader.onload = (event) => {
-																						const result = event.target
-																							?.result as string;
-																						field.onChange(result);
-																					};
-																					reader.readAsDataURL(file);
-																				}
-																			}}
+										<FormField
+											control={form.control}
+											name="image"
+											render={({ field }) => (
+												<FormItem>
+													<FormLabel>Avatar</FormLabel>
+													<FormControl>
+														<RadioGroup
+															onValueChange={(e) => {
+																field.onChange(e);
+															}}
+															defaultValue={getAvatarType(field.value)}
+															value={getAvatarType(field.value)}
+															className="flex flex-row flex-wrap gap-2 max-xl:justify-center"
+														>
+															<FormItem key="no-avatar">
+																<FormLabel className="[&:has([data-state=checked])>.default-avatar]:border-primary [&:has([data-state=checked])>.default-avatar]:border-1 [&:has([data-state=checked])>.default-avatar]:p-px cursor-pointer">
+																	<FormControl>
+																		<RadioGroupItem
+																			value=""
+																			className="sr-only"
 																		/>
-																	</FormLabel>
-																</FormItem>
-																<FormItem key="color-avatar">
-																	<FormLabel className="[&:has([data-state=checked])>.color-avatar]:border-primary [&:has([data-state=checked])>.color-avatar]:border-1 [&:has([data-state=checked])>.color-avatar]:p-px cursor-pointer relative">
-																		<FormControl>
-																			<RadioGroupItem
-																				value="color"
-																				className="sr-only"
-																			/>
-																		</FormControl>
-																		<div
-																			className="color-avatar h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-colors flex items-center justify-center overflow-hidden cursor-pointer"
-																			style={{
-																				backgroundColor: isSolidColorAvatar(
-																					field.value,
-																				)
-																					? field.value
-																					: undefined,
-																			}}
-																			onClick={() =>
-																				colorInputRef.current?.click()
-																			}
-																		>
-																			{!isSolidColorAvatar(field.value) && (
-																				<Palette className="h-5 w-5 text-muted-foreground" />
-																			)}
-																		</div>
-																		<input
-																			ref={colorInputRef}
-																			type="color"
-																			className="absolute opacity-0 pointer-events-none w-12 h-12 top-0 left-0"
-																			value={field.value || "#000000"}
-																			onChange={field.onChange}
-																		/>
-																	</FormLabel>
-																</FormItem>
-																{availableAvatars.map((image) => (
-																	<FormItem key={image}>
-																		<FormLabel className="[&:has([data-state=checked])>img]:border-primary [&:has([data-state=checked])>img]:border-1 [&:has([data-state=checked])>img]:p-px cursor-pointer">
-																			<FormControl>
-																				<RadioGroupItem
-																					value={image}
-																					className="sr-only"
-																				/>
-																			</FormControl>
+																	</FormControl>
 
-																			{/* biome-ignore lint/performance/noImgElement: this is an justified use of img element */}
+																	<Avatar className="default-avatar h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-transform">
+																		<AvatarFallback className="rounded-lg">
+																			{getFallbackAvatarInitials(
+																				`${data?.user?.firstName} ${data?.user?.lastName}`.trim(),
+																			)}
+																		</AvatarFallback>
+																	</Avatar>
+																</FormLabel>
+															</FormItem>
+															<FormItem key="custom-upload">
+																<FormLabel className="[&:has([data-state=checked])>.upload-avatar]:border-primary [&:has([data-state=checked])>.upload-avatar]:border-1 [&:has([data-state=checked])>.upload-avatar]:p-px cursor-pointer">
+																	<FormControl>
+																		<RadioGroupItem
+																			value="upload"
+																			className="sr-only"
+																		/>
+																	</FormControl>
+																	<div
+																		className="upload-avatar h-12 w-12 rounded-full border border-dashed border-muted-foreground hover:border-primary transition-colors flex items-center justify-center bg-muted/50 hover:bg-muted overflow-hidden"
+																		onClick={() =>
+																			document
+																				.getElementById("avatar-upload")
+																				?.click()
+																		}
+																	>
+																		{field.value?.startsWith("data:") ? (
+																			// biome-ignore lint/performance/noImgElement: this is an justified use of img element
 																			<img
-																				key={image}
-																				src={image}
-																				alt="avatar"
-																				className="h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-transform"
+																				src={field.value}
+																				alt="Custom avatar"
+																				className="h-full w-full object-cover rounded-full"
 																			/>
-																		</FormLabel>
-																	</FormItem>
-																))}
-															</RadioGroup>
+																		) : (
+																			<svg
+																				className="h-5 w-5 text-muted-foreground"
+																				fill="none"
+																				stroke="currentColor"
+																				viewBox="0 0 24 24"
+																			>
+																				<path
+																					strokeLinecap="round"
+																					strokeLinejoin="round"
+																					strokeWidth={2}
+																					d="M12 4v16m8-8H4"
+																				/>
+																			</svg>
+																		)}
+																	</div>
+																	<input
+																		id="avatar-upload"
+																		type="file"
+																		accept="image/*"
+																		className="hidden"
+																		onChange={async (e) => {
+																			const file = e.target.files?.[0];
+																			if (file) {
+																				// max file size 2mb
+																				if (file.size > 2 * 1024 * 1024) {
+																					toast.error(
+																						"Image size must be less than 2MB",
+																					);
+																					return;
+																				}
+																				const reader = new FileReader();
+																				reader.onload = (event) => {
+																					const result = event.target
+																						?.result as string;
+																					field.onChange(result);
+																				};
+																				reader.readAsDataURL(file);
+																			}
+																		}}
+																	/>
+																</FormLabel>
+															</FormItem>
+															<FormItem key="color-avatar">
+																<FormLabel className="[&:has([data-state=checked])>.color-avatar]:border-primary [&:has([data-state=checked])>.color-avatar]:border-1 [&:has([data-state=checked])>.color-avatar]:p-px cursor-pointer relative">
+																	<FormControl>
+																		<RadioGroupItem
+																			value="color"
+																			className="sr-only"
+																		/>
+																	</FormControl>
+																	<div
+																		className="color-avatar h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-colors flex items-center justify-center overflow-hidden cursor-pointer"
+																		style={{
+																			backgroundColor: isSolidColorAvatar(
+																				field.value,
+																			)
+																				? field.value
+																				: undefined,
+																		}}
+																		onClick={() =>
+																			colorInputRef.current?.click()
+																		}
+																	>
+																		{!isSolidColorAvatar(field.value) && (
+																			<Palette className="h-5 w-5 text-muted-foreground" />
+																		)}
+																	</div>
+																	<input
+																		ref={colorInputRef}
+																		type="color"
+																		className="absolute opacity-0 pointer-events-none w-12 h-12 top-0 left-0"
+																		value={field.value || "#000000"}
+																		onChange={field.onChange}
+																	/>
+																</FormLabel>
+															</FormItem>
+															{availableAvatars.map((image) => (
+																<FormItem key={image}>
+																	<FormLabel className="[&:has([data-state=checked])>img]:border-primary [&:has([data-state=checked])>img]:border-1 [&:has([data-state=checked])>img]:p-px cursor-pointer">
+																		<FormControl>
+																			<RadioGroupItem
+																				value={image}
+																				className="sr-only"
+																			/>
+																		</FormControl>
+
+																		{/* biome-ignore lint/performance/noImgElement: this is an justified use of img element */}
+																		<img
+																			key={image}
+																			src={image}
+																			alt="avatar"
+																			className="h-12 w-12 rounded-full border hover:p-px hover:border-primary transition-transform"
+																		/>
+																	</FormLabel>
+																</FormItem>
+															))}
+														</RadioGroup>
+													</FormControl>
+													<FormMessage />
+												</FormItem>
+											)}
+										/>
+										{isCloud && (
+											<FormField
+												control={form.control}
+												name="allowImpersonation"
+												render={({ field }) => (
+													<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
+														<div className="space-y-0.5">
+															<FormLabel>Allow Impersonation</FormLabel>
+															<FormDescription>
+																Enable this option to allow Dokploy Cloud
+																administrators to temporarily access your
+																account for troubleshooting and support
+																purposes. This helps them quickly identify and
+																resolve any issues you may encounter.
+															</FormDescription>
+														</div>
+														<FormControl>
+															<Switch
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
 														</FormControl>
-														<FormMessage />
 													</FormItem>
 												)}
 											/>
-											{isCloud && (
-												<FormField
-													control={form.control}
-													name="allowImpersonation"
-													render={({ field }) => (
-														<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
-															<div className="space-y-0.5">
-																<FormLabel>Allow Impersonation</FormLabel>
-																<FormDescription>
-																	Enable this option to allow Dokploy Cloud
-																	administrators to temporarily access your
-																	account for troubleshooting and support
-																	purposes. This helps them quickly identify and
-																	resolve any issues you may encounter.
-																</FormDescription>
-															</div>
-															<FormControl>
-																<Switch
-																	checked={field.value}
-																	onCheckedChange={field.onChange}
-																/>
-															</FormControl>
-														</FormItem>
-													)}
-												/>
-											)}
+										)}
 
-											{data?.role === "owner" && (
-												<FormField
-													control={form.control}
-													name="showOtherUsersProjects"
-													render={({ field }) => (
-														<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
-															<div className="space-y-0.5">
-																<FormLabel>Show other users' projects</FormLabel>
-																<FormDescription>
-																	When enabled, you will see projects created by other users in the organization. When disabled, only projects you have access to will be shown.
-																</FormDescription>
-															</div>
-															<FormControl>
-																<Switch
-																	checked={field.value}
-																	onCheckedChange={field.onChange}
-																/>
-															</FormControl>
-														</FormItem>
-													)}
-												/>
-											)}
-										</div>
+										{data?.role === "owner" && (
+											<FormField
+												control={form.control}
+												name="showOtherUsersProjects"
+												render={({ field }) => (
+													<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
+														<div className="space-y-0.5">
+															<FormLabel>Show other users' projects</FormLabel>
+															<FormDescription>
+																When enabled, you will see projects created by
+																other users in the organization. When disabled,
+																only projects you have access to will be shown.
+															</FormDescription>
+														</div>
+														<FormControl>
+															<Switch
+																checked={field.value}
+																onCheckedChange={field.onChange}
+															/>
+														</FormControl>
+													</FormItem>
+												)}
+											/>
+										)}
+									</div>
 
-										<div className="flex items-center justify-end gap-2">
-											<Button type="submit" isLoading={isUpdating}>
-												Save
-											</Button>
-										</div>
-									</form>
-								</Form>
-							</>
-						)}
-					</CardContent>
-				</div>
-			</Card>
+									<div className="flex items-center justify-end gap-2">
+										<Button type="submit" isLoading={isUpdating}>
+											Save
+										</Button>
+									</div>
+								</form>
+							</Form>
+						</>
+					)}
+				</CardContent>
+			</div>
 		</div>
 	);
 };

@@ -7,10 +7,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 		return res.status(405).json({ error: "Method not allowed" });
 	}
 
-	const { code, state } = req.query;
+	const { code, state, error, error_description } = req.query;
+
+	if (error) {
+		const message =
+			typeof error_description === "string"
+				? error_description
+				: typeof error === "string"
+					? error
+					: "Cloudflare authorization was denied";
+		return res.redirect(
+			`/dashboard/settings/cloudflare?error=${encodeURIComponent(message)}`,
+		);
+	}
 
 	if (!code || typeof code !== "string") {
-		return res.status(400).json({ error: "Missing authorization code" });
+		return res.redirect(
+			"/dashboard/settings/cloudflare?error=Cloudflare+did+not+return+an+authorization+code",
+		);
 	}
 
 	try {

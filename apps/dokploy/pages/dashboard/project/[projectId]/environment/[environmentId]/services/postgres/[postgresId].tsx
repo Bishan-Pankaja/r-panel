@@ -25,7 +25,6 @@ import { UpdatePostgres } from "@/components/dashboard/postgres/update-postgres"
 import { ShowDatabaseAdvancedSettings } from "@/components/dashboard/shared/show-database-advanced-settings";
 import { PostgresqlIcon } from "@/components/icons/data-tools-icons";
 import { DashboardLayout } from "@/components/layouts/dashboard-layout";
-import { AdvanceBreadcrumb } from "@/components/shared/advance-breadcrumb";
 import { StatusTooltip } from "@/components/shared/status-tooltip";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -79,7 +78,6 @@ const Postgresql = (
 	return (
 		<div className="pb-10">
 			<UseKeyboardNav forPage="postgres" />
-			<AdvanceBreadcrumb />
 			<Head>
 				<title>
 					Database: {data?.name} - {data?.environment?.project?.name} |{" "}
@@ -87,8 +85,8 @@ const Postgresql = (
 				</title>
 			</Head>
 			<div className="w-full">
-				<Card className="h-full bg-sidebar  p-2.5 rounded-xl w-full">
-					<div className="rounded-xl bg-background shadow-md ">
+				<Card className="h-full bg-sidebar rounded-xl w-full">
+					<div className="rounded-xl bg-transparent shadow-md ">
 						<CardHeader className="flex flex-row justify-between items-center">
 							<div className="flex flex-col">
 								<CardTitle className="text-xl flex flex-row gap-2">
@@ -128,7 +126,7 @@ const Postgresql = (
 													: "destructive"
 										}
 									>
-										{data?.server?.name || "Dokploy Server"}
+										{data?.server?.name || "Regz Server"}
 									</Badge>
 									{data?.server?.serverStatus === "inactive" && (
 										<TooltipProvider delayDuration={0}>
@@ -367,11 +365,11 @@ export async function getServerSideProps(
 					activeTab: (activeTab || "general") as TabState,
 				},
 			};
-		} catch {
+} catch {
 			return {
 				redirect: {
 					permanent: false,
-					destination: "/dashboard/home",
+					destination: "/dashboard/projects",
 				},
 			};
 		}
