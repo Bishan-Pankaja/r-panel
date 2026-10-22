@@ -1,5 +1,9 @@
 import { db } from "@dokploy/server/db";
-import { IS_CLOUD, sendInvitationEmail } from "@dokploy/server/index";
+import {
+	ensureDefaultProjectForMember,
+	IS_CLOUD,
+	sendInvitationEmail,
+} from "@dokploy/server/index";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, exists } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -392,6 +396,10 @@ export const organizationRouter = createTRPCRouter({
 					message: "Accept the invitation first",
 				});
 			}
+			await ensureDefaultProjectForMember(
+				ctx.user.id,
+				invitationRecord.organizationId,
+			);
 			await db
 				.update(member)
 				.set({ limitServices: invitationRecord.limitServices })

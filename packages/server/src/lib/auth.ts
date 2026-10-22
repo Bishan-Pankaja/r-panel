@@ -5,7 +5,12 @@ import * as bcrypt from "bcrypt";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
-import { admin, organization, twoFactor, genericOAuth } from "better-auth/plugins";
+import {
+	admin,
+	genericOAuth,
+	organization,
+	twoFactor,
+} from "better-auth/plugins";
 import { and, desc, eq } from "drizzle-orm";
 import { IS_CLOUD } from "../constants";
 import { db } from "../db";
@@ -15,6 +20,7 @@ import {
 	getTrustedProviders,
 	getUserByToken,
 } from "../services/admin";
+import { ensureDefaultProjectForMember } from "../services/project";
 import { createAuditLog } from "../services/proprietary/audit-log";
 import {
 	getWebServerSettings,
@@ -232,7 +238,7 @@ const { handler, api } = betterAuth({
 					}
 
 					if (IS_CLOUD || !isAdminPresent) {
-						await db.transaction(async (tx) => {
+						const organization = await db.transaction(async (tx) => {
 							const organization = await tx
 								.insert(schema.organization)
 								.values({
@@ -250,7 +256,12 @@ const { handler, api } = betterAuth({
 								createdAt: new Date(),
 								isDefault: true, // Mark first organization as default
 							});
+							return organization;
 						});
+
+						if (organization) {
+							await ensureDefaultProjectForMember(user.id, organization.id);
+						}
 					} else if (isSSORequest) {
 						const providerId = context?.params?.providerId;
 						if (!providerId) {
@@ -267,13 +278,22 @@ const { handler, api } = betterAuth({
 								message: "Provider not found",
 							});
 						}
+						if (!provider.organizationId) {
+							throw new APIError("BAD_REQUEST", {
+								message: "Provider organization is not configured",
+							});
+						}
 						await db.insert(schema.member).values({
 							userId: user.id,
-							organizationId: provider?.organizationId || "",
+							organizationId: provider.organizationId,
 							role: "member",
 							createdAt: new Date(),
 							isDefault: true,
 						});
+						await ensureDefaultProjectForMember(
+							user.id,
+							provider.organizationId,
+						);
 					}
 				},
 			},
@@ -404,7 +424,8 @@ const { handler, api } = betterAuth({
 				{
 					providerId: "regz",
 					clientId: "regz_client_pma4c3eyUe8Zjs2xEKdbUiyDsyPclSjvqABvuaTAo9w",
-					clientSecret: "whCe3ODyh8Ix-uwWvaJo04jsyv6UvWSwu2C_RfCspK7-Eqs1hmej-w8K37BACTU_MElbxWZe7zvg7PasQq6D_A",
+					clientSecret:
+						"whCe3ODyh8Ix-uwWvaJo04jsyv6UvWSwu2C_RfCspK7-Eqs1hmej-w8K37BACTU_MElbxWZe7zvg7PasQq6D_A",
 					authorizationUrl: "https://api.regz.lk/oauth/authorize",
 					tokenUrl: "https://api.regz.lk/oauth/token",
 					userInfoUrl: "https://api.regz.lk/oauth/userinfo",

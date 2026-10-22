@@ -10,6 +10,7 @@ import { TRPCError } from "@trpc/server";
 import * as bcrypt from "bcrypt";
 import { and, eq } from "drizzle-orm";
 import { auth } from "../lib/auth";
+import { ensureDefaultProjectForMember } from "./project";
 
 export type User = typeof user.$inferSelect;
 
@@ -420,7 +421,7 @@ export const createOrganizationUserWithCredentials = async ({
 	const normalizedEmail = email.trim().toLowerCase();
 	const now = new Date();
 
-	return await db.transaction(async (tx) => {
+	const createdMember = await db.transaction(async (tx) => {
 		const existingUser = await tx.query.user.findFirst({
 			where: eq(user.email, normalizedEmail),
 			columns: {
@@ -497,6 +498,9 @@ export const createOrganizationUserWithCredentials = async ({
 			role,
 		};
 	});
+
+	await ensureDefaultProjectForMember(createdMember.userId, organizationId);
+	return createdMember;
 };
 
 export const updateUser = async (userId: string, userData: Partial<User>) => {

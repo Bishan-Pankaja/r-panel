@@ -4,6 +4,7 @@ import {
 	applications,
 	libsql,
 	mariadb,
+	member,
 	mongo,
 	mysql,
 	postgres,
@@ -11,7 +12,7 @@ import {
 	redis,
 } from "@dokploy/server/db/schema";
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import type { z } from "zod";
 import { createProductionEnvironment } from "./environment";
 
@@ -45,6 +46,69 @@ export const createProject = async (
 		project: newProject,
 		environment: newEnvironment,
 	};
+};
+
+/**
+ * Give a newly provisioned account a starter workspace so it can create
+ * services immediately. This is idempotent and leaves existing project access
+ * untouched.
+ */
+export const ensureDefaultProjectForMember = async (
+	userId: string,
+	organizationId: string,
+) => {
+	const memberRecord = await db.query.member.findFirst({
+		where: and(
+			eq(member.userId, userId),
+			eq(member.organizationId, organizationId),
+		),
+	});
+	if (!memberRecord) return null;
+
+	const existingProject = await db.query.projects.findFirst({
+		where: and(
+			eq(projects.organizationId, organizationId),
+			eq(projects.userId, userId),
+		),
+		with: { environments: true },
+	});
+	const defaultEnvironment = existingProject?.environments.find(
+		(environment) => environment.isDefault,
+	);
+	const project = existingProject
+		? {
+				project: existingProject,
+				environment:
+					defaultEnvironment ??
+					(await createProductionEnvironment(existingProject.projectId)),
+			}
+		: await createProject(
+				{ name: "My Project", description: "Default project", userId },
+				organizationId,
+			);
+
+	const nextProjects = memberRecord.accessedProjects.includes(
+		project.project.projectId,
+	)
+		? memberRecord.accessedProjects
+		: [...memberRecord.accessedProjects, project.project.projectId];
+	const environmentId = project.environment?.environmentId;
+	const nextEnvironments = environmentId
+		? memberRecord.accessedEnvironments.includes(environmentId)
+			? memberRecord.accessedEnvironments
+			: [...memberRecord.accessedEnvironments, environmentId]
+		: memberRecord.accessedEnvironments;
+
+	await db
+		.update(member)
+		.set({
+			accessedProjects: nextProjects,
+			accessedEnvironments: nextEnvironments,
+			...(memberRecord.role === "member" ? { canCreateServices: true } : {}),
+		})
+		.where(eq(member.id, memberRecord.id));
+
+	return project;
 };
 
 export const findProjectById = async (projectId: string) => {
