@@ -11,7 +11,7 @@ const ENTERPRISE_MAX_CONCURRENCY = 100;
 interface Props {
 	/**
 	 * When provided, configures concurrency for that remote server. When
-	 * omitted, configures the local Dokploy web server.
+	 * omitted, configures the local Regz Host web server.
 	 */
 	serverId?: string;
 	/** Optional title override (e.g. the server name in a list). */

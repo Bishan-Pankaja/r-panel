@@ -18,6 +18,8 @@ import { api } from "@/utils/api";
 
 interface Props {
 	applicationId: string;
+	environmentId: string;
+	projectId: string;
 	canReadDeployments: boolean;
 	canReadDomains: boolean;
 	canReadMonitoring: boolean;
@@ -36,6 +38,8 @@ const readableStatus = (status?: string | null) =>
 
 export const ShowApplicationOverview = ({
 	applicationId,
+	environmentId,
+	projectId,
 	canReadDeployments,
 	canReadDomains,
 	canReadMonitoring,
@@ -51,6 +55,7 @@ export const ShowApplicationOverview = ({
 	const deployments = (allDeployments ?? [])
 		.filter((deployment) => !deployment.isPreviewDeployment)
 		.slice(0, 4);
+	const deploymentsHref = `/dashboard/project/${projectId}/environment/${environmentId}/services/application/${applicationId}?tab=deployments`;
 	const latestDeployment = deployments[0];
 	const previewErrorCode =
 		application?.applicationStatus === "error"
@@ -269,7 +274,7 @@ export const ShowApplicationOverview = ({
 							</div>
 							{canReadDeployments && (
 								<Link
-									href="?tab=deployments"
+									href={deploymentsHref}
 									className="inline-flex h-8 shrink-0 items-center justify-center gap-2 rounded-lg border border-zinc-700 bg-zinc-900 px-3 text-xs font-medium text-zinc-200 transition-colors hover:bg-zinc-800"
 								>
 									View deployments <ArrowUpRight className="size-3.5" />
@@ -411,7 +416,7 @@ export const ShowApplicationOverview = ({
 							deployments
 						</CardTitle>
 						<Link
-							href="?tab=deployments"
+							href={deploymentsHref}
 							className="text-xs font-medium text-blue-400 hover:text-blue-300"
 						>
 							View all <ArrowUpRight className="ml-1 inline size-3.5" />

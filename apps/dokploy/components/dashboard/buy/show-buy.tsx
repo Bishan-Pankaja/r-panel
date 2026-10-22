@@ -176,7 +176,7 @@ export const ShowBuy = () => {
 						<ShieldCheck className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
 						<CardTitle>Subscriptions Not Available</CardTitle>
 						<CardDescription>
-							Subscription features are only available in Dokploy Cloud. You are running in self-hosted mode.
+							Subscription features are only available in Regz Host Cloud. You are running in self-hosted mode.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex justify-center">
@@ -318,7 +318,7 @@ export const ShowBuy = () => {
 						</Badge>
 						<h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
 						<p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-							Unlock the full potential of Dokploy with our flexible subscription plans. 
+							Unlock the full potential of Regz Host with our flexible subscription plans.
 							Upgrade anytime, cancel anytime.
 						</p>
 					</div>

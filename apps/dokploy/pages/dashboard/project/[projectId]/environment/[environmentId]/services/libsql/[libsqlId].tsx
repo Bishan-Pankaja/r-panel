@@ -72,7 +72,7 @@ const Libsql = (
 				<Head>
 					<title>
 						Database: {data?.name} - {data?.environment?.project?.name} |
-						Dokploy
+						Regz Host
 					</title>
 				</Head>
 				<Card className="h-full bg-sidebar rounded-xl w-full">

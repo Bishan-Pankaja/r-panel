@@ -461,7 +461,10 @@ const EnvironmentPage = (
 			{ enabled: !!selectedTargetProject },
 		);
 	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Dokploy";
+	const appName =
+		whitelabeling?.appName === "Dokploy"
+			? "Regz Host"
+			: whitelabeling?.appName || "Regz Host";
 
 	const emptyServices =
 		!currentEnvironment ||
@@ -1035,7 +1038,7 @@ const EnvironmentPage = (
 		return Array.from(servers.values());
 	}, [applications]);
 
-	// Check if there are services without a server (Dokploy server)
+	// Check if there are services without a server (Regz Host server)
 	const hasServicesWithoutServer = useMemo(() => {
 		if (!applications) return false;
 		return applications.some((service) => !service.serverId);
@@ -1624,7 +1627,7 @@ const EnvironmentPage = (
 											>
 												<div className="flex items-center gap-2">
 													<ServerIcon className="size-3.5 text-zinc-400" />
-													<span>Dokploy server</span>
+													<span>Regz Host server</span>
 												</div>
 											</SelectItem>
 										)}

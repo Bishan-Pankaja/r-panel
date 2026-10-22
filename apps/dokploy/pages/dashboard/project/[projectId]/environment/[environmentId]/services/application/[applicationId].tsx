@@ -98,7 +98,10 @@ const Service = (
 		projectId: data?.environment?.project?.projectId || "",
 	});
 	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Dokploy";
+	const appName =
+		whitelabeling?.appName === "Dokploy"
+			? "Regz Host"
+			: whitelabeling?.appName || "Regz Host";
 	const environmentDropdownItems =
 		environments?.map((env) => ({
 			name: env.name,
@@ -258,6 +261,8 @@ const Service = (
 								<div className="flex flex-col gap-4 pt-1 w-full">
 									<ShowApplicationOverview
 										applicationId={applicationId}
+										environmentId={environmentId}
+										projectId={projectId}
 										canReadDeployments={permissions?.deployment.read ?? false}
 										canReadDomains={permissions?.domain.read ?? false}
 										canReadMonitoring={permissions?.monitoring.read ?? false}

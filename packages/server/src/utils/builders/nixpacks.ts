@@ -49,6 +49,56 @@ export const getNixpacksCommand = (application: ApplicationNested) => {
 BUILD_DIR="${buildAppDirectory}"
 CONFIG_FILE="${nixpacksConfigPath}"
 
+apply_default_dockerignore() {
+	local dockerignore="$BUILD_DIR/.dockerignore"
+	if grep -Fq '# Regz Host default build exclusions' "$dockerignore" 2>/dev/null; then
+		return
+	fi
+	local temp_dockerignore="$dockerignore.tmp.$$"
+	{
+		cat <<'DOCKERIGNORE_DEFAULTS'
+# Regz Host default build exclusions
+.git
+**/.git
+node_modules
+**/node_modules
+.next/cache
+**/.next/cache
+.cache
+**/.cache
+.turbo
+**/.turbo
+.parcel-cache
+**/.parcel-cache
+.vite
+**/.vite
+.nuxt
+**/.nuxt
+.svelte-kit
+**/.svelte-kit
+.angular/cache
+**/.angular/cache
+coverage
+**/coverage
+__pycache__
+**/__pycache__
+.pytest_cache
+**/.pytest_cache
+.mypy_cache
+**/.mypy_cache
+.ruff_cache
+**/.ruff_cache
+.venv
+**/.venv
+DOCKERIGNORE_DEFAULTS
+		if [ -f "$dockerignore" ]; then
+			cat "$dockerignore"
+		fi
+	} > "$temp_dockerignore"
+	mv "$temp_dockerignore" "$dockerignore"
+	echo "✅ Default cache and VCS files excluded from build context"
+}
+
 remove_bun_deno_triggers() {
 	rm -f "$BUILD_DIR/bun.lockb" "$BUILD_DIR/bun.lock" "$BUILD_DIR/deno.json" "$BUILD_DIR/deno.jsonc"
 	rm -rf "$BUILD_DIR/supabase/functions" "$BUILD_DIR/.supabase"
@@ -76,6 +126,11 @@ apply_node_fixes() {
 
 # Step 1: Remove Bun/Deno trigger files (safe for all project types)
 remove_bun_deno_triggers
+
+# Step 1b: Keep generated caches and VCS metadata out of the Docker context.
+# Existing project rules remain after these defaults, so project-specific
+# negation rules can still explicitly include a path when needed.
+apply_default_dockerignore
 
 # Step 2: Check for custom config filenames (e.g., regz.toml, rpanel.toml)
 ${customConfigChecks}

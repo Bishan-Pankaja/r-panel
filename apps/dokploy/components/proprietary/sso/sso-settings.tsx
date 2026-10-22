@@ -473,7 +473,7 @@ export const SSOSettings = () => {
 											</p>
 											{!baseURL && (
 												<p className="text-xs text-muted-foreground">
-													Replace {"{baseURL}"} with your Dokploy URL (e.g.
+													Replace {"{baseURL}"} with your Regz Host URL (e.g.
 													https:// your-domain.com).
 												</p>
 											)}

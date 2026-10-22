@@ -70,7 +70,10 @@ const Mariadb = (
 		projectId: data?.environment?.projectId || "",
 	});
 	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Dokploy";
+	const appName =
+		whitelabeling?.appName === "Dokploy"
+			? "Regz Host"
+			: whitelabeling?.appName || "Regz Host";
 	const environmentDropdownItems =
 		environments?.map((env) => ({
 			name: env.name,
@@ -377,7 +380,7 @@ export async function getServerSideProps(
 					environmentId: params?.environmentId,
 				},
 			};
-} catch {
+		} catch {
 			return {
 				redirect: {
 					permanent: false,

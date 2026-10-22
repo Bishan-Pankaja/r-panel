@@ -30,7 +30,7 @@ interface EnterpriseFeatureLockedProps {
  */
 export function EnterpriseFeatureLocked({
 	title = "Enterprise feature",
-	description = "This feature is part of Dokploy Enterprise. Add a valid license to use it.",
+	description = "This feature is part of Regz Host Enterprise. Add a valid license to use it.",
 	ctaLabel = "Go to License",
 	ctaHref = "/dashboard/settings/license",
 	compact = false,

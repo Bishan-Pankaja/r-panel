@@ -488,7 +488,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [spotlightOpen, setSpotlightOpen] = useState(false);
 	const [activeTeam, setActiveTeam] = useState({
-		name: "Dokploy",
+		name: "Regz Host",
 		logo: GalleryVerticalEnd,
 		plan: "Enterprise",
 	});
@@ -500,6 +500,10 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 	const { data: whitelabeling } = api.whitelabeling.getPublic.useQuery();
 
 	const { data: dokployVersion } = api.settings.getDokployVersion.useQuery();
+	const appName =
+		whitelabeling?.appName === "Dokploy"
+			? "Regz Host"
+			: whitelabeling?.appName || "Regz Host";
 	const { data: permissions } = api.user.getPermissions.useQuery();
 	const { data: organizations } = api.organization.all.useQuery();
 	const { data: applicationData } = api.application.one.useQuery(
@@ -722,14 +726,14 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		if (whitelabeling?.appName) {
-			document.title = whitelabeling.appName;
+			document.title = appName;
 			setActiveTeam({
-				name: whitelabeling.appName,
+				name: appName,
 				logo: GalleryVerticalEnd,
 				plan: "Enterprise",
 			});
 		}
-	}, [whitelabeling?.appName]);
+	}, [appName]);
 
 	// Show loading state while auth or cloud settings are loading
 	if (isAuthPending || isCloudPending) {
@@ -1202,10 +1206,10 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 															asChild
 															tooltip={item.title}
 															className={cn(
-																"h-9 rounded-xl border border-transparent transition-all",
+																"h-9 hover:bg-zinc-800/50",
 																isActive
-																	? "border-zinc-700/60 bg-zinc-800/90 font-semibold text-white shadow-md"
-																	: "text-zinc-400 hover:border-zinc-700/60 hover:bg-zinc-800/40 hover:text-zinc-200",
+																	? "bg-zinc-800/80 text-zinc-100"
+																	: "text-zinc-300",
 															)}
 														>
 															<Link
@@ -1216,19 +1220,19 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 																	{item.icon && (
 																		<item.icon
 																			className={cn(
-																				"size-4 shrink-0",
+																				"h-[18px] w-[18px]",
 																				isActive
-																					? "text-blue-400"
+																					? "text-zinc-200"
 																					: "text-zinc-400",
 																			)}
 																		/>
 																	)}
 																	<span
 																		className={cn(
-																			"truncate text-[13px] tracking-wide",
+																			"text-[13px] font-medium tracking-wide",
 																			isActive
-																				? "font-semibold text-white"
-																				: "font-medium text-zinc-400",
+																				? "text-zinc-100"
+																				: "text-zinc-400",
 																		)}
 																	>
 																		{item.title}

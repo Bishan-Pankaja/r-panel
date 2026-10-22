@@ -39,7 +39,7 @@ export const ServerFilter = ({ children }: Props) => {
 	const selectedServer = servers?.find(
 		(server) => server.serverId === queryServerId,
 	);
-	// Cloud has no local Dokploy server, so fall back to the first remote server
+	// Cloud has no local Regz Host server, so fall back to the first remote server
 	const serverId = selectedServer
 		? selectedServer.serverId
 		: isCloud

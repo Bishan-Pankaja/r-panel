@@ -68,7 +68,10 @@ const MySql = (
 		projectId: data?.environment?.projectId || "",
 	});
 	const { config: whitelabeling } = useWhitelabeling();
-	const appName = whitelabeling?.appName || "Dokploy";
+	const appName =
+		whitelabeling?.appName === "Dokploy"
+			? "Regz Host"
+			: whitelabeling?.appName || "Regz Host";
 	const environmentDropdownItems =
 		environments?.map((env) => ({
 			name: env.name,
@@ -358,7 +361,7 @@ export async function getServerSideProps(
 					activeTab: (activeTab || "general") as TabState,
 				},
 			};
-} catch {
+		} catch {
 			return {
 				redirect: {
 					permanent: false,
