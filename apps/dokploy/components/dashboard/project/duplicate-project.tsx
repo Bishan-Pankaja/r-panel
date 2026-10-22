@@ -78,7 +78,7 @@ export const DuplicateProject = ({
 
 	const { mutateAsync: duplicateProject, isPending } =
 		api.project.duplicate.useMutation({
-			onSuccess: async (newProject) => {
+			onSuccess: async (_newProject) => {
 				await utils.project.all.invalidate();
 
 				// If duplicating to same project+environment, invalidate the environment query
@@ -110,9 +110,7 @@ export const DuplicateProject = ({
 				);
 				setOpen(false);
 				if (duplicateType === "new-project") {
-					router.push(
-						`/dashboard/project/${newProject?.projectId}/environment/${newProject?.environmentId}`,
-					);
+					router.push("/dashboard/projects");
 				}
 			},
 			onError: (error) => {

@@ -12,6 +12,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
+import { useAccountExpired } from "@/utils/hooks/use-account-expired";
 import { DockerTerminalModal } from "../../settings/web-server/docker-terminal-modal";
 
 interface Props {
@@ -19,9 +20,12 @@ interface Props {
 }
 export const ComposeActions = ({ composeId }: Props) => {
 	const router = useRouter();
+	const isAccountExpired = useAccountExpired();
 	const { data: permissions } = api.user.getPermissions.useQuery();
-	const canDeploy = permissions?.deployment.create ?? false;
-	const canUpdateService = permissions?.service.create ?? false;
+	const canDeploy =
+		!isAccountExpired && (permissions?.deployment.create ?? false);
+	const canUpdateService =
+		!isAccountExpired && (permissions?.service.create ?? false);
 	const { data, refetch } = api.compose.one.useQuery(
 		{
 			composeId,
@@ -202,19 +206,21 @@ export const ComposeActions = ({ composeId }: Props) => {
 						</DialogAction>
 					))}
 			</TooltipProvider>
-			<DockerTerminalModal
-				appName={data?.appName || ""}
-				serverId={data?.serverId || ""}
-				appType={data?.composeType || "docker-compose"}
-			>
-				<Button
-					variant="outline"
-					className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
+			{!isAccountExpired && (
+				<DockerTerminalModal
+					appName={data?.appName || ""}
+					serverId={data?.serverId || ""}
+					appType={data?.composeType || "docker-compose"}
 				>
-					<Terminal className="size-4 mr-1" />
-					Open Terminal
-				</Button>
-			</DockerTerminalModal>
+					<Button
+						variant="outline"
+						className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
+					>
+						<Terminal className="size-4 mr-1" />
+						Open Terminal
+					</Button>
+				</DockerTerminalModal>
+			)}
 			{canUpdateService && (
 				<div className="flex flex-row items-center gap-2 rounded-md px-4 py-2 border">
 					<span className="text-sm font-medium">Autodeploy</span>
@@ -237,6 +243,11 @@ export const ComposeActions = ({ composeId }: Props) => {
 						className="flex flex-row gap-2 items-center data-[state=checked]:bg-primary"
 					/>
 				</div>
+			)}
+			{isAccountExpired && (
+				<p className="text-xs text-red-400">
+					Service actions are disabled because this account has expired.
+				</p>
 			)}
 		</div>
 	);

@@ -13,6 +13,7 @@ await migrate(db, { migrationsFolder: "drizzle" })
 	})
 	.catch((error) => {
 		console.log("Migration failed", error);
+		process.exitCode = 1;
 	})
 	.finally(() => {
 		sql.end();

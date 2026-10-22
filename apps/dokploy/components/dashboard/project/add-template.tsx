@@ -76,11 +76,20 @@ const TEMPLATE_BASE_URL_KEY = "dokploy_template_base_url";
 interface Props {
 	environmentId: string;
 	baseUrl?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
+export const AddTemplate = ({
+	environmentId,
+	baseUrl,
+	isOpen,
+	onOpenChange,
+}: Props) => {
 	const [query, setQuery] = useState("");
 	const [open, setOpen] = useState(false);
+	const dialogOpen = isOpen ?? open;
+	const setDialogOpen = onOpenChange ?? setOpen;
 	const [viewMode, setViewMode] = useState<"detailed" | "icon">("detailed");
 	const [selectedTags, setSelectedTags] = useState<string[]>([]);
 	const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
@@ -147,7 +156,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 
 				return { previousBookmarks };
 			},
-			onError: (err, variables, context) => {
+			onError: (_err, _variables, context) => {
 				if (context?.previousBookmarks) {
 					utils.user.getBookmarkedTemplates.setData(
 						undefined,
@@ -196,22 +205,26 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger className="w-full">
-				<DropdownMenuItem
-					className="w-full cursor-pointer space-x-3"
-					onSelect={(e) => e.preventDefault()}
-				>
-					<PuzzleIcon className="size-4 text-muted-foreground" />
-					<span>Template</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			{isOpen === undefined && (
+				<DialogTrigger className="w-full">
+					<DropdownMenuItem
+						className="w-full cursor-pointer space-x-3"
+						onSelect={(e) => e.preventDefault()}
+					>
+						<PuzzleIcon className="size-4 text-muted-foreground" />
+						<span>Template</span>
+					</DropdownMenuItem>
+				</DialogTrigger>
+			)}
 			<DialogContent className="w-[calc(100vw-1rem)] max-w-[calc(100vw-1rem)] sm:max-w-[90vw] p-0">
 				<DialogHeader className="sticky top-0 z-10 bg-[#121212]/95 backdrop-blur-md p-4 sm:p-6 lg:pr-16 border-b border-zinc-800/80">
 					<div className="flex flex-col space-y-4 sm:space-y-6">
 						<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-6">
 							<div>
-								<DialogTitle className="pr-8 lg:pr-0">Create from Template</DialogTitle>
+								<DialogTitle className="pr-8 lg:pr-0">
+									Create from Template
+								</DialogTitle>
 								<DialogDescription className="pr-8 lg:pr-0 text-xs sm:text-sm">
 									Create an open source application from a template
 								</DialogDescription>
@@ -313,7 +326,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 											setViewMode(viewMode === "detailed" ? "icon" : "detailed")
 										}
 										className="h-9 w-9 flex-shrink-0"
-										>
+									>
 										{viewMode === "detailed" ? (
 											<LayoutGrid className="size-4" />
 										) : (
@@ -567,7 +580,9 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 																	<SelectTrigger>
 																		<SelectValue
 																			placeholder={
-																				!isCloud ? "Regz Host" : "Select a Server"
+																				!isCloud
+																					? "Regz Host"
+																					: "Select a Server"
 																			}
 																		/>
 																	</SelectTrigger>
@@ -627,7 +642,7 @@ export const AddTemplate = ({ environmentId, baseUrl }: Props) => {
 																		utils.environment.one.invalidate({
 																			environmentId,
 																		});
-																		setOpen(false);
+																		setDialogOpen(false);
 																		return `${template.name} template created successfully`;
 																	},
 																	error: () => {

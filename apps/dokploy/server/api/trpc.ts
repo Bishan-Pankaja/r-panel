@@ -38,6 +38,8 @@ interface CreateContextOptions {
 				enableEnterpriseFeatures: boolean;
 				isValidEnterpriseLicense: boolean;
 				showOtherUsersProjects: boolean;
+				expirationDate?: string;
+				expirationEnabled?: boolean;
 		  })
 		| null;
 	session:
@@ -159,9 +161,23 @@ export const publicProcedure = t.procedure;
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+export const protectedProcedure = t.procedure.use(({ ctx, next, type }) => {
 	if (!ctx.session || !ctx.user) {
 		throw new TRPCError({ code: "UNAUTHORIZED" });
+	}
+	const isExpired = Boolean(
+		ctx.user.role !== "owner" &&
+			ctx.user.role !== "admin" &&
+			ctx.user.expirationEnabled &&
+			ctx.user.expirationDate &&
+			new Date(ctx.user.expirationDate).getTime() <= Date.now(),
+	);
+	if (isExpired && type === "mutation") {
+		throw new TRPCError({
+			code: "FORBIDDEN",
+			message:
+				"Your account has expired. Contact your administrator to restore access.",
+		});
 	}
 	return next({
 		ctx: {

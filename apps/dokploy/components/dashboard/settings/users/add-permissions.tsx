@@ -25,8 +25,8 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { Switch } from "@/components/ui/switch";
 import { Input, NumberInput } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { api, type RouterOutputs } from "@/utils/api";
 
 /** Shape returned by project.allForPermissions (admin only). Used for the permissions UI. */
@@ -35,6 +35,16 @@ type ProjectForPermissions =
 type EnvironmentForPermissions = ProjectForPermissions["environments"][number];
 
 type Environment = EnvironmentForPermissions;
+
+const getDateAfterThreeDays = () => {
+	const date = new Date();
+	date.setDate(date.getDate() + 3);
+	return [
+		date.getFullYear(),
+		`${date.getMonth() + 1}`.padStart(2, "0"),
+		`${date.getDate()}`.padStart(2, "0"),
+	].join("-");
+};
 
 export type Services = {
 	appName: string;
@@ -187,6 +197,9 @@ const addPermissions = z.object({
 	limitRam: z.number().min(0).optional(),
 	limitCpu: z.number().min(0).optional(),
 	limitDisk: z.number().min(0).optional(),
+	limitServices: z.number().int().min(0).optional(),
+	expirationEnabled: z.boolean().optional(),
+	expirationDate: z.string().min(1, "Expiration date is required"),
 });
 
 type AddPermissions = z.infer<typeof addPermissions>;
@@ -246,6 +259,9 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 			limitRam: 0,
 			limitCpu: 0,
 			limitDisk: 0,
+			limitServices: 0,
+			expirationEnabled: false,
+			expirationDate: getDateAfterThreeDays(),
 		},
 		resolver: zodResolver(addPermissions),
 	});
@@ -272,6 +288,11 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 				limitRam: data.limitRam || 0,
 				limitCpu: data.limitCpu || 0,
 				limitDisk: data.limitDisk || 0,
+				limitServices: data.limitServices || 0,
+				expirationEnabled: data.user.expirationEnabled,
+				expirationDate: data.user.expirationEnabled
+					? data.user.expirationDate.slice(0, 10)
+					: getDateAfterThreeDays(),
 			});
 		}
 	}, [data, isOpen, form]);
@@ -298,6 +319,10 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 			limitRam: data.limitRam ?? 0,
 			limitCpu: data.limitCpu ?? 0,
 			limitDisk: data.limitDisk ?? 0,
+			limitServices: data.limitServices ?? 0,
+			expirationDate: new Date(
+				`${data.expirationEnabled ? data.expirationDate : "9999-12-31"}T23:59:59.999+05:30`,
+			).toISOString(),
 		})
 			.then(async () => {
 				toast.success("Permissions updated");
@@ -321,7 +346,9 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 			<DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl">
 				<DialogHeader>
 					<DialogTitle>Limits & Access</DialogTitle>
-					<DialogDescription>Modify user resource quotas and permissions</DialogDescription>
+					<DialogDescription>
+						Modify user resource quotas and permissions
+					</DialogDescription>
 				</DialogHeader>
 				{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
 
@@ -563,11 +590,12 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 							</>
 						)}
 
-						<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 border p-4 rounded-lg">
-							<div className="col-span-1 md:col-span-3 mb-2">
+						<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4 border p-4 rounded-lg">
+							<div className="col-span-1 md:col-span-4 mb-2">
 								<FormLabel className="text-base">Resource Quotas</FormLabel>
 								<FormDescription>
-									Set maximum resource limits for this user across all their services (0 = unlimited).
+									Set maximum resource limits for this user across all their
+									services (0 = unlimited).
 								</FormDescription>
 							</div>
 							<FormField
@@ -591,7 +619,11 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 									<FormItem>
 										<FormLabel>CPU Cores Limit</FormLabel>
 										<FormControl>
-											<NumberInput step="0.1" placeholder="0 = Unlimited" {...field} />
+											<NumberInput
+												step="0.1"
+												placeholder="0 = Unlimited"
+												{...field}
+											/>
 										</FormControl>
 										<FormDescription>Max CPUs</FormDescription>
 										<FormMessage />
@@ -612,6 +644,64 @@ export const AddUserPermissions = ({ userId, role }: Props) => {
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="limitServices"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Service Limit</FormLabel>
+										<FormControl>
+											<NumberInput placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>
+											Maximum services this user can create
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
+						<div className="md:col-span-2 space-y-3">
+							<FormField
+								control={form.control}
+								name="expirationEnabled"
+								render={({ field }) => (
+									<FormItem className="flex items-center justify-between rounded-md border border-zinc-800 p-3">
+										<div>
+											<FormLabel>Set an expiration date</FormLabel>
+											<FormDescription>
+												Turn this on to test the 3-day expiration warning.
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												checked={field.value}
+												onCheckedChange={field.onChange}
+											/>
+										</FormControl>
+									</FormItem>
+								)}
+							/>
+							{form.watch("expirationEnabled") && (
+								<FormField
+									control={form.control}
+									name="expirationDate"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>User expiration date</FormLabel>
+											<FormControl>
+												<Input type="date" {...field} />
+											</FormControl>
+											<FormDescription>
+												Choose a date up to 3 days away to test the warning
+												banner.
+											</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 						</div>
 
 						<FormField

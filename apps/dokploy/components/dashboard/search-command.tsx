@@ -89,25 +89,16 @@ export const SearchCommand = () => {
 						<CommandList>
 							{data?.map((project) => {
 								// Find default environment from accessible environments, or fall back to first accessible environment
-								const defaultEnvironment =
-									project.environments.find(
-										(environment) => environment.isDefault,
-									) || project?.environments?.[0];
-
-								if (!defaultEnvironment) return null;
-
 								return (
 									<CommandItem
 										key={project.projectId}
 										onSelect={() => {
-											router.push(
-												`/dashboard/project/${project.projectId}/environment/${defaultEnvironment.environmentId}`,
-											);
+											router.push("/dashboard/projects");
 											setOpen(false);
 										}}
 									>
 										<BookIcon className="size-4 text-muted-foreground mr-2" />
-										{project.name} / {defaultEnvironment.name}
+										{project.name}
 									</CommandItem>
 								);
 							})}

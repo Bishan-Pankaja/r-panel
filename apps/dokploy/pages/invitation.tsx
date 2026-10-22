@@ -83,6 +83,8 @@ const Invitation = ({
 	userAlreadyExists,
 }: Props) => {
 	const router = useRouter();
+	const { mutateAsync: applyInvitationServiceLimit } =
+		api.organization.applyInvitationServiceLimit.useMutation();
 	const { config: whitelabeling } = useWhitelabelingPublic();
 	const { data } = api.user.getUserByToken.useQuery(
 		{
@@ -137,8 +139,9 @@ const Invitation = ({
 			const _result = await authClient.organization.acceptInvitation({
 				invitationId: token,
 			});
+			await applyInvitationServiceLimit({ invitationId: token });
 
-toast.success("Account created successfully");
+			toast.success("Account created successfully");
 			router.push("/dashboard/projects");
 		} catch {
 			toast.error("An error occurred while creating your account");

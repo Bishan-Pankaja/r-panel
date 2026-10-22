@@ -32,7 +32,18 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { api } from "@/utils/api";
+
+const getDateAfterThreeDays = () => {
+	const date = new Date();
+	date.setDate(date.getDate() + 3);
+	return [
+		date.getFullYear(),
+		`${date.getMonth() + 1}`.padStart(2, "0"),
+		`${date.getDate()}`.padStart(2, "0"),
+	].join("-");
+};
 
 const addInvitation = z
 	.object({
@@ -49,6 +60,9 @@ const addInvitation = z
 		limitRam: z.number().min(0).optional(),
 		limitCpu: z.number().min(0).optional(),
 		limitDisk: z.number().min(0).optional(),
+		limitServices: z.number().int().min(0).optional(),
+		expirationEnabled: z.boolean().optional(),
+		expirationDate: z.string().min(1, "Expiration date is required"),
 	})
 	.superRefine((value, ctx) => {
 		if (value.mode !== "credentials") {
@@ -123,6 +137,9 @@ export const AddInvitation = () => {
 			limitRam: 0,
 			limitCpu: 0,
 			limitDisk: 0,
+			limitServices: 0,
+			expirationEnabled: false,
+			expirationDate: getDateAfterThreeDays(),
 		},
 		resolver: zodResolver(addInvitation),
 	});
@@ -151,6 +168,12 @@ export const AddInvitation = () => {
 					limitRam: data.limitRam || 0,
 					limitCpu: data.limitCpu || 0,
 					limitDisk: data.limitDisk || 0,
+					limitServices: data.limitServices || 0,
+					expirationDate: data.expirationEnabled
+						? new Date(
+								`${data.expirationDate}T23:59:59.999+05:30`,
+							).toISOString()
+						: undefined,
 				});
 				toast.success("User created with initial credentials");
 				setOpen(false);
@@ -158,6 +181,12 @@ export const AddInvitation = () => {
 				const result = await inviteMember({
 					email: data.email.toLowerCase(),
 					role: data.role,
+					limitServices: data.limitServices || 0,
+					expirationDate: data.expirationEnabled
+						? new Date(
+								`${data.expirationDate}T23:59:59.999+05:30`,
+							).toISOString()
+						: undefined,
 				});
 
 				if (!isCloud && data.notificationId) {
@@ -304,8 +333,8 @@ export const AddInvitation = () => {
 								);
 							}}
 						/>
-						
-						<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+						<div className="grid grid-cols-1 gap-4 md:grid-cols-4">
 							<FormField
 								control={form.control}
 								name="limitRam"
@@ -313,7 +342,7 @@ export const AddInvitation = () => {
 									<FormItem>
 										<FormLabel>RAM Limit (MB)</FormLabel>
 										<FormControl>
-											                        <NumberInput placeholder="0 = Unlimited" {...field} />
+											<NumberInput placeholder="0 = Unlimited" {...field} />
 										</FormControl>
 										<FormDescription>Max Memory</FormDescription>
 										<FormMessage />
@@ -327,7 +356,11 @@ export const AddInvitation = () => {
 									<FormItem>
 										<FormLabel>CPU Cores Limit</FormLabel>
 										<FormControl>
-											<NumberInput step="0.1" placeholder="0 = Unlimited" {...field} />
+											<NumberInput
+												step="0.1"
+												placeholder="0 = Unlimited"
+												{...field}
+											/>
 										</FormControl>
 										<FormDescription>Max CPUs</FormDescription>
 										<FormMessage />
@@ -348,6 +381,63 @@ export const AddInvitation = () => {
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={form.control}
+								name="limitServices"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Service Limit</FormLabel>
+										<FormControl>
+											<NumberInput placeholder="0 = Unlimited" {...field} />
+										</FormControl>
+										<FormDescription>
+											Maximum services this user can create
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+						<div className="space-y-3">
+							<FormField
+								control={form.control}
+								name="expirationEnabled"
+								render={({ field }) => (
+									<FormItem className="flex items-center justify-between rounded-md border border-zinc-800 p-3">
+										<div>
+											<FormLabel>Set an expiration date</FormLabel>
+											<FormDescription>
+												Turn this on to test the 3-day expiration warning.
+											</FormDescription>
+										</div>
+										<FormControl>
+											<Switch
+												checked={field.value}
+												onCheckedChange={field.onChange}
+											/>
+										</FormControl>
+									</FormItem>
+								)}
+							/>
+							{form.watch("expirationEnabled") && (
+								<FormField
+									control={form.control}
+									name="expirationDate"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>User expiration date</FormLabel>
+											<FormControl>
+												<Input type="date" {...field} />
+											</FormControl>
+											<FormDescription>
+												Choose a date up to 3 days away to test the warning
+												banner.
+											</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 						</div>
 
 						{!isCloud && mode === "invitation" && (

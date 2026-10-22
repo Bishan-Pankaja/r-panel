@@ -166,22 +166,6 @@ const extractServicesFromEnvironment = (
 	];
 };
 
-const getTargetEnvironmentId = (
-	project: ProjectItem,
-	selectedEnvironmentId?: string,
-) => {
-	if (selectedEnvironmentId) return selectedEnvironmentId;
-
-	const productionEnvironment = project.environments.find(
-		(environment) => environment.name === "production",
-	);
-
-	return (
-		productionEnvironment?.environmentId ??
-		project.environments[0]?.environmentId
-	);
-};
-
 export const AdvanceBreadcrumb = () => {
 	const router = useRouter();
 	const { query } = router;
@@ -248,31 +232,16 @@ export const AdvanceBreadcrumb = () => {
 		[serviceId, services],
 	);
 
-	// Navigate to project's default environment
-	const handleProjectSelect = (
-		selectedProjectId: string,
-		selectedEnvironmentId?: string,
-	) => {
-		const project = allProjects?.find((p) => p.projectId === selectedProjectId);
-		if (project) {
-			const targetEnvironmentId = getTargetEnvironmentId(
-				project,
-				selectedEnvironmentId,
-			);
-
-			if (targetEnvironmentId) {
-				router.push(
-					`/dashboard/project/${selectedProjectId}/environment/${targetEnvironmentId}`,
-				);
-			}
-		}
+	// Project services are listed together on the Projects page.
+	const handleProjectSelect = (_selectedProjectId: string) => {
+		router.push("/dashboard/projects");
 		setProjectOpen(false);
 		setExpandedProjectId(null);
 	};
 
-	// Navigate to environment
-	const handleEnvironmentSelect = (envId: string) => {
-		router.push(`/dashboard/project/${projectId}/environment/${envId}`);
+	// Environment services are listed together on the Projects page.
+	const handleEnvironmentSelect = (_envId: string) => {
+		router.push("/dashboard/projects");
 		setEnvironmentOpen(false);
 	};
 
@@ -318,7 +287,10 @@ export const AdvanceBreadcrumb = () => {
 	return (
 		<div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 overflow-x-auto no-scrollbar">
 			<SidebarTrigger className="-ml-1 text-zinc-400 hover:text-white hover:bg-zinc-800/60 size-8 rounded-lg shrink-0" />
-			<Separator orientation="vertical" className="mr-1 h-4 bg-zinc-800 shrink-0" />
+			<Separator
+				orientation="vertical"
+				className="mr-1 h-4 bg-zinc-800 shrink-0"
+			/>
 
 			<div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
 				{/* Project Selector */}
@@ -428,10 +400,7 @@ export const AdvanceBreadcrumb = () => {
 																		key={env.environmentId}
 																		value={env.environmentId}
 																		onSelect={() =>
-																			handleProjectSelect(
-																				project.projectId,
-																				env.environmentId,
-																			)
+																			handleProjectSelect(project.projectId)
 																		}
 																		className="flex items-center justify-between py-2 px-2.5 cursor-pointer text-xs rounded-lg hover:bg-zinc-800/60 aria-selected:bg-zinc-800/60"
 																	>
@@ -618,15 +587,13 @@ export const AdvanceBreadcrumb = () => {
 							</PopoverContent>
 						</Popover>
 
-						{/* Close button to go back to environment */}
+						{/* Close service details and return to the services list */}
 						<Button
 							variant="ghost"
 							size="icon"
 							className="size-9 rounded-xl bg-[#1a1a1a] hover:bg-[#202020] border border-zinc-800/80 text-zinc-400 hover:text-white transition-colors ml-1 hidden md:flex items-center justify-center cursor-pointer"
 							onClick={() => {
-								router.push(
-									`/dashboard/project/${projectId}/environment/${environmentId}`,
-								);
+								router.push("/dashboard/projects");
 							}}
 						>
 							<X className="size-4" />

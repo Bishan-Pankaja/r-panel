@@ -252,6 +252,8 @@ export const organizationRouter = createTRPCRouter({
 			z.object({
 				email: z.string().email(),
 				role: z.string().min(1),
+				limitServices: z.number().int().min(0).optional().default(0),
+				expirationDate: z.string().datetime().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -327,6 +329,9 @@ export const organizationRouter = createTRPCRouter({
 					organizationId: orgId,
 					email,
 					role: input.role as any,
+					limitServices: input.limitServices,
+					userExpirationDate:
+						input.expirationDate ?? "9999-12-31T23:59:59.999Z",
 					status: "pending",
 					expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
 					inviterId: ctx.user.id,
@@ -359,6 +364,49 @@ export const organizationRouter = createTRPCRouter({
 				metadata: { type: "inviteMember", role: input.role },
 			});
 			return created;
+		}),
+	applyInvitationServiceLimit: protectedProcedure
+		.input(z.object({ invitationId: z.string().min(1) }))
+		.mutation(async ({ ctx, input }) => {
+			const invitationRecord = await db.query.invitation.findFirst({
+				where: and(
+					eq(invitation.id, input.invitationId),
+					eq(invitation.email, ctx.user.email),
+				),
+			});
+			if (!invitationRecord) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Invitation not found",
+				});
+			}
+			const acceptedMember = await db.query.member.findFirst({
+				where: and(
+					eq(member.userId, ctx.user.id),
+					eq(member.organizationId, invitationRecord.organizationId),
+				),
+			});
+			if (!acceptedMember) {
+				throw new TRPCError({
+					code: "FORBIDDEN",
+					message: "Accept the invitation first",
+				});
+			}
+			await db
+				.update(member)
+				.set({ limitServices: invitationRecord.limitServices })
+				.where(eq(member.id, acceptedMember.id));
+			await db
+				.update(user)
+				.set({
+					expirationDate:
+						invitationRecord.userExpirationDate ?? "9999-12-31T23:59:59.999Z",
+					expirationEnabled:
+						!!invitationRecord.userExpirationDate &&
+						invitationRecord.userExpirationDate !== "9999-12-31T23:59:59.999Z",
+				})
+				.where(eq(user.id, ctx.user.id));
+			return true;
 		}),
 
 	allInvitations: withPermission("member", "create").query(async ({ ctx }) => {

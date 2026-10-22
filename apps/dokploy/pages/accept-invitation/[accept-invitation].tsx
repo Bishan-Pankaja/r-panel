@@ -1,11 +1,14 @@
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { api } from "@/utils/api";
 
 export const AcceptInvitation = () => {
 	const { query } = useRouter();
 
 	const invitationId = query["accept-invitation"];
+	const { mutateAsync: applyInvitationServiceLimit } =
+		api.organization.applyInvitationServiceLimit.useMutation();
 
 	// const { data: organization } = api.organization.getById.useQuery({
 	//     id: id as string
@@ -18,7 +21,9 @@ export const AcceptInvitation = () => {
 					const result = await authClient.organization.acceptInvitation({
 						invitationId: invitationId as string,
 					});
-					console.log(result);
+					if (!result.error && typeof invitationId === "string") {
+						await applyInvitationServiceLimit({ invitationId });
+					}
 				}}
 			>
 				Accept Invitation

@@ -3,8 +3,20 @@ import { TemplateGenerator } from "@/components/dashboard/project/ai/template-ge
 interface Props {
 	environmentId: string;
 	projectName?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const AddAiAssistant = ({ environmentId }: Props) => {
-	return <TemplateGenerator environmentId={environmentId} />;
+export const AddAiAssistant = ({
+	environmentId,
+	isOpen,
+	onOpenChange,
+}: Props) => {
+	return (
+		<TemplateGenerator
+			environmentId={environmentId}
+			isOpen={isOpen}
+			onOpenChange={onOpenChange}
+		/>
+	);
 };

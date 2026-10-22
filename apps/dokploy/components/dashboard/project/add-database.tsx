@@ -212,11 +212,20 @@ type AddDatabase = z.infer<typeof mySchema>;
 interface Props {
 	environmentId: string;
 	projectName?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const AddDatabase = ({ environmentId, projectName }: Props) => {
+export const AddDatabase = ({
+	environmentId,
+	projectName,
+	isOpen,
+	onOpenChange,
+}: Props) => {
 	const utils = api.useUtils();
 	const [visible, setVisible] = useState(false);
+	const dialogOpen = isOpen ?? visible;
+	const setDialogOpen = onOpenChange ?? setVisible;
 	const slug = slugify(projectName);
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data: webServerSettings } =
@@ -349,7 +358,7 @@ export const AddDatabase = ({ environmentId, projectName }: Props) => {
 						databaseName: "",
 						databaseUser: "",
 					});
-					setVisible(false);
+					setDialogOpen(false);
 					// Invalidate the project query to refresh the environment data
 					await utils.environment.one.invalidate({
 						environmentId,
@@ -362,16 +371,18 @@ export const AddDatabase = ({ environmentId, projectName }: Props) => {
 	};
 
 	return (
-		<Dialog open={visible} onOpenChange={setVisible}>
-			<DialogTrigger className="w-full">
-				<DropdownMenuItem
-					className="w-full cursor-pointer space-x-3"
-					onSelect={(e) => e.preventDefault()}
-				>
-					<Database className="size-4 text-muted-foreground" />
-					<span>Database</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			{isOpen === undefined && (
+				<DialogTrigger className="w-full">
+					<DropdownMenuItem
+						className="w-full cursor-pointer space-x-3"
+						onSelect={(e) => e.preventDefault()}
+					>
+						<Database className="size-4 text-muted-foreground" />
+						<span>Database</span>
+					</DropdownMenuItem>
+				</DialogTrigger>
+			)}
 			<DialogContent className="md:max-h-[90vh]  sm:max-w-2xl">
 				<DialogHeader>
 					<DialogTitle>Databases</DialogTitle>
@@ -480,7 +491,9 @@ export const AddDatabase = ({ environmentId, projectName }: Props) => {
 													<SelectTrigger>
 														<SelectValue
 															placeholder={
-																showLocalOption ? "Regz Host" : "Select a Server"
+																showLocalOption
+																	? "Regz Host"
+																	: "Select a Server"
 															}
 														/>
 													</SelectTrigger>

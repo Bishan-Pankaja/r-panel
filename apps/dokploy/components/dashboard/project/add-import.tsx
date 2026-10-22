@@ -76,11 +76,19 @@ type TemplateInfo = {
 interface Props {
 	environmentId: string;
 	projectName?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const AddImport = ({ environmentId, projectName }: Props) => {
+export const AddImport = ({
+	environmentId,
+	projectName,
+	isOpen,
+	onOpenChange,
+}: Props) => {
 	const utils = api.useUtils();
 	const [visible, setVisible] = useState(false);
+	const dialogOpen = isOpen ?? visible;
 	const [previewOpen, setPreviewOpen] = useState(false);
 	const [mountOpen, setMountOpen] = useState(false);
 	const [selectedMount, setSelectedMount] = useState<{
@@ -116,7 +124,8 @@ export const AddImport = ({ environmentId, projectName }: Props) => {
 
 	const handleOpenChange = (open: boolean) => {
 		if (!open) resetAll();
-		setVisible(open);
+		if (onOpenChange) onOpenChange(open);
+		else setVisible(open);
 	};
 
 	const handleLoad = async (data: AddImport) => {
@@ -152,7 +161,7 @@ export const AddImport = ({ environmentId, projectName }: Props) => {
 			toast.success("Compose imported successfully");
 			await utils.environment.one.invalidate({ environmentId });
 			resetAll();
-			setVisible(false);
+			handleOpenChange(false);
 		} catch (error) {
 			toast.error(
 				error instanceof Error ? error.message : "Error importing compose",
@@ -167,16 +176,18 @@ export const AddImport = ({ environmentId, projectName }: Props) => {
 
 	return (
 		<>
-			<Dialog open={visible} onOpenChange={handleOpenChange}>
-				<DialogTrigger className="w-full">
-					<DropdownMenuItem
-						className="w-full cursor-pointer space-x-3"
-						onSelect={(e) => e.preventDefault()}
-					>
-						<FileInput className="size-4 text-muted-foreground" />
-						<span>Import</span>
-					</DropdownMenuItem>
-				</DialogTrigger>
+			<Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+				{isOpen === undefined && (
+					<DialogTrigger className="w-full">
+						<DropdownMenuItem
+							className="w-full cursor-pointer space-x-3"
+							onSelect={(e) => e.preventDefault()}
+						>
+							<FileInput className="size-4 text-muted-foreground" />
+							<span>Import</span>
+						</DropdownMenuItem>
+					</DialogTrigger>
+				)}
 				<DialogContent className="sm:max-w-xl">
 					<DialogHeader>
 						<DialogTitle>Import Compose</DialogTitle>

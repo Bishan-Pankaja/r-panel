@@ -38,6 +38,7 @@ import {
 	checkProjectAccess,
 	findMemberByUserId,
 } from "@dokploy/server/services/permission";
+import { checkServiceCreationQuota } from "@dokploy/server/services/quotas";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import type { AnyPgColumn } from "drizzle-orm/pg-core";
@@ -58,13 +59,33 @@ import {
 	environments,
 	libsql,
 	mariadb,
-	member,
 	mongo,
 	mysql,
 	postgres,
 	projects,
 	redis,
 } from "@/server/db/schema";
+
+const getAdminProjectVisibilityFilter = (
+	userId: string,
+	organizationId: string,
+	showOtherUsersProjects: boolean,
+) =>
+	and(
+		eq(projects.organizationId, organizationId),
+		showOtherUsersProjects
+			? undefined
+			: or(
+					eq(projects.userId, userId),
+					sql`${projects.userId} IS NULL`,
+					sql`exists (
+						select 1 from "member"
+						where "member"."organization_id" = ${organizationId}
+						and "member"."user_id" = ${userId}
+						and "projects"."projectId" = any("member"."accesedProjects")
+					)`,
+				),
+	);
 
 export const projectRouter = createTRPCRouter({
 	create: protectedProcedure
@@ -374,20 +395,10 @@ export const projectRouter = createTRPCRouter({
 					},
 				},
 			},
-			where: and(
-				eq(projects.organizationId, ctx.session.activeOrganizationId),
-				ctx.user.showOtherUsersProjects === false
-					? or(
-							eq(projects.userId, ctx.user.id),
-							(ctx.user.role === "owner" || ctx.user.role === "admin" || ctx.user.id === ctx.user.ownerId) ? sql`${projects.userId} IS NULL` : sql`false`,
-							sql`exists (
-								select 1 from "member" 
-								where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
-								and "member"."user_id" = ${ctx.user.id} 
-								and "projects"."projectId" = any("member"."accesedProjects")
-							)`
-						)
-					: undefined
+			where: getAdminProjectVisibilityFilter(
+				ctx.user.id,
+				ctx.session.activeOrganizationId,
+				ctx.user.showOtherUsersProjects !== false,
 			),
 			orderBy: desc(projects.createdAt),
 		});
@@ -535,7 +546,11 @@ export const projectRouter = createTRPCRouter({
 		}
 
 		const projectIdFilter = isPrivileged
-			? eq(projects.organizationId, ctx.session.activeOrganizationId)
+			? getAdminProjectVisibilityFilter(
+					ctx.user.id,
+					ctx.session.activeOrganizationId,
+					ctx.user.showOtherUsersProjects !== false,
+				)
 			: and(
 					sql`${projects.projectId} IN (${sql.join(
 						accessedProjects.map((id) => sql`${id}`),
@@ -697,14 +712,18 @@ export const projectRouter = createTRPCRouter({
 				baseConditions.push(
 					or(
 						eq(projects.userId, ctx.user.id),
-						(ctx.user.role === "owner" || ctx.user.role === "admin" || ctx.user.id === ctx.user.ownerId) ? sql`${projects.userId} IS NULL` : sql`false`,
+						ctx.user.role === "owner" ||
+							ctx.user.role === "admin" ||
+							ctx.user.id === ctx.user.ownerId
+							? sql`${projects.userId} IS NULL`
+							: sql`false`,
 						sql`exists (
 							select 1 from "member" 
 							where "member"."organization_id" = ${ctx.session.activeOrganizationId} 
 							and "member"."user_id" = ${ctx.user.id} 
 							and "projects"."projectId" = any("member"."accesedProjects")
-						)`
-					)!
+						)`,
+					)!,
 				);
 			}
 
@@ -890,6 +909,15 @@ export const projectRouter = createTRPCRouter({
 
 				if (input.includeServices) {
 					const servicesToDuplicate = input.selectedServices || [];
+					if (servicesToDuplicate.length > 0) {
+						await checkServiceCreationQuota(
+							input.duplicateInSameProject
+								? (sourceEnvironment?.project.userId ?? ctx.user.id)
+								: ctx.user.id,
+							ctx.session.activeOrganizationId,
+							servicesToDuplicate.length,
+						);
+					}
 
 					const duplicateService = async (id: string, type: string) => {
 						switch (type) {

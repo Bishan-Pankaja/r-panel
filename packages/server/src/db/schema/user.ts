@@ -35,7 +35,8 @@ export const user = pgTable("user", {
 	isRegistered: boolean("isRegistered").notNull().default(false),
 	expirationDate: text("expirationDate")
 		.notNull()
-		.$defaultFn(() => new Date().toISOString()),
+		.$defaultFn(() => "9999-12-31T23:59:59.999Z"),
+	expirationEnabled: boolean("expirationEnabled").notNull().default(false),
 	createdAt2: text("createdAt")
 		.notNull()
 		.$defaultFn(() => new Date().toISOString()),
@@ -54,7 +55,9 @@ export const user = pgTable("user", {
 	// Metrics
 	enablePaidFeatures: boolean("enablePaidFeatures").notNull().default(false),
 	allowImpersonation: boolean("allowImpersonation").notNull().default(false),
-	showOtherUsersProjects: boolean("showOtherUsersProjects").notNull().default(true),
+	showOtherUsersProjects: boolean("showOtherUsersProjects")
+		.notNull()
+		.default(true),
 	// Enterprise / proprietary features
 	enableEnterpriseFeatures: boolean("enableEnterpriseFeatures")
 		.notNull()
@@ -76,6 +79,21 @@ export const user = pgTable("user", {
 	bookmarkedTemplates: text("bookmarkedTemplates")
 		.array()
 		.default(sql`ARRAY[]::text[]`),
+});
+
+export const userExpiredService = pgTable("user_expired_service", {
+	id: text("id")
+		.primaryKey()
+		.$defaultFn(() => nanoid()),
+	userId: text("userId")
+		.notNull()
+		.references(() => user.id, { onDelete: "cascade" }),
+	serviceType: text("serviceType").notNull(),
+	serviceId: text("serviceId").notNull(),
+	wasRunning: boolean("wasRunning").notNull(),
+	createdAt: text("createdAt")
+		.notNull()
+		.$defaultFn(() => new Date().toISOString()),
 });
 
 export const usersRelations = relations(user, ({ one, many }) => ({
@@ -154,6 +172,8 @@ export const apiAssignPermissions = createSchema
 		limitRam: z.number().default(0),
 		limitCpu: z.number().default(0),
 		limitDisk: z.number().default(0),
+		limitServices: z.number().int().min(0).default(0),
+		expirationDate: z.string().datetime().optional(),
 	})
 	.required();
 

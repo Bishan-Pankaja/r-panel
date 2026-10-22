@@ -13,16 +13,23 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
+import { useAccountExpired } from "@/utils/hooks/use-account-expired";
 import { type LogLine, parseLogs } from "../../docker/logs/utils";
 import { DockerTerminalModal } from "../../settings/web-server/docker-terminal-modal";
 
 interface Props {
 	postgresId: string;
+	actionsOnly?: boolean;
 }
 
-export const ShowGeneralPostgres = ({ postgresId }: Props) => {
+export const ShowGeneralPostgres = ({
+	postgresId,
+	actionsOnly = false,
+}: Props) => {
+	const isAccountExpired = useAccountExpired();
 	const { data: permissions } = api.user.getPermissions.useQuery();
-	const canDeploy = permissions?.deployment.create ?? false;
+	const canDeploy =
+		!isAccountExpired && (permissions?.deployment.create ?? false);
 	const { data, refetch } = api.postgres.one.useQuery(
 		{
 			postgresId: postgresId,
@@ -68,12 +75,22 @@ export const ShowGeneralPostgres = ({ postgresId }: Props) => {
 
 	return (
 		<>
-			<div className="flex w-full flex-col gap-5 ">
-				<Card className="">
-					<CardHeader>
+			<div className={actionsOnly ? "w-full" : "flex w-full flex-col gap-5"}>
+				<Card
+					className={
+						actionsOnly ? "border-0 bg-transparent p-0 shadow-none" : ""
+					}
+				>
+					<CardHeader className={actionsOnly ? "hidden" : undefined}>
 						<CardTitle className="text-xl">Deploy Settings</CardTitle>
 					</CardHeader>
-					<CardContent className="flex flex-row gap-4 flex-wrap">
+					<CardContent
+						className={
+							actionsOnly
+								? "flex flex-row flex-wrap gap-3 p-0 sm:p-0"
+								: "flex flex-row gap-4 flex-wrap"
+						}
+					>
 						<TooltipProvider disableHoverableContent={false}>
 							{canDeploy && (
 								<DialogAction
@@ -232,29 +249,36 @@ export const ShowGeneralPostgres = ({ postgresId }: Props) => {
 									</DialogAction>
 								))}
 						</TooltipProvider>
-						<DockerTerminalModal
-							appName={data?.appName || ""}
-							serverId={data?.serverId || ""}
-						>
-							<Button
-								variant="outline"
-								className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
+						{!isAccountExpired && (
+							<DockerTerminalModal
+								appName={data?.appName || ""}
+								serverId={data?.serverId || ""}
 							>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<div className="flex items-center">
-											<Terminal className="size-4 mr-1" />
-											Open Terminal
-										</div>
-									</TooltipTrigger>
-									<TooltipPrimitive.Portal>
-										<TooltipContent sideOffset={5} className="z-[60]">
-											<p>Open a terminal to the PostgreSQL container</p>
-										</TooltipContent>
-									</TooltipPrimitive.Portal>
-								</Tooltip>
-							</Button>
-						</DockerTerminalModal>
+								<Button
+									variant="outline"
+									className="flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-offset-2"
+								>
+									<Tooltip>
+										<TooltipTrigger asChild>
+											<div className="flex items-center">
+												<Terminal className="size-4 mr-1" />
+												Open Terminal
+											</div>
+										</TooltipTrigger>
+										<TooltipPrimitive.Portal>
+											<TooltipContent sideOffset={5} className="z-[60]">
+												<p>Open a terminal to the PostgreSQL container</p>
+											</TooltipContent>
+										</TooltipPrimitive.Portal>
+									</Tooltip>
+								</Button>
+							</DockerTerminalModal>
+						)}
+						{isAccountExpired && (
+							<p className="text-xs text-red-400">
+								Service actions are disabled because this account has expired.
+							</p>
+						)}
 					</CardContent>
 				</Card>
 				<DrawerLogs

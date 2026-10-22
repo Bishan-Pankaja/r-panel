@@ -146,9 +146,7 @@ export const AdvancedEnvironmentSelector = ({
 					(env) => env.environmentId !== selectedEnvironment.environmentId,
 				);
 				if (firstEnv) {
-					router.push(
-						`/dashboard/project/${projectId}/environment/${firstEnv.environmentId}`,
-					);
+					router.push("/dashboard/projects");
 				} else {
 					// No other environments, redirect to project page
 					router.push(`/dashboard/project/${projectId}`);
@@ -171,9 +169,7 @@ export const AdvancedEnvironmentSelector = ({
 			utils.project.one.invalidate({ projectId });
 
 			// Navigate to the new duplicated environment
-			router.push(
-				`/dashboard/project/${projectId}/environment/${result.environmentId}`,
-			);
+			router.push("/dashboard/projects");
 		} catch (error) {
 			toast.error("Failed to duplicate environment");
 		}
@@ -236,9 +232,7 @@ export const AdvancedEnvironmentSelector = ({
 								<DropdownMenuItem
 									className="flex-1 cursor-pointer text-xs p-2 text-zinc-300 focus:text-white focus:bg-transparent"
 									onClick={() => {
-										router.push(
-											`/dashboard/project/${projectId}/environment/${environment.environmentId}`,
-										);
+										router.push("/dashboard/projects");
 									}}
 								>
 									<div className="flex items-center justify-between w-full">

@@ -105,7 +105,7 @@ const Service = (
 	const environmentDropdownItems =
 		environments?.map((env) => ({
 			name: env.name,
-			href: `/dashboard/project/${projectId}/environment/${env.environmentId}`,
+			href: "/dashboard/projects",
 		})) || [];
 
 	return (
@@ -145,7 +145,7 @@ const Service = (
 									</Link>
 									<span>/</span>
 									<Link
-										href={`/dashboard/project/${projectId}/environment/${environmentId}`}
+										href="/dashboard/projects"
 										className="hover:text-zinc-300 transition-colors"
 									>
 										{data?.environment?.project?.name || "Project"}

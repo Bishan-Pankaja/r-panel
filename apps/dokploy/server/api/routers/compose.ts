@@ -40,6 +40,7 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@dokploy/server/services/permission";
+import { checkServiceCreationQuota } from "@dokploy/server/services/quotas";
 import {
 	type CompleteTemplate,
 	fetchTemplateFiles,
@@ -88,6 +89,10 @@ export const composeRouter = createTRPCRouter({
 				const project = await findProjectById(environment.projectId);
 
 				await checkServiceAccess(ctx, project.projectId, "create");
+				await checkServiceCreationQuota(
+					project.userId ?? ctx.user.id,
+					ctx.session.activeOrganizationId,
+				);
 
 				const webServerSettings = await getWebServerSettings();
 				if (
@@ -579,6 +584,11 @@ export const composeRouter = createTRPCRouter({
 			const environment = await findEnvironmentById(input.environmentId);
 
 			await checkServiceAccess(ctx, environment.projectId, "create");
+			const project = await findProjectById(environment.projectId);
+			await checkServiceCreationQuota(
+				project.userId ?? ctx.user.id,
+				ctx.session.activeOrganizationId,
+			);
 
 			const webServerSettings = await getWebServerSettings();
 			if (
@@ -604,8 +614,6 @@ export const composeRouter = createTRPCRouter({
 			const template = await fetchTemplateFiles(input.id, input.baseUrl);
 
 			let serverIp = "127.0.0.1";
-
-			const project = await findProjectById(environment.projectId);
 
 			if (input.serverId) {
 				const server = await findServerById(input.serverId);

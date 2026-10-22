@@ -20,6 +20,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { api } from "@/utils/api";
+import { useAccountExpired } from "@/utils/hooks/use-account-expired";
 
 interface Props {
 	applicationId: string;
@@ -27,9 +28,12 @@ interface Props {
 
 export const ApplicationHeaderActions = ({ applicationId }: Props) => {
 	const router = useRouter();
+	const isAccountExpired = useAccountExpired();
 	const { data: permissions } = api.user.getPermissions.useQuery();
-	const canDeploy = permissions?.deployment.create ?? false;
-	const canUpdateService = permissions?.service.create ?? false;
+	const canDeploy =
+		!isAccountExpired && (permissions?.deployment.create ?? false);
+	const canUpdateService =
+		!isAccountExpired && (permissions?.service.create ?? false);
 	const { data, refetch } = api.application.one.useQuery(
 		{ applicationId },
 		{ enabled: !!applicationId },
@@ -281,18 +285,20 @@ export const ApplicationHeaderActions = ({ applicationId }: Props) => {
 				) : null}
 
 				{/* Open Terminal */}
-				<DockerTerminalModal
-					appName={data?.appName || ""}
-					serverId={data?.serverId || ""}
-				>
-					<button
-						type="button"
-						className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#1a1a1a] hover:bg-[#222222] border border-zinc-800/80 text-xs font-semibold text-zinc-200 hover:text-white transition-all cursor-pointer outline-none"
+				{!isAccountExpired && (
+					<DockerTerminalModal
+						appName={data?.appName || ""}
+						serverId={data?.serverId || ""}
 					>
-						<Terminal className="size-3.5" />
-						<span>Open Terminal</span>
-					</button>
-				</DockerTerminalModal>
+						<button
+							type="button"
+							className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl bg-[#1a1a1a] hover:bg-[#222222] border border-zinc-800/80 text-xs font-semibold text-zinc-200 hover:text-white transition-all cursor-pointer outline-none"
+						>
+							<Terminal className="size-3.5" />
+							<span>Open Terminal</span>
+						</button>
+					</DockerTerminalModal>
+				)}
 
 				{/* Autodeploy switch */}
 				{canUpdateService && (
@@ -342,6 +348,11 @@ export const ApplicationHeaderActions = ({ applicationId }: Props) => {
 							className="scale-90"
 						/>
 					</div>
+				)}
+				{isAccountExpired && (
+					<p className="text-xs text-red-400">
+						Service actions are disabled because this account has expired.
+					</p>
 				)}
 			</div>
 		</TooltipProvider>

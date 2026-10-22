@@ -533,6 +533,8 @@ export const validateRequest = async (request: IncomingMessage) => {
 					enableEnterpriseFeatures: userFromDb.enableEnterpriseFeatures,
 					isValidEnterpriseLicense: userFromDb.isValidEnterpriseLicense,
 					showOtherUsersProjects: userFromDb.showOtherUsersProjects,
+					expirationDate: userFromDb.expirationDate,
+					expirationEnabled: userFromDb.expirationEnabled,
 				},
 			};
 
@@ -587,6 +589,8 @@ export const validateRequest = async (request: IncomingMessage) => {
 			member?.user.isValidEnterpriseLicense || false;
 		(session.user as any).showOtherUsersProjects =
 			member?.user.showOtherUsersProjects !== false;
+		(session.user as any).expirationDate = member?.user.expirationDate;
+		(session.user as any).expirationEnabled = member?.user.expirationEnabled;
 		session.session.activeOrganizationId = member?.organization.id || "";
 		if (member) {
 			session.user.ownerId = member.organization.ownerId;

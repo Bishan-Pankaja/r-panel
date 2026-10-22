@@ -105,10 +105,8 @@ export const DeleteService = ({ id, type }: Props) => {
 				composeId: id || "",
 				deleteVolumes,
 			})
-				.then((result) => {
-					push(
-						`/dashboard/project/${result?.environment?.projectId}/environment/${result?.environment?.environmentId}`,
-					);
+				.then(() => {
+					push("/dashboard/projects");
 					toast.success("Service deleted successfully");
 					setIsOpen(false);
 				})

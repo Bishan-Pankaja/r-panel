@@ -404,6 +404,8 @@ export const createOrganizationUserWithCredentials = async ({
 	limitRam,
 	limitCpu,
 	limitDisk,
+	limitServices,
+	expirationDate,
 }: {
 	organizationId: string;
 	email: string;
@@ -412,6 +414,8 @@ export const createOrganizationUserWithCredentials = async ({
 	limitRam?: number;
 	limitCpu?: number;
 	limitDisk?: number;
+	limitServices?: number;
+	expirationDate?: string;
 }) => {
 	const normalizedEmail = email.trim().toLowerCase();
 	const now = new Date();
@@ -438,6 +442,8 @@ export const createOrganizationUserWithCredentials = async ({
 				email: normalizedEmail,
 				emailVerified: false,
 				updatedAt: now,
+				expirationDate: expirationDate ?? "9999-12-31T23:59:59.999Z",
+				expirationEnabled: !!expirationDate,
 			})
 			.returning({
 				id: user.id,
@@ -467,6 +473,7 @@ export const createOrganizationUserWithCredentials = async ({
 			limitRam: limitRam || 0,
 			limitCpu: limitCpu || 0,
 			limitDisk: limitDisk || 0,
+			limitServices: limitServices || 0,
 			createdAt: now,
 			isDefault: true,
 		});

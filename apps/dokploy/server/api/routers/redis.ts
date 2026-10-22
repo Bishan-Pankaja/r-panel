@@ -29,6 +29,7 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@dokploy/server/services/permission";
+import { checkServiceCreationQuota } from "@dokploy/server/services/quotas";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { z } from "zod";
@@ -59,6 +60,10 @@ export const redisRouter = createTRPCRouter({
 				const project = await findProjectById(environment.projectId);
 
 				await checkServiceAccess(ctx, project.projectId, "create");
+				await checkServiceCreationQuota(
+					project.userId ?? ctx.user.id,
+					ctx.session.activeOrganizationId,
+				);
 
 				const webServerSettings = await getWebServerSettings();
 				if (

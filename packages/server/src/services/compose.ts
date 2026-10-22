@@ -78,7 +78,6 @@ export const createCompose = async (
 
 	try {
 		const settings = await db.query.webServerSettings.findFirst();
-
 	} catch (error) {
 		console.error("Failed to auto-create domain for compose", error);
 	}
@@ -118,7 +117,6 @@ export const createComposeByTemplate = async (
 
 	try {
 		const settings = await db.query.webServerSettings.findFirst();
-
 	} catch (error) {
 		console.error("Failed to auto-create domain for compose template", error);
 	}
@@ -498,6 +496,16 @@ export const startCompose = async (composeId: string) => {
 					cwd: projectPath,
 				});
 			}
+		} else {
+			const stackDeployCommand = `docker stack deploy --with-registry-auth -c ${path} ${compose.appName}`;
+			if (compose.serverId) {
+				await execAsyncRemote(
+					compose.serverId,
+					`cd ${projectPath} && ${stackDeployCommand}`,
+				);
+			} else {
+				await execAsync(stackDeployCommand, { cwd: projectPath });
+			}
 		}
 
 		await updateCompose(composeId, {
@@ -536,13 +544,11 @@ export const stopCompose = async (composeId: string) => {
 		}
 
 		if (compose.composeType === "stack") {
+			const scaleStackToZero = `for service in $(docker stack services --format '{{.Name}}' ${compose.appName}); do docker service scale "$service"=0; done`;
 			if (compose.serverId) {
-				await execAsyncRemote(
-					compose.serverId,
-					`docker stack rm ${compose.appName}`,
-				);
+				await execAsyncRemote(compose.serverId, scaleStackToZero);
 			} else {
-				await execAsync(`docker stack rm ${compose.appName}`);
+				await execAsync(scaleStackToZero);
 			}
 		}
 

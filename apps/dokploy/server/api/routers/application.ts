@@ -37,7 +37,10 @@ import {
 	checkServicePermissionAndAccess,
 	findMemberByUserId,
 } from "@dokploy/server/services/permission";
-import { checkResourceQuotas } from "@dokploy/server/services/quotas";
+import {
+	checkResourceQuotas,
+	checkServiceCreationQuota,
+} from "@dokploy/server/services/quotas";
 import { TRPCError } from "@trpc/server";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { nanoid } from "nanoid";
@@ -86,6 +89,10 @@ export const applicationRouter = createTRPCRouter({
 				const project = await findProjectById(environment.projectId);
 
 				await checkServiceAccess(ctx, project.projectId, "create");
+				await checkServiceCreationQuota(
+					project.userId ?? ctx.user.id,
+					ctx.session.activeOrganizationId,
+				);
 
 				const webServerSettings = await getWebServerSettings();
 				if (
@@ -641,18 +648,35 @@ export const applicationRouter = createTRPCRouter({
 			});
 
 			// Enforce resource quotas when memory/CPU limits are being set
-			if ((input.memoryLimit || input.cpuLimit) && ctx.session.activeOrganizationId) {
+			if (
+				(input.memoryLimit || input.cpuLimit) &&
+				ctx.session.activeOrganizationId
+			) {
 				const parseMemoryToMB = (mem?: string | null) => {
 					if (!mem) return 0;
-					const val = parseFloat(mem);
+					const val = Number.parseFloat(mem);
 					if (isNaN(val)) return 0;
-					if (mem.toLowerCase().endsWith('g') || mem.toLowerCase().endsWith('gb')) return val * 1024;
-					if (mem.toLowerCase().endsWith('m') || mem.toLowerCase().endsWith('mb')) return val;
-					if (mem.toLowerCase().endsWith('k') || mem.toLowerCase().endsWith('kb')) return val / 1024;
+					if (
+						mem.toLowerCase().endsWith("g") ||
+						mem.toLowerCase().endsWith("gb")
+					)
+						return val * 1024;
+					if (
+						mem.toLowerCase().endsWith("m") ||
+						mem.toLowerCase().endsWith("mb")
+					)
+						return val;
+					if (
+						mem.toLowerCase().endsWith("k") ||
+						mem.toLowerCase().endsWith("kb")
+					)
+						return val / 1024;
 					return val / (1024 * 1024);
 				};
 				const requestedRam = parseMemoryToMB(input.memoryLimit);
-				const requestedCpu = input.cpuLimit ? parseFloat(input.cpuLimit) || 0 : 0;
+				const requestedCpu = input.cpuLimit
+					? Number.parseFloat(input.cpuLimit) || 0
+					: 0;
 				// Only run quota check for non-owner/non-admin members
 				await checkResourceQuotas(
 					ctx.user.id,
@@ -720,7 +744,7 @@ export const applicationRouter = createTRPCRouter({
 			if (ctx.session.activeOrganizationId) {
 				const parseMemoryToMB = (mem?: string | null) => {
 					if (!mem) return 0;
-					const val = parseFloat(mem);
+					const val = Number.parseFloat(mem);
 					if (isNaN(val)) return 0;
 					const unit = mem.replace(/[\d.]/g, "").toLowerCase().trim();
 					if (unit === "g" || unit === "gb") return val * 1024;
@@ -729,10 +753,17 @@ export const applicationRouter = createTRPCRouter({
 					return val / (1024 * 1024);
 				};
 				const appRam = parseMemoryToMB(application.memoryLimit);
-				const appCpu = application.cpuLimit ? parseFloat(application.cpuLimit) || 0 : 0;
+				const appCpu = application.cpuLimit
+					? Number.parseFloat(application.cpuLimit) || 0
+					: 0;
 				// checkResourceQuotas returns true if unlimited org owner, else object
-				const quotas = await checkResourceQuotas(ctx.user.id, ctx.session.activeOrganizationId, 0, 0);
-				
+				const quotas = await checkResourceQuotas(
+					ctx.user.id,
+					ctx.session.activeOrganizationId,
+					0,
+					0,
+				);
+
 				if (typeof quotas === "object") {
 					const { limitRam, limitCpu } = quotas;
 					if (limitRam && limitRam > 0 && appRam === 0) {
@@ -941,29 +972,58 @@ export const applicationRouter = createTRPCRouter({
 					const memberRecord = await db.query.member.findFirst({
 						where: and(
 							eq(member.organizationId, orgId),
-							eq(member.userId, ctx.user.id)
+							eq(member.userId, ctx.user.id),
 						),
 					});
-					
-					if (memberRecord && memberRecord.role !== "owner" && memberRecord.role !== "admin") {
+
+					if (
+						memberRecord &&
+						memberRecord.role !== "owner" &&
+						memberRecord.role !== "admin"
+					) {
 						const { limitRam, limitCpu, limitDisk } = memberRecord;
-						if ((limitRam && limitRam > 0) || (limitCpu && limitCpu > 0) || (limitDisk && limitDisk > 0)) {
+						if (
+							(limitRam && limitRam > 0) ||
+							(limitCpu && limitCpu > 0) ||
+							(limitDisk && limitDisk > 0)
+						) {
 							const quotaStats = await checkResourceQuotas(ctx.user.id, orgId);
-							
+
 							if (quotaStats && typeof quotaStats === "object") {
 								const { totalRamMB, totalCpuCores } = quotaStats;
 								const safeLimitCpu = limitCpu || 1;
 								const safeLimitRam = limitRam || 1;
 								const safeLimitDisk = limitDisk || 1;
-								const cpuUsedPercent = (limitCpu && limitCpu > 0) ? (totalCpuCores / safeLimitCpu) * 100 : 0;
-								
+								const cpuUsedPercent =
+									limitCpu && limitCpu > 0
+										? (totalCpuCores / safeLimitCpu) * 100
+										: 0;
+
 								const now = new Date().toISOString();
 								return {
 									cpu: [{ value: `${cpuUsedPercent.toFixed(2)}%`, time: now }],
-									memory: [{ value: { used: totalRamMB * 1024 * 1024, total: safeLimitRam * 1024 * 1024 }, time: now }],
+									memory: [
+										{
+											value: {
+												used: totalRamMB * 1024 * 1024,
+												total: safeLimitRam * 1024 * 1024,
+											},
+											time: now,
+										},
+									],
 									block: [{ value: { readMb: 0, writeMb: 0 }, time: now }],
 									network: [{ value: { inputMb: 0, outputMb: 0 }, time: now }],
-									disk: [{ value: { diskTotal: safeLimitDisk, diskUsage: 0, diskUsedPercentage: 0, diskFree: safeLimitDisk }, time: now }]
+									disk: [
+										{
+											value: {
+												diskTotal: safeLimitDisk,
+												diskUsage: 0,
+												diskUsedPercentage: 0,
+												diskFree: safeLimitDisk,
+											},
+											time: now,
+										},
+									],
 								};
 							}
 						}

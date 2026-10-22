@@ -127,7 +127,9 @@ export const member = pgTable("member", {
 		.references(() => user.id, { onDelete: "cascade" }),
 	role: text("role")
 		.notNull()
-		.$type<"owner" | "member" | "admin" | "hobby" | "startup" | (string & {})>(),
+		.$type<
+			"owner" | "member" | "admin" | "hobby" | "startup" | (string & {})
+		>(),
 	createdAt: timestamp("created_at").notNull(),
 	teamId: text("team_id"),
 	isDefault: boolean("is_default").notNull().default(false),
@@ -175,6 +177,7 @@ export const member = pgTable("member", {
 	limitRam: integer("limitRam").default(0), // RAM limit in MB (0 = unlimited)
 	limitCpu: integer("limitCpu").default(0), // CPU core limit (e.g., 2 = 2 cores, 0 = unlimited)
 	limitDisk: integer("limitDisk").default(0), // Disk limit in GB (0 = unlimited)
+	limitServices: integer("limitServices").notNull().default(0), // Max services owned by this member (0 = unlimited)
 });
 
 export const memberRelations = relations(member, ({ one }) => ({
@@ -201,6 +204,8 @@ export const invitation = pgTable("invitation", {
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 	teamId: text("team_id"),
+	limitServices: integer("limitServices").notNull().default(0),
+	userExpirationDate: text("userExpirationDate"),
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

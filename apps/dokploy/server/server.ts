@@ -15,6 +15,7 @@ import {
 } from "@dokploy/server";
 import { config } from "dotenv";
 import next from "next";
+import { scheduleJob } from "node-schedule";
 import packageInfo from "../package.json";
 import { setupDockerContainerLogsWebSocketServer } from "./wss/docker-container-logs";
 import { setupDockerContainerTerminalWebSocketServer } from "./wss/docker-container-terminal";
@@ -58,6 +59,24 @@ void app.prepare().then(async () => {
 
 		server.listen(PORT, HOST);
 		console.log(`Server Started on: http://${HOST}:${PORT}`);
+		if (!IS_CLOUD) {
+			const { reconcileUserServiceExpiration } = await import(
+				"@dokploy/server/services/user-expiration"
+			);
+			void reconcileUserServiceExpiration().catch((error) =>
+				console.error("User service expiration reconciliation failed:", error),
+			);
+			scheduleJob("user-service-expiration", "* * * * *", async () => {
+				try {
+					await reconcileUserServiceExpiration();
+				} catch (error) {
+					console.error(
+						"User service expiration reconciliation failed:",
+						error,
+					);
+				}
+			});
+		}
 		if (process.env.NODE_ENV === "production" && !IS_CLOUD) {
 			createDefaultMiddlewares();
 			await initializeNetwork();

@@ -484,7 +484,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 	const isProjectEnvironmentPage = Boolean(
 		isProjectRoute && environmentId && !serviceId,
 	);
-	const isApplicationPage = Boolean(isProjectRoute && applicationId);
+	const isServiceDetailPage = Boolean(isProjectRoute && serviceId);
 	const [isOpen, setIsOpen] = useState(false);
 	const [spotlightOpen, setSpotlightOpen] = useState(false);
 	const [activeTeam, setActiveTeam] = useState({
@@ -509,6 +509,10 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 	const { data: applicationData } = api.application.one.useQuery(
 		{ applicationId: applicationId ?? "" },
 		{ enabled: !!applicationId },
+	);
+	const { data: composeData } = api.compose.one.useQuery(
+		{ composeId: composeId ?? "" },
+		{ enabled: !!composeId },
 	);
 
 	const activeTab =
@@ -624,13 +628,25 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 					enabled: permissions?.deployment?.read ?? false,
 				},
 				{
+					id: "containers",
+					title: "Containers",
+					icon: Boxes,
+					enabled: permissions?.service?.read ?? false,
+				},
+				{
+					id: "backups",
+					title: "Backups",
+					icon: HardDrive,
+					enabled: permissions?.service?.create ?? false,
+				},
+				{
 					id: "schedules",
 					title: "Schedules",
 					icon: Clock,
 					enabled: permissions?.schedule?.read ?? false,
 				},
 				{
-					id: "volume-backups",
+					id: "volumeBackups",
 					title: "Volume Backups",
 					icon: HardDrive,
 					enabled: permissions?.volumeBackup?.read ?? false,
@@ -640,6 +656,12 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 					title: "Logs",
 					icon: Terminal,
 					enabled: permissions?.logs?.read ?? false,
+				},
+				{
+					id: "patches",
+					title: "Patches",
+					icon: Sparkles,
+					enabled: composeData?.sourceType !== "raw",
 				},
 				{
 					id: "monitoring",
@@ -671,18 +693,6 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 					enabled: permissions?.envVars?.read ?? false,
 				},
 				{
-					id: "domains",
-					title: "Domains",
-					icon: Globe,
-					enabled: permissions?.domain?.read ?? false,
-				},
-				{
-					id: "backups",
-					title: "Backups",
-					icon: HardDrive,
-					enabled: permissions?.volumeBackup?.read ?? false,
-				},
-				{
 					id: "logs",
 					title: "Logs",
 					icon: Terminal,
@@ -693,6 +703,12 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 					title: "Monitoring",
 					icon: Activity,
 					enabled: permissions?.monitoring?.read ?? false,
+				},
+				{
+					id: "backups",
+					title: "Backups",
+					icon: HardDrive,
+					enabled: true,
 				},
 				{
 					id: "advanced",
@@ -710,6 +726,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 		applicationData?.sourceType,
 		applicationData?.serverId,
 		applicationData?.server,
+		composeData?.sourceType,
 		isCloud,
 	]);
 
@@ -1003,11 +1020,11 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 						<SidebarGroup>
 							<div className="mb-4">
 								<Link
-									href={`/dashboard/project/${projectId}/environment/${environmentId}`}
+									href="/dashboard/projects"
 									className="flex h-9 items-center gap-3 rounded-md px-3 text-[13px] font-medium tracking-wide text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-zinc-100"
 								>
 									<ArrowLeft className="h-[18px] w-[18px] shrink-0 text-zinc-400" />
-									<span>Back to Environment</span>
+									<span>Back to Projects</span>
 								</Link>
 							</div>
 
@@ -1366,7 +1383,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 				<div
 					className={cn(
 						"flex-1 flex overflow-hidden pl-0 md:pl-1",
-						isProjectRoute && !isProjectEnvironmentPage && !isApplicationPage
+						isProjectRoute && !isProjectEnvironmentPage && !isServiceDetailPage
 							? "pt-2 md:pt-4"
 							: "pt-1 md:pt-2",
 					)}
@@ -1374,7 +1391,9 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
 					<main
 						className={cn(
 							"flex-1 overflow-auto relative z-10 bg-[#121212] text-foreground border-t border-l border-black/10 dark:border-white/10 shadow-sm flex flex-col",
-							isProjectRoute && !isProjectEnvironmentPage && !isApplicationPage
+							isProjectRoute &&
+								!isProjectEnvironmentPage &&
+								!isServiceDetailPage
 								? "p-6 md:p-8 rounded-tl-2xl"
 								: "dashboard-global-page p-1 md:p-2 rounded-tl-md",
 						)}

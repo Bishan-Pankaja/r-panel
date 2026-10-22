@@ -67,11 +67,20 @@ type AddCompose = z.infer<typeof AddComposeSchema>;
 interface Props {
 	environmentId: string;
 	projectName?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const AddCompose = ({ environmentId, projectName }: Props) => {
+export const AddCompose = ({
+	environmentId,
+	projectName,
+	isOpen,
+	onOpenChange,
+}: Props) => {
 	const utils = api.useUtils();
 	const [visible, setVisible] = useState(false);
+	const dialogOpen = isOpen ?? visible;
+	const setDialogOpen = onOpenChange ?? setVisible;
 	const slug = slugify(projectName);
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data: webServerSettings } =
@@ -112,7 +121,7 @@ export const AddCompose = ({ environmentId, projectName }: Props) => {
 		})
 			.then(async () => {
 				toast.success("Compose Created");
-				setVisible(false);
+				setDialogOpen(false);
 				// Invalidate the project query to refresh the environment data
 				await utils.environment.one.invalidate({
 					environmentId,
@@ -126,16 +135,18 @@ export const AddCompose = ({ environmentId, projectName }: Props) => {
 	};
 
 	return (
-		<Dialog open={visible} onOpenChange={setVisible}>
-			<DialogTrigger className="w-full">
-				<DropdownMenuItem
-					className="w-full cursor-pointer space-x-3"
-					onSelect={(e) => e.preventDefault()}
-				>
-					<CircuitBoard className="size-4 text-muted-foreground" />
-					<span>Compose</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			{isOpen === undefined && (
+				<DialogTrigger className="w-full">
+					<DropdownMenuItem
+						className="w-full cursor-pointer space-x-3"
+						onSelect={(e) => e.preventDefault()}
+					>
+						<CircuitBoard className="size-4 text-muted-foreground" />
+						<span>Compose</span>
+					</DropdownMenuItem>
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-xl">
 				<DialogHeader>
 					<DialogTitle>Create Compose</DialogTitle>

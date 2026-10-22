@@ -361,7 +361,13 @@ export const userRouter = createTRPCRouter({
 					});
 				}
 
-				const { id, accessedGitProviders, accessedServers, ...rest } = input;
+				const {
+					id,
+					accessedGitProviders,
+					accessedServers,
+					expirationDate,
+					...rest
+				} = input;
 
 				const licensed = await hasValidLicense(
 					ctx.session?.activeOrganizationId || "",
@@ -387,6 +393,26 @@ export const userRouter = createTRPCRouter({
 							),
 						),
 					);
+				await db
+					.update(user)
+					.set(
+						expirationDate
+							? { expirationDate, expirationEnabled: true }
+							: {
+									expirationDate: "9999-12-31T23:59:59.999Z",
+									expirationEnabled: false,
+								},
+					)
+					.where(eq(user.id, id));
+				if (expirationDate) {
+					void import("@dokploy/server/services/user-expiration")
+						.then(({ reconcileUserServiceExpiration }) =>
+							reconcileUserServiceExpiration(),
+						)
+						.catch((error) =>
+							console.error("User service expiry update failed:", error),
+						);
+				}
 				await audit(ctx, {
 					action: "update",
 					resourceType: "user",
@@ -592,6 +618,8 @@ export const userRouter = createTRPCRouter({
 				limitRam: z.number().optional(),
 				limitCpu: z.number().optional(),
 				limitDisk: z.number().optional(),
+				limitServices: z.number().int().min(0).optional(),
+				expirationDate: z.string().datetime().optional(),
 			}),
 		)
 		.mutation(async ({ input, ctx }) => {
@@ -625,6 +653,8 @@ export const userRouter = createTRPCRouter({
 				limitRam: input.limitRam,
 				limitCpu: input.limitCpu,
 				limitDisk: input.limitDisk,
+				limitServices: input.limitServices,
+				expirationDate: input.expirationDate,
 			});
 		}),
 	sendInvitation: withPermission("member", "create")

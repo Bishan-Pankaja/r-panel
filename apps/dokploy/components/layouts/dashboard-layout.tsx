@@ -1,5 +1,6 @@
 import { api } from "@/utils/api";
 import { ImpersonationBar } from "../dashboard/impersonation/impersonation-bar";
+import { UserExpirationBanner } from "../dashboard/user-expiration-banner";
 import { HubSpotWidget } from "../shared/HubSpotWidget";
 import { SidebarLayout } from "./side";
 
@@ -22,7 +23,12 @@ export const DashboardLayout = ({ children }: Props) => {
 
 	return (
 		<>
-			<SidebarLayout>{children}</SidebarLayout>
+			<SidebarLayout>
+				<div className="w-full">
+					<UserExpirationBanner />
+					{children}
+				</div>
+			</SidebarLayout>
 			{isChatEnabled && (
 				<>
 					<HubSpotWidget />

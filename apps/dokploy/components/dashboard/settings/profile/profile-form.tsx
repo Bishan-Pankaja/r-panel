@@ -63,8 +63,17 @@ const randomImages = [
 ];
 
 export const ProfileForm = () => {
+	const utils = api.useUtils();
 	const { data, refetch, isPending } = api.user.get.useQuery();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
+	const expirationEnabled = data?.user.expirationEnabled === true;
+	const expirationDate = data?.user.expirationDate
+		? new Date(data.user.expirationDate)
+		: null;
+	const expirationIsPast =
+		expirationEnabled &&
+		expirationDate &&
+		expirationDate.getTime() <= Date.now();
 
 	const {
 		mutateAsync,
@@ -139,7 +148,11 @@ export const ProfileForm = () => {
 				firstName: values.firstName || undefined,
 				lastName: values.lastName || undefined,
 			});
-			await refetch();
+			await Promise.all([
+				refetch(),
+				utils.project.all.invalidate(),
+				utils.project.homeStats.invalidate(),
+			]);
 			toast.success("Profile Updated");
 			form.reset({
 				email: values.email,
@@ -173,6 +186,23 @@ export const ProfileForm = () => {
 				</CardHeader>
 
 				<CardContent className="p-4">
+					{expirationEnabled && expirationDate && (
+						<div className="mb-5 rounded-md border border-zinc-800 bg-[#111] p-4">
+							<p className="text-sm font-semibold text-white">
+								Account expiration
+							</p>
+							<p
+								className={`mt-1 text-sm ${expirationIsPast ? "text-red-400" : "text-zinc-400"}`}
+							>
+								{expirationIsPast ? "Expired on " : "Expires on "}
+								{expirationDate.toLocaleDateString(undefined, {
+									year: "numeric",
+									month: "long",
+									day: "numeric",
+								})}
+							</p>
+						</div>
+					)}
 					{isError && <AlertBlock type="error">{error?.message}</AlertBlock>}
 					{isPending ? (
 						<div className="flex flex-row gap-2 items-center justify-center text-sm text-muted-foreground min-h-[35vh]">
@@ -449,14 +479,16 @@ export const ProfileForm = () => {
 											/>
 										)}
 
-										{data?.role === "owner" && (
+										{(data?.role === "owner" || data?.role === "admin") && (
 											<FormField
 												control={form.control}
 												name="showOtherUsersProjects"
 												render={({ field }) => (
 													<FormItem className="flex flex-row items-center justify-between p-3 mt-4 border rounded-lg shadow-sm">
 														<div className="space-y-0.5">
-															<FormLabel>Show other users' projects</FormLabel>
+															<FormLabel>
+																Show other users' projects and services
+															</FormLabel>
 															<FormDescription>
 																When enabled, you will see projects created by
 																other users in the organization. When disabled,

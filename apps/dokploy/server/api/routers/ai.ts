@@ -22,6 +22,7 @@ import {
 	checkServiceAccess,
 } from "@dokploy/server/services/permission";
 import { findProjectById } from "@dokploy/server/services/project";
+import { checkServiceCreationQuota } from "@dokploy/server/services/quotas";
 import {
 	getProviderHeaders,
 	getProviderName,
@@ -328,6 +329,10 @@ ${input.logs}`,
 			const environment = await findEnvironmentById(input.environmentId);
 			const project = await findProjectById(environment.projectId);
 			await checkServiceAccess(ctx, environment.projectId, "create");
+			await checkServiceCreationQuota(
+				project.userId ?? ctx.user.id,
+				ctx.session.activeOrganizationId,
+			);
 
 			if (IS_CLOUD && !input.serverId) {
 				throw new TRPCError({

@@ -92,10 +92,18 @@ export const { useStepper, steps, Scoped } = defineStepper(
 interface Props {
 	environmentId: string;
 	projectName?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const TemplateGenerator = ({ environmentId }: Props) => {
+export const TemplateGenerator = ({
+	environmentId,
+	isOpen,
+	onOpenChange,
+}: Props) => {
 	const [open, setOpen] = useState(false);
+	const dialogOpen = isOpen ?? open;
+	const setDialogOpen = onOpenChange ?? setOpen;
 	const stepper = useStepper();
 	const { data: aiSettings } = api.ai.getAll.useQuery();
 	const { mutateAsync } = api.ai.deploy.useMutation();
@@ -137,7 +145,7 @@ export const TemplateGenerator = ({ environmentId }: Props) => {
 		})
 			.then(async () => {
 				toast.success("Compose Created");
-				setOpen(false);
+				setDialogOpen(false);
 				// Invalidate the project query to refresh the environment data
 				await utils.environment.one.invalidate({
 					environmentId,
@@ -149,16 +157,18 @@ export const TemplateGenerator = ({ environmentId }: Props) => {
 	};
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild className="w-full">
-				<DropdownMenuItem
-					className="w-full cursor-pointer space-x-3"
-					onSelect={(e) => e.preventDefault()}
-				>
-					<Bot className="size-4 text-muted-foreground" />
-					<span>AI Assistant</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			{isOpen === undefined && (
+				<DialogTrigger asChild className="w-full">
+					<DropdownMenuItem
+						className="w-full cursor-pointer space-x-3"
+						onSelect={(e) => e.preventDefault()}
+					>
+						<Bot className="size-4 text-muted-foreground" />
+						<span>AI Assistant</span>
+					</DropdownMenuItem>
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-4xl w-full  flex flex-col">
 				<DialogHeader>
 					<DialogTitle>AI Assistant</DialogTitle>

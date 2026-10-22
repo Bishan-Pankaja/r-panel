@@ -66,15 +66,24 @@ type AddTemplate = z.infer<typeof AddTemplateSchema>;
 interface Props {
 	environmentId: string;
 	projectName?: string;
+	isOpen?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
-export const AddApplication = ({ environmentId, projectName }: Props) => {
+export const AddApplication = ({
+	environmentId,
+	projectName,
+	isOpen,
+	onOpenChange,
+}: Props) => {
 	const utils = api.useUtils();
 	const { data: isCloud } = api.settings.isCloud.useQuery();
 	const { data: webServerSettings } =
 		api.settings.getWebServerSettings.useQuery();
 	const showLocalOption = !isCloud && !webServerSettings?.remoteServersOnly;
 	const [visible, setVisible] = useState(false);
+	const dialogOpen = isOpen ?? visible;
+	const setDialogOpen = onOpenChange ?? setVisible;
 	const slug = slugify(projectName);
 	const { data: servers } = api.server.withSSHKey.useQuery();
 
@@ -107,7 +116,7 @@ export const AddApplication = ({ environmentId, projectName }: Props) => {
 			.then(async () => {
 				toast.success("Service Created");
 				form.reset();
-				setVisible(false);
+				setDialogOpen(false);
 				await utils.environment.one.invalidate({
 					environmentId,
 				});
@@ -118,16 +127,18 @@ export const AddApplication = ({ environmentId, projectName }: Props) => {
 	};
 
 	return (
-		<Dialog open={visible} onOpenChange={setVisible}>
-			<DialogTrigger className="w-full">
-				<DropdownMenuItem
-					className="w-full cursor-pointer space-x-3"
-					onSelect={(e) => e.preventDefault()}
-				>
-					<Folder className="size-4 text-muted-foreground" />
-					<span>Application</span>
-				</DropdownMenuItem>
-			</DialogTrigger>
+		<Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+			{isOpen === undefined && (
+				<DialogTrigger className="w-full">
+					<DropdownMenuItem
+						className="w-full cursor-pointer space-x-3"
+						onSelect={(e) => e.preventDefault()}
+					>
+						<Folder className="size-4 text-muted-foreground" />
+						<span>Application</span>
+					</DropdownMenuItem>
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-lg">
 				<DialogHeader>
 					<DialogTitle>Create</DialogTitle>
